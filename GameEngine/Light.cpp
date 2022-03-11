@@ -32,7 +32,7 @@ void Light::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext,
 	sphere.loadAsync = true;
 	volume.loadAsync = true;
 	sphere.Initialize(".//Data/Objects/skyDome.obj", device, deviceContext, cb_vs_vertexshader, false);
-	volume.Initialize(".//Data/Objects/volume.obj", device, deviceContext, cb_vs_vertexshader, false);
+	//volume.Initialize(".//Data/Objects/volume.obj", device, deviceContext, cb_vs_vertexshader, false);
 	//cube.Initialize(device);
 
 	//m_shadowMap.Initialize(device, 1024, 1024);
