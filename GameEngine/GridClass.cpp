@@ -6,7 +6,8 @@ GridClass::GridClass()
 	isReady = false;
 	bCreateMesh = false;
 	hasFinished = false;
-	bounds = DirectX::XMFLOAT3(11.3f, 1.0f, 5.0f);
+	//bounds = DirectX::XMFLOAT3(11.3f, 1.0f, 5.0f);
+	bounds = DirectX::XMFLOAT3(34.2f, 1.0f, 39.3f);
 	showMode = 0;
 }
 

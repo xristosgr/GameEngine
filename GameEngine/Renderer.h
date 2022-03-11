@@ -74,6 +74,11 @@ public:
 	bool bConvertCordinates;
 
 	bool bModelsLoaded;
+
+	bool copyLight;
+	bool copyPointLight;
+	int selectedLight = -1;
+	int selectedPointLight = -1;
 private:
 	int windowWidth, windowHeight;
 	EnvironmentProbe environmentProbe;

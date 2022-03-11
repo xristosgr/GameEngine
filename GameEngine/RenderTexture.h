@@ -35,6 +35,6 @@ public:
 	D3D11_VIEWPORT m_viewport;
 
 	bool init = false;
-
+	bool initCubeMap = false;
 };
 

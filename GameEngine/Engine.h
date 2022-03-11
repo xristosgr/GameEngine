@@ -21,13 +21,16 @@ public:
 	void RenderFrame(float& dt, float& fps);
 
 private:
-	void AddEntity();
+	void AddEntity(std::string& _inName, bool& isAnimated, bool& bConvertCordinates);
 	void AddPhysicsComp(Entity& entity);
 	void AddLight();
 	void AddPointLight();
 	void AddCollisionObject();
 	void ObjectsHandler(float& dt);
 	void AIHandler(float& dt);
+	void CopyPasteEntity();
+	void CopyPasteLight();
+	void CopyPastePointLight();
 protected:
 	AppTimer timer;
 
@@ -66,4 +69,59 @@ private:
 	bool initScene = true;
 
 	bool bModelsLoaded = false;
+
+
+
+	bool copyEntity = false;
+	bool pasteEntity = false;
+	bool bCanCopy = true;
+	bool bCanPaste = true;
+
+	struct CopiedEntityData
+	{
+		physx::PxTransform trans;
+		std::string FilePath;
+		std::vector<std::string> AnimFilePaths;
+		bool isTransparent;
+		bool isAnimated;
+		bool isAi;
+		bool isTextured;
+		bool bConvertCordinates;
+		physx::PxReal mass;
+		XMFLOAT3 pos;
+		XMFLOAT3 scale;
+		XMFLOAT3 rot;
+		bool isCharacter;
+		bool isPlayer;
+		bool isWalkable;
+		bool isObstacle;
+		bool bRender;
+		XMFLOAT3 offsetPos;
+		XMFLOAT3 modelPos;
+		physx::PxQuat physics_rot;
+		physx::PxVec3 physics_scale;
+		bool isfrustumEnabled;
+		PhysicsShapeEnum physicsShapeEnum;
+	};
+	struct CopiedLightData
+	{
+		bool isLightEnabled;
+		bool bShadow;
+		XMFLOAT3 pos;
+		XMFLOAT3 scale;
+		XMFLOAT3 lightColor;
+		XMFLOAT3 direction;
+		XMFLOAT3 SpotDir;
+		float radius;
+		float cutOff;
+		float lightType;
+		float nearZ;
+		float farZ;
+		float fov;
+		float dimensions;
+	};
+
+	CopiedEntityData copiedEntityData;
+	CopiedLightData copiedLightData;
+	CopiedLightData copiedPointLightData;
 };

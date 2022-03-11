@@ -69,7 +69,7 @@ public:
 	bool isWalkable = false;
 	bool isObstacle = false;
 
-	
+	bool isSelected = false;
 private:
 
 

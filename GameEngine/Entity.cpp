@@ -55,8 +55,6 @@ void Entity::CreatePhysicsComponent(physx::PxPhysics& physics, physx::PxScene& s
 	case TRIANGLEMESH:
 		physicsComponent.CreateTriangleMesh(physics, scene, cooking,model.m_vertices,model.m_indices, physx::PxVec3(scale.x, scale.y, scale.z), physx::PxVec3(pos.x, pos.y, pos.z),physx::PxQuat(1,physx::PxVec3(rot.x,rot.y,rot.z)));
 		break;
-
-
 	}
 }
 
@@ -125,6 +123,11 @@ void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const Dir
 	
 	if (physicsComponent.aActor || physicsComponent.aStaticActor)
 	{
+		if(physicsComponent.aActor)
+			physicsComponent.trans = physicsComponent.aActor->getGlobalPose();
+		else if (physicsComponent.aStaticActor)
+			physicsComponent.trans = physicsComponent.aStaticActor->getGlobalPose();
+
 		matrix_scale = DirectX::XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z);
 		matrix_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
 		matrix_rotate *= DirectX::XMMatrixRotationAxis(DirectX::XMVECTOR{ physicsComponent.trans.q.x,physicsComponent.trans.q.y, physicsComponent.trans.q.z }, physicsComponent.trans.q.getAngle());

@@ -54,6 +54,8 @@ public:
 	float nearZ = 0.1f;
 	float farZ = 1000.0f;
 	bool bShadow = true;
+
+
 	RenderTexture m_shadowMap;
 
 	std::string name = "Light attributes";

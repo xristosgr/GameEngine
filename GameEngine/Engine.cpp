@@ -136,6 +136,32 @@ void Engine::Update(int width, int height)
 		saveSystem.Save(entities, lights, pointlights, collisionObjects);
 	}
 
+	if (bCanCopy)
+	{
+		if (keyboard.KeyIsPressed(VK_CONTROL) && keyboard.KeyIsPressed('C'))
+		{
+			copyEntity = true;
+			bCanCopy = false;
+		}
+	}
+	if (!keyboard.KeyIsPressed(VK_CONTROL) && !keyboard.KeyIsPressed('C'))
+	{
+		bCanCopy = true;
+	}
+	
+	if (bCanPaste)
+	{
+		if (keyboard.KeyIsPressed(VK_CONTROL) && keyboard.KeyIsPressed('V'))
+		{
+			pasteEntity = true;
+			bCanPaste = false;
+		}
+	}
+	if (!keyboard.KeyIsPressed(VK_CONTROL) && !keyboard.KeyIsPressed('V'))
+	{
+		bCanPaste = true;
+	}
+
 	RenderFrame(dt, fps);
 }
 
@@ -150,9 +176,23 @@ void Engine::RenderFrame(float& dt,float& fps)
 	{
 		entities.push_back(Entity());
 		entities[entities.size() - 1].filePath = renderer.inName;
-		asyncAddEntity = std::async(std::launch::async, &Engine::AddEntity, this);
+		asyncAddEntity = std::async(std::launch::async, &Engine::AddEntity, this, std::ref(renderer.inName),std::ref(renderer.isAnimated),std::ref(renderer.bConvertCordinates));
 		renderer.bAddEntity = false;
 	}
+	if (copyEntity || pasteEntity)
+	{
+		CopyPasteEntity();
+		if (copyEntity)
+			copyEntity = false;
+		if (pasteEntity)
+			pasteEntity = false;
+	}
+
+	if (renderer.copyLight)
+		CopyPasteLight();
+	if (renderer.copyPointLight)
+		CopyPastePointLight();
+
 	if (renderer.bAddLight)
 	{
 		AddLight();
@@ -201,10 +241,10 @@ void Engine::RenderFrame(float& dt,float& fps)
 
 }
 
-void Engine::AddEntity()
+void Engine::AddEntity(std::string& _inName,bool& isAnimated, bool& bConvertCordinates)
 {
-	entities[entities.size() - 1].model.bConvertCordinates = renderer.bConvertCordinates;
-	entities[entities.size() - 1].Intitialize(renderer.inName, renderer.gfx11.device.Get(), renderer.gfx11.deviceContext.Get(), renderer.gfx11.cb_vs_vertexshader, renderer.isAnimated);
+	entities[entities.size() - 1].model.bConvertCordinates = bConvertCordinates;
+	entities[entities.size() - 1].Intitialize(_inName, renderer.gfx11.device.Get(), renderer.gfx11.deviceContext.Get(), renderer.gfx11.cb_vs_vertexshader, isAnimated);
 }
 
 void Engine::AddPhysicsComp(Entity& entity)
@@ -261,6 +301,15 @@ void Engine::ObjectsHandler(float& dt)
 		if (entities[i].physicsComponent.bCreatePhysicsComp)
 		{
 			AddPhysicsComp(entities[i]);
+		}
+		if (entities[i].physicsComponent.isCharacter)
+		{
+			if (entities[i].bCreateController)
+			{
+				entities[i].entityName = "Entity" + std::to_string(i);
+				entities[i].physicsComponent.CreateController(*physicsHandler.mPhysics, *physicsHandler.aScene, physx::PxVec3(entities[i].pos.x, entities[i].pos.y, entities[i].pos.z), entities[i].entityName);
+				entities[i].bCreateController = false;
+			}
 		}
 
 		if (!renderer.runPhysics)
@@ -370,4 +419,209 @@ void Engine::AIHandler(float& dt)
 			}
 		}
 	}
+}
+
+void Engine::CopyPasteEntity()
+{
+	if (copyEntity)
+	{
+		for (int i = 0; i < entities.size(); ++i)
+		{
+
+			physx::PxShape* _shape = nullptr;
+			if(entities[i].physicsComponent.aActor)
+				entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
+			else if(entities[i].physicsComponent.aStaticActor)
+				entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
+			if (_shape)
+			{
+				if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
+				{
+					entities[i].isSelected = true;
+				}
+				else
+					entities[i].isSelected = false;
+			}
+			else
+				entities[i].isSelected = false;
+
+			if (entities[i].isSelected)
+			{
+				if (entities[i].physicsComponent.aActor)
+				{
+					copiedEntityData.trans = entities[i].physicsComponent.aActor->getGlobalPose();
+				}
+				else if (entities[i].physicsComponent.aStaticActor)
+				{
+					copiedEntityData.trans = entities[i].physicsComponent.aStaticActor->getGlobalPose();
+				}
+				copiedEntityData.AnimFilePaths = entities[i].model.animFiles;
+				copiedEntityData.bRender = entities[i].bRender;
+				copiedEntityData.FilePath = entities[i]._filePath;
+				copiedEntityData.isAi = entities[i].isAI;
+				copiedEntityData.isAnimated = entities[i].isAnimated;
+				copiedEntityData.isCharacter = entities[i].physicsComponent.isCharacter;
+				copiedEntityData.isfrustumEnabled = entities[i].isfrustumEnabled;
+				copiedEntityData.isObstacle = entities[i].isObstacle;
+				copiedEntityData.isPlayer = entities[i].isPlayer;
+				copiedEntityData.isTransparent = entities[i].model.isTransparent;
+				copiedEntityData.isWalkable = entities[i].isWalkable;
+				copiedEntityData.mass = entities[i].physicsComponent.mass;
+				copiedEntityData.modelPos = entities[i].modelPos;
+				copiedEntityData.offsetPos = entities[i].offsetPos;
+				copiedEntityData.physicsShapeEnum = entities[i].physicsComponent.physicsShapeEnum;
+				copiedEntityData.physics_rot = entities[i].physicsComponent.physics_rot;
+				copiedEntityData.physics_scale = entities[i].physicsComponent.physics_scale;
+				copiedEntityData.pos = entities[i].pos;
+				copiedEntityData.scale = entities[i].scale;
+				copiedEntityData.rot = entities[i].rot;
+				copiedEntityData.bConvertCordinates = entities[i].model.bConvertCordinates;
+			}
+		}
+	}
+	if (pasteEntity)
+	{
+		entities.push_back(Entity());
+		entities[entities.size() - 1].filePath = copiedEntityData.FilePath;
+		entities[entities.size() - 1].model.animFiles = copiedEntityData.AnimFilePaths;
+	
+		entities[entities.size() - 1].bRender = copiedEntityData.bRender;
+		entities[entities.size() - 1].isAI = copiedEntityData.isAi;
+		entities[entities.size() - 1].isAnimated = copiedEntityData.isAnimated;
+		entities[entities.size() - 1].physicsComponent.isCharacter = copiedEntityData.isCharacter;
+		entities[entities.size() - 1].isfrustumEnabled = copiedEntityData.isfrustumEnabled;
+		entities[entities.size() - 1].isObstacle = copiedEntityData.isObstacle;
+		entities[entities.size() - 1].isPlayer = copiedEntityData.isPlayer;
+		entities[entities.size() - 1].model.isTransparent = copiedEntityData.isTransparent;
+		entities[entities.size() - 1].isWalkable = copiedEntityData.isWalkable;
+		entities[entities.size() - 1].physicsComponent.mass = copiedEntityData.mass;
+		entities[entities.size() - 1].modelPos = copiedEntityData.modelPos;
+		entities[entities.size() - 1].offsetPos = copiedEntityData.offsetPos;
+		entities[entities.size() - 1].physicsComponent.physicsShapeEnum = copiedEntityData.physicsShapeEnum;
+		entities[entities.size() - 1].physicsComponent.physics_rot = copiedEntityData.physics_rot;
+		entities[entities.size() - 1].physicsComponent.physics_scale = copiedEntityData.physics_scale;
+		entities[entities.size() - 1].pos = copiedEntityData.pos;
+		entities[entities.size() - 1].scale = copiedEntityData.scale;
+		entities[entities.size() - 1].rot = copiedEntityData.rot;
+		entities[entities.size() - 1].model.bConvertCordinates = copiedEntityData.bConvertCordinates;
+
+		entities[entities.size() - 1].entityName = "Entity" + std::to_string(entities.size() - 1);
+		//asyncAddEntity = std::async(std::launch::async, &Engine::AddEntity, this, std::ref(copiedEntityData.FilePath), std::ref(copiedEntityData.isAnimated), std::ref(entities[entities.size() - 1].model.bConvertCordinates));
+		AddEntity(copiedEntityData.FilePath, copiedEntityData.isAnimated, entities[entities.size() - 1].model.bConvertCordinates);
+
+		if (entities[entities.size() - 1].isAnimated)
+		{
+			for (int j = 0; j < entities[entities.size() - 1].model.animFiles.size(); ++j)
+			{
+				entities[entities.size() - 1].model.LoadAnimation(entities[entities.size() - 1].model.animFiles[j]);
+			}
+		}
+		
+		if (entities[entities.size() - 1].physicsComponent.isCharacter)
+			entities[entities.size() - 1].physicsComponent.CreateController(*physicsHandler.mPhysics, *physicsHandler.aScene, physx::PxVec3(entities[entities.size() - 1].pos.x, entities[entities.size() - 1].pos.y, entities[entities.size() - 1].pos.z), entities[entities.size() - 1].entityName);
+		else
+			entities[entities.size() - 1].CreatePhysicsComponent(*physicsHandler.mPhysics, *physicsHandler.aScene, physicsHandler.mCooking);
+
+		if (entities[entities.size() - 1].physicsComponent.aActor)
+		{
+			entities[entities.size() - 1].physicsComponent.aActor->setGlobalPose(copiedEntityData.trans);
+		}
+		else if (entities[entities.size() - 1].physicsComponent.aStaticActor)
+		{
+			entities[entities.size() - 1].physicsComponent.aStaticActor->setGlobalPose(copiedEntityData.trans);
+		}
+	}
+
+	
+}
+
+void Engine::CopyPasteLight()
+{
+	for (int i = 0; i < lights.size(); ++i)
+	{
+		if (renderer.selectedLight == i)
+		{
+
+			copiedLightData.bShadow = lights[i].bShadow;
+			copiedLightData.cutOff = lights[i].cutOff;
+			copiedLightData.dimensions = lights[i].dimensions;
+			copiedLightData.direction = lights[i].direction;
+			copiedLightData.farZ = lights[i].farZ;
+			copiedLightData.fov = lights[i].fov;
+			copiedLightData.isLightEnabled = lights[i].isLightEnabled;
+			copiedLightData.lightColor = lights[i].lightColor;
+			copiedLightData.lightType = lights[i].lightType;
+			copiedLightData.nearZ = lights[i].nearZ;
+			copiedLightData.pos = lights[i].pos;
+			copiedLightData.radius = lights[i].radius;
+			copiedLightData.scale = lights[i].scale;
+			copiedLightData.SpotDir = lights[i].SpotDir;
+		}
+	}
+
+	AddLight();
+
+	lights[lights.size()-1].bShadow = copiedLightData.bShadow;
+	lights[lights.size()-1].cutOff = copiedLightData.cutOff;
+	lights[lights.size()-1].dimensions = copiedLightData.dimensions;
+	lights[lights.size()-1].direction = copiedLightData.direction;
+	lights[lights.size()-1].farZ = copiedLightData.farZ;
+	lights[lights.size()-1].fov = copiedLightData.fov;
+	lights[lights.size()-1].isLightEnabled = copiedLightData.isLightEnabled;
+	lights[lights.size()-1].lightColor = copiedLightData.lightColor;
+	lights[lights.size()-1].lightType = copiedLightData.lightType;
+	lights[lights.size()-1].nearZ = copiedLightData.nearZ;
+	lights[lights.size()-1].pos = copiedLightData.pos;
+	lights[lights.size()-1].radius = copiedLightData.radius;
+	lights[lights.size()-1].scale = copiedLightData.scale;
+	lights[lights.size()-1].SpotDir = copiedLightData.SpotDir;
+
+	renderer.copyLight = false;
+	
+}
+
+
+void Engine::CopyPastePointLight()
+{
+	for (int i = 0; i < pointlights.size(); ++i)
+	{
+		if (renderer.selectedPointLight == i)
+		{
+
+			copiedPointLightData.bShadow = pointlights[i].bShadow;
+			copiedPointLightData.cutOff = pointlights[i].cutOff;
+			copiedPointLightData.dimensions = pointlights[i].dimensions;
+			copiedPointLightData.direction = pointlights[i].direction;
+			copiedPointLightData.farZ = pointlights[i].farZ;
+			copiedPointLightData.fov = pointlights[i].fov;
+			copiedPointLightData.isLightEnabled = pointlights[i].isLightEnabled;
+			copiedPointLightData.lightColor = pointlights[i].lightColor;
+			copiedPointLightData.lightType = pointlights[i].lightType;
+			copiedPointLightData.nearZ = pointlights[i].nearZ;
+			copiedPointLightData.pos = pointlights[i].pos;
+			copiedPointLightData.radius = pointlights[i].radius;
+			copiedPointLightData.scale = pointlights[i].scale;
+			copiedPointLightData.SpotDir = pointlights[i].SpotDir;
+		}
+	}
+
+	AddPointLight();
+
+	pointlights[lights.size() - 1].bShadow = copiedPointLightData.bShadow;
+	pointlights[lights.size() - 1].cutOff = copiedPointLightData.cutOff;
+	pointlights[lights.size() - 1].dimensions = copiedPointLightData.dimensions;
+	pointlights[lights.size() - 1].direction = copiedPointLightData.direction;
+	pointlights[lights.size() - 1].farZ = copiedPointLightData.farZ;
+	pointlights[lights.size() - 1].fov = copiedPointLightData.fov;
+	pointlights[lights.size() - 1].isLightEnabled = copiedPointLightData.isLightEnabled;
+	pointlights[lights.size() - 1].lightColor = copiedPointLightData.lightColor;
+	pointlights[lights.size() - 1].lightType = copiedPointLightData.lightType;
+	pointlights[lights.size() - 1].nearZ = copiedPointLightData.nearZ;
+	pointlights[lights.size() - 1].pos = copiedPointLightData.pos;
+	pointlights[lights.size() - 1].radius = copiedPointLightData.radius;
+	pointlights[lights.size() - 1].scale = copiedPointLightData.scale;
+	pointlights[lights.size() - 1].SpotDir = copiedPointLightData.SpotDir;
+
+	renderer.copyPointLight = false;
+
 }

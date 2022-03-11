@@ -9,10 +9,11 @@ Renderer::Renderer()
 {
 	timer.Start();
 
-	rgb[0] = 0.05f;
-	rgb[1] = 0.05f;
-	rgb[2] = 0.05f;
+	rgb[0] = 0.3f;
+	rgb[1] = 0.2f;
+	rgb[2] = 0.1f;
 	rgb[3] = 1.0f;
+
 
 	hasTexture = true;
 	isAnimated = false;
@@ -29,6 +30,8 @@ Renderer::Renderer()
 	bConvertCordinates = false;
 	bModelsLoaded = false;
 	bRenderCollision = false;
+	copyLight = false;
+	copyPointLight = false;
 	vSync = 1;
 }
 
@@ -459,6 +462,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	environmentProbe.UpdateCamera();
 	if (environmentProbe.recalculate)
 	{
+		environmentProbe.environmentCubeMap.m_renderTargetTexture->Release();
 		for (int i = 0; i < 6; ++i)
 		{
 			//float rgb[4] = { 0.0f,0.0f,0.0f,1.0f };
@@ -486,8 +490,29 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			//COM_ERROR_IF_FAILED(hr, "Failed to save texture.");
 			//ErrorLogger::Log(hr, "Failed to save texture.");
 		
+		std::vector<ID3D11Resource*> _tempTexts;
+		envTextures[0].CreateTextureWIC(gfx11.device.Get(), "probeMaps1.jpg");
+		envTextures[1].CreateTextureWIC(gfx11.device.Get(), "probeMaps0.jpg");
+		envTextures[2].CreateTextureWIC(gfx11.device.Get(), "probeMaps2.jpg");
+		envTextures[3].CreateTextureWIC(gfx11.device.Get(), "probeMaps3.jpg");
+		envTextures[4].CreateTextureWIC(gfx11.device.Get(), "probeMaps5.jpg");
+		envTextures[5].CreateTextureWIC(gfx11.device.Get(), "probeMaps4.jpg");
+		for (int i = 0; i < 6; ++i)
+		{
+			_tempTexts.push_back(envTextures[i].texture.Get());
+			envTextures[i].texture.Get()->Release();
+			//envTextures[i].GetTextureResourceView()->Release();
+			//envTextures[i].textureView.Get()->Release();
+		}
+		environmentProbe.environmentCubeMap.CubeMapTexture(gfx11.device.Get(), gfx11.deviceContext.Get(), _tempTexts);
+		for (int i = 0; i < 6; ++i)
+		{
+			_tempTexts[i]->Release();
+			envTextures[i].GetTextureResourceView()->Release();
+		}
 	
-		environmentProbe.environmentCubeMap.CubeMapTexture(gfx11.device.Get(), gfx11.deviceContext.Get(), environmentProbe.cubeTex);
+		_tempTexts.clear();
+		//environmentProbe.environmentCubeMap.CubeMapTexture(gfx11.device.Get(), gfx11.deviceContext.Get(), environmentProbe.cubeTex);
 		environmentProbe.cubeTex.clear();
 
 		PbrRender(camera);
@@ -752,12 +777,17 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		{
 			if (lightNames[listbox_light_current] == lights[i].name.c_str())
 			{
+				selectedLight = i;
 				lights[i].DrawGui("light");
 			}
 		}
 		if(ImGui::Button("Add"))
 		{
 			bAddLight = true;
+		}
+		if (ImGui::Button("Copy"))
+		{
+			copyLight = true;
 		}
 	}
 
@@ -776,12 +806,17 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		{
 			if (lightNames[listbox_light_current] == pointLights[i].name.c_str())
 			{
+				selectedPointLight = i;
 				pointLights[i].DrawGui("pointLight");
 			}
 		}
 		if (ImGui::Button("Add"))
 		{
 			bAddPointLight = true;
+		}
+		if (ImGui::Button("Copy"))
+		{
+			copyPointLight = true;
 		}
 	}
 	
@@ -962,6 +997,9 @@ void Renderer::IrradianceConvolutionRender(Camera& camera)
 	//environmentProbe.UpdateCamera(512, 512);
 	debugCube.pos = environmentProbe.pos;
 	//environmentProbe.pos = debugCube.pos;
+
+	irradianceCubeMap.m_renderTargetTexture->Release();
+	
 	for (int i = 0; i < 6; ++i)
 	{
 		gfx11.deviceContext->RSSetViewports(1, &IrradianceConvCubeTextures[i].m_viewport);
@@ -996,9 +1034,30 @@ void Renderer::IrradianceConvolutionRender(Camera& camera)
 	hr = DirectX::SaveWICTextureToFile(gfx11.deviceContext.Get(), IrradianceConvCubeTextures[3].m_renderTargetTexture, GUID_ContainerFormatJpeg, L"IrradianceConv3.JPG", nullptr,nullptr,true);
 	hr = DirectX::SaveWICTextureToFile(gfx11.deviceContext.Get(), IrradianceConvCubeTextures[4].m_renderTargetTexture, GUID_ContainerFormatJpeg, L"IrradianceConv4.JPG", nullptr,nullptr,true);
 	hr = DirectX::SaveWICTextureToFile(gfx11.deviceContext.Get(), IrradianceConvCubeTextures[5].m_renderTargetTexture, GUID_ContainerFormatJpeg, L"IrradianceConv5.JPG", nullptr,nullptr,true);
-																																										 
+	
+	std::vector<ID3D11Resource*> _tempTexts;
+	irradianceTextures[0].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv1.jpg");
+	irradianceTextures[1].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv0.jpg");
+	irradianceTextures[2].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv2.jpg");
+	irradianceTextures[3].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv3.jpg");
+	irradianceTextures[4].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv5.jpg");
+	irradianceTextures[5].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv4.jpg");
+	for (int i = 0; i < 6; ++i)
+	{
+		_tempTexts.push_back(irradianceTextures[i].texture.Get());
+		irradianceTextures[i].texture.Get()->Release();
+		
+		//irradianceTextures[i].textureView.Get()->Release();
+	}
+	irradianceCubeMap.CubeMapTexture(gfx11.device.Get(), gfx11.deviceContext.Get(), _tempTexts);
 
-	irradianceCubeMap.CubeMapTexture(gfx11.device.Get(), gfx11.deviceContext.Get(), environmentProbe.cubeTex);
+	for (int i = 0; i < 6; ++i)
+	{
+		_tempTexts[i]->Release();
+		irradianceTextures[i].GetTextureResourceView()->Release();
+	}
+	_tempTexts.clear();
+	//irradianceCubeMap.CubeMapTexture(gfx11.device.Get(), gfx11.deviceContext.Get(), environmentProbe.cubeTex);
 	environmentProbe.cubeTex.clear();
 }
 

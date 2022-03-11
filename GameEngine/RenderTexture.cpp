@@ -400,11 +400,12 @@ bool RenderTexture::CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* de
 		textureDesc.CPUAccessFlags = 0;
 		textureDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
-		//if (!init)
-		//{
+		if (!initCubeMap)
+		{
 			hr = device->CreateTexture2D(&textureDesc, NULL, &m_renderTargetTexture);
 			COM_ERROR_IF_FAILED(hr, "Failed to create texture");
-		//}
+		
+		}
 
 
 		device->GetImmediateContext(&deviceContext);
@@ -432,16 +433,24 @@ bool RenderTexture::CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* de
 		renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 		renderTargetViewDesc.Texture2D.MipSlice = 0;
 
-		hr = device->CreateRenderTargetView(m_renderTargetTexture, &renderTargetViewDesc, &m_renderTargetView);
-		COM_ERROR_IF_FAILED(hr, "Failed to CreateRenderTargetView");
+		if (!initCubeMap)
+		{
+			hr = device->CreateRenderTargetView(m_renderTargetTexture, &renderTargetViewDesc, &m_renderTargetView);
+			COM_ERROR_IF_FAILED(hr, "Failed to CreateRenderTargetView");
+			
+		}
+		
 
 		//Setup the description of the shader resource view
 		shaderResourceViewDesc.Format = textureDesc.Format;
 		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 		shaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
 		shaderResourceViewDesc.TextureCube.MipLevels = textureDesc.MipLevels;
-		hr = device->CreateShaderResourceView(m_renderTargetTexture, &shaderResourceViewDesc, &shaderResourceView);
-		COM_ERROR_IF_FAILED(hr, "Failed to CreateShaderResourceView");
+		if (!initCubeMap)
+		{
+			hr = device->CreateShaderResourceView(m_renderTargetTexture, &shaderResourceViewDesc, &shaderResourceView);
+			COM_ERROR_IF_FAILED(hr, "Failed to CreateShaderResourceView");
+		}
 
 		// Initialize the description of the depth buffer.
 		ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
@@ -458,13 +467,14 @@ bool RenderTexture::CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* de
 		depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 		depthBufferDesc.CPUAccessFlags = 0;
 		depthBufferDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
-		if (!init)
+		if (!initCubeMap)
 		{
 			hr = device->CreateTexture2D(&depthBufferDesc, NULL, &m_texture);
-			init = true;
+			
+			COM_ERROR_IF_FAILED(hr, "Failed to create depthStencilBuffer");
 		}
 
-		COM_ERROR_IF_FAILED(hr, "Failed to create depthStencilBuffer");
+		
 
 		// Initailze the depth stencil view description.
 		ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
@@ -473,8 +483,14 @@ bool RenderTexture::CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* de
 		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		depthStencilViewDesc.Texture2D.MipSlice = 0;
-		hr = device->CreateDepthStencilView(m_texture, &depthStencilViewDesc, &m_depthStencilView);
-		COM_ERROR_IF_FAILED(hr, "Failed to create CreateDepthStencilView");
+
+		if (!initCubeMap)
+		{
+			hr = device->CreateDepthStencilView(m_texture, &depthStencilViewDesc, &m_depthStencilView);
+			COM_ERROR_IF_FAILED(hr, "Failed to create CreateDepthStencilView");
+			initCubeMap = true;
+		}
+	
 
 		// Setup the viewport for rendering.
 		m_viewport.Width = (float)texElementDesc.Width;
@@ -561,16 +577,24 @@ bool RenderTexture::CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* de
 		renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 		renderTargetViewDesc.Texture2D.MipSlice = 0;
 
-		hr = device->CreateRenderTargetView(m_renderTargetTexture, &renderTargetViewDesc, &m_renderTargetView);
-		COM_ERROR_IF_FAILED(hr, "Failed to CreateRenderTargetView");
+		if (!init)
+		{
+			hr = device->CreateRenderTargetView(m_renderTargetTexture, &renderTargetViewDesc, &m_renderTargetView);
+			COM_ERROR_IF_FAILED(hr, "Failed to CreateRenderTargetView");
+		}
 
 		//Setup the description of the shader resource view
 		shaderResourceViewDesc.Format = textureDesc.Format;
 		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 		shaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
 		shaderResourceViewDesc.TextureCube.MipLevels = textureDesc.MipLevels;
-		hr = device->CreateShaderResourceView(m_renderTargetTexture, &shaderResourceViewDesc, &shaderResourceView);
-		COM_ERROR_IF_FAILED(hr, "Failed to CreateShaderResourceView");
+
+		if (!init)
+		{
+
+			hr = device->CreateShaderResourceView(m_renderTargetTexture, &shaderResourceViewDesc, &shaderResourceView);
+			COM_ERROR_IF_FAILED(hr, "Failed to CreateShaderResourceView");
+		}
 
 		// Initialize the description of the depth buffer.
 		ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
@@ -590,7 +614,7 @@ bool RenderTexture::CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* de
 		if (!init)
 		{
 			hr = device->CreateTexture2D(&depthBufferDesc, NULL, &m_texture);
-			init = true;
+			
 		}
 
 		COM_ERROR_IF_FAILED(hr, "Failed to create depthStencilBuffer");
@@ -602,8 +626,12 @@ bool RenderTexture::CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* de
 		depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		depthStencilViewDesc.Texture2D.MipSlice = 0;
-		hr = device->CreateDepthStencilView(m_texture, &depthStencilViewDesc, &m_depthStencilView);
-		COM_ERROR_IF_FAILED(hr, "Failed to create CreateDepthStencilView");
+		if (!init)
+		{
+			hr = device->CreateDepthStencilView(m_texture, &depthStencilViewDesc, &m_depthStencilView);
+			COM_ERROR_IF_FAILED(hr, "Failed to create CreateDepthStencilView");
+			init = true;
+		}
 
 		// Setup the viewport for rendering.
 		m_viewport.Width = (float)texElementDesc.Width;
