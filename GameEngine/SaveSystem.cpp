@@ -4,7 +4,7 @@ SaveSystem::SaveSystem()
 {
 }
 
-void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<CollisionObject>& collisionObject)
+void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, std::vector<CollisionObject>& collisionObject)
 {
 	std::ofstream outfile;
 	outfile = std::ofstream("Files/File/GeneralSettings.txt");
@@ -13,18 +13,9 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 	{
 		outfile << "Count= " << entities.size() << "\n";
 		outfile << "lightsCount= " << lights.size() << "\n";
+		outfile << "pointLightsCount= " << pointLights.size() << "\n";
 		outfile << "CollisionCount= " << collisionObject.size() << "\n";
 	}
-
-	//for (int i = 0; i < entities.size(); i++)
-	//{
-	//	std::string _path;
-	//
-	//	size_t npos = entities[i].filePath.find("Data");
-	//	_path = entities[i].filePath.substr(npos);
-	//
-	//	outfile << "Entity" + std::to_string(i) + ".FilePath= " << ".//" << _path << "\n";
-	//}
 
 	for (int i = 0; i < entities.size(); ++i)
 	{
@@ -39,27 +30,6 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 				outfile << "posX= " << entities[i].physicsComponent.trans.p.x << "\n";
 				outfile << "posY= " << entities[i].physicsComponent.trans.p.y << "\n";
 				outfile << "posZ= " << entities[i].physicsComponent.trans.p.z << "\n";
-				//if (entities[i].physicsComponent.aActor)
-				//{
-				//	
-				//	outfile << "posX= " << entities[i].physicsComponent.aActor->getGlobalPose().p.x << "\n";
-				//	outfile << "posY= " << entities[i].physicsComponent.aActor->getGlobalPose().p.y << "\n";
-				//	outfile << "posZ= " << entities[i].physicsComponent.aActor->getGlobalPose().p.z << "\n";
-				//}
-				//else if (entities[i].physicsComponent.aStaticActor)
-				//{
-				//
-				//	outfile << "posX= " << entities[i].physicsComponent.aStaticActor->getGlobalPose().p.x << "\n";
-				//	outfile << "posY= " << entities[i].physicsComponent.aStaticActor->getGlobalPose().p.y << "\n";
-				//	outfile << "posZ= " << entities[i].physicsComponent.aStaticActor->getGlobalPose().p.z << "\n";
-				//}
-				//else if (entities[i].physicsComponent.isCharacter)
-				//{
-				//	outfile << "posX= " << entities[i].physicsComponent.trans.p.x << "\n";
-				//	outfile << "posY= " << entities[i].physicsComponent.trans.p.y << "\n";
-				//	outfile << "posZ= " << entities[i].physicsComponent.trans.p.z << "\n";
-				//}
-				
 			}
 			else
 			{
@@ -166,7 +136,42 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 		}
 	}
 
+	for (int i = 0; i < pointLights.size(); ++i)
+	{
+		outfile = std::ofstream("Files/File/PointLights/pointLight" + std::to_string(i) + ".txt");
 
+		if (outfile.is_open())
+		{
+
+			outfile << "posX= " << pointLights[i].pos.x << "\n";
+			outfile << "posY= " << pointLights[i].pos.y << "\n";
+			outfile << "posZ= " << pointLights[i].pos.z << "\n";
+
+			outfile << "scaleX= " << pointLights[i].scale.x << "\n";
+			outfile << "scaleY= " << pointLights[i].scale.y << "\n";
+			outfile << "scaleZ= " << pointLights[i].scale.z << "\n";
+
+			outfile << "colorX= " << pointLights[i].lightColor.x << "\n";
+			outfile << "colorY= " << pointLights[i].lightColor.y << "\n";
+			outfile << "colorZ= " << pointLights[i].lightColor.z << "\n";
+
+			outfile << "directionX= " << pointLights[i].direction.x << "\n";
+			outfile << "directionY= " << pointLights[i].direction.y << "\n";
+			outfile << "directionZ= " << pointLights[i].direction.z << "\n";
+
+			outfile << "spotDirX= " << pointLights[i].SpotDir.x << "\n";
+			outfile << "spotDirY= " << pointLights[i].SpotDir.y << "\n";
+			outfile << "spotDirZ= " << pointLights[i].SpotDir.z << "\n";
+
+			outfile << "radius= " << pointLights[i].radius << "\n";
+			outfile << "cutOff= " << pointLights[i].cutOff << "\n";
+
+			outfile << "lightType= " << pointLights[i].lightType << "\n";
+			outfile << "dimensions= " << pointLights[i].dimensions << "\n";
+			outfile << "fov= " << pointLights[i].fov << "\n";
+			outfile.close();
+		}
+	}
 
 	for (int i = 0; i < collisionObject.size(); ++i)
 	{
@@ -219,6 +224,10 @@ void SaveSystem::Load()
 				if (path == "lightsCount=")
 				{
 					lightsCount = (int)val;
+				}
+				if (path == "pointLightsCount=")
+				{
+					pointLightsCount = (int)val;
 				}
 				if (path == "CollisionCount=")
 				{
@@ -419,7 +428,7 @@ void SaveSystem::LoadEntityData(std::vector<Entity>& entities)
 	
 }
 
-void SaveSystem::LoadLightData(std::vector<Light>& lights)
+void SaveSystem::LoadLightData(std::vector<Light>& lights, std::vector<Light>& pointLights)
 {
 	lights.resize(lightsCount);
 	for (int i = 0; i < lightsCount; ++i)
@@ -522,6 +531,123 @@ void SaveSystem::LoadLightData(std::vector<Light>& lights)
 					if (path == "fov=")
 					{
 						lights[i].fov = (float)val;
+					}
+
+				}
+				f.close();
+				f.clear();
+			}
+		}
+	}
+
+
+
+
+
+
+
+
+	pointLights.resize(pointLightsCount);
+	for (int i = 0; i < pointLightsCount; ++i)
+	{
+		std::ifstream f;
+		std::string path = "";
+		float val = 0;
+		std::string str = "";
+		f = std::ifstream("Files/File/PointLights/pointLight" + std::to_string(i) + ".txt");
+
+		if (f.good())
+		{
+			if (f.is_open())
+			{
+				while (f >> path >> val)
+				{
+					if (path == "posX=")
+					{
+						pointLights[i].pos.x = (float)val;
+					}
+					if (path == "posY=")
+					{
+						pointLights[i].pos.y = (float)val;
+					}
+					if (path == "posZ=")
+					{
+						pointLights[i].pos.z = (float)val;
+					}
+
+					if (path == "scaleX=")
+					{
+						pointLights[i].scale.x = (float)val;
+					}
+					if (path == "scaleY=")
+					{
+						pointLights[i].scale.y = (float)val;
+					}
+					if (path == "scaleZ=")
+					{
+						pointLights[i].scale.z = (float)val;
+					}
+
+					if (path == "colorX=")
+					{
+						pointLights[i].lightColor.x = (float)val;
+					}
+					if (path == "colorY=")
+					{
+						pointLights[i].lightColor.y = (float)val;
+					}
+					if (path == "colorZ=")
+					{
+						pointLights[i].lightColor.z = (float)val;
+					}
+
+					if (path == "directionX=")
+					{
+						pointLights[i].direction.x = (float)val;
+					}
+					if (path == "directionY=")
+					{
+						pointLights[i].direction.y = (float)val;
+					}
+					if (path == "directionZ=")
+					{
+						pointLights[i].direction.z = (float)val;
+					}
+
+					if (path == "spotDirX=")
+					{
+						pointLights[i].SpotDir.x = (float)val;
+					}
+					if (path == "spotDirY=")
+					{
+						pointLights[i].SpotDir.y = (float)val;
+					}
+					if (path == "spotDirZ=")
+					{
+						pointLights[i].SpotDir.z = (float)val;
+					}
+
+					if (path == "radius=")
+					{
+						pointLights[i].radius = (float)val;
+					}
+
+					if (path == "cutOff=")
+					{
+						pointLights[i].cutOff = (float)val;
+					}
+
+					if (path == "lightType=")
+					{
+						pointLights[i].lightType = (float)val;
+					}
+					if (path == "dimensions=")
+					{
+						pointLights[i].dimensions = (float)val;
+					}
+					if (path == "fov=")
+					{
+						pointLights[i].fov = (float)val;
 					}
 
 				}

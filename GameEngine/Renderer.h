@@ -16,24 +16,24 @@ class Renderer
 {
 public:
 	Renderer();
-	bool Initialize(HWND hwnd, Camera& camera, int width, int height,std::vector<Entity>& entities,std::vector<Light>& lights);
-	void Render(Camera& camera, std::vector<Entity>& entity, PhysicsHandler& physicsHandler, std::vector<Light>& lights, std::vector<CollisionObject>& collisionObjects, GridClass& grid, std::vector<NavMeshClass>& navMeshes, physx::PxScene& scene);
-	void InitScene(std::vector<Entity>& entities, std::vector<Light>& lights, Camera& camera);
+	bool Initialize(HWND hwnd, Camera& camera, int width, int height,std::vector<Entity>& entities,std::vector<Light>& lights, std::vector<Light>& pointLights);
+	void Render(Camera& camera, std::vector<Entity>& entity, PhysicsHandler& physicsHandler, std::vector<Light>& lights, std::vector<Light>& pointLights, std::vector<CollisionObject>& collisionObjects, GridClass& grid, std::vector<NavMeshClass>& navMeshes, physx::PxScene& scene);
+	void InitScene(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera);
 
 private:
 
-	void RenderEntitiesAndLights(std::vector<Entity>& entity, std::vector<Light>& lights, Camera& camera);
-	void RenderSceneToTexture(RenderTexture& texture, Camera& camera, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<CollisionObject>& collisionObjects);
-	void UpdateBuffers(std::vector<Light>& lights, Camera& camera);
+	void RenderEntitiesAndLights(std::vector<Entity>& entity, std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera);
+	void RenderSceneToTexture(RenderTexture& texture, Camera& camera, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, std::vector<CollisionObject>& collisionObjects);
+	void UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera);
 	void BrdfRender(Camera& camera, RenderTexture& texture);
 	void IrradianceConvolutionRender(Camera& camera);
 	//void PrifilterRender(Camera& camera, RenderTexture& texture);
 	void PbrRender(Camera& camera);
-	void RenderToEnvProbe(RenderTexture& texture, Camera& camera, std::vector<Entity>& entities, std::vector<Light>& lights);
+	void RenderToEnvProbe(RenderTexture& texture, Camera& camera, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights);
 	void BloomRender(Camera& camera);
 
-	void RenderEntitiesSimple(std::vector<Entity>& entities, std::vector<Light>& lights, PixelShader& psShader, Camera& camera);
-	void VolumeLightRender(std::vector<Entity>& entities, std::vector<Light>& lights, Camera& camera);
+	void RenderEntitiesSimple(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, PixelShader& psShader, Camera& camera);
+	void VolumeLightRender(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera);
 private:
 	float rgb[4];
 
@@ -65,6 +65,7 @@ public:
 	std::string inName;
 	bool runPhysics;
 	bool bAddLight;
+	bool bAddPointLight;
 	bool bAddCollisionObject;
 	bool bClear;
 	bool bCreateGrid;

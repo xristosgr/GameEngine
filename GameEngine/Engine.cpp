@@ -24,10 +24,10 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 
 	physicsHandler.Initialize(camera);
 	saveSystem.LoadEntityData(entities);
-	saveSystem.LoadLightData(lights);
+	saveSystem.LoadLightData(lights, pointlights);
 	saveSystem.LoadCollisionObjectData(collisionObjects);
 
-	if (!renderer.Initialize(this->render_window.GetHWND(), camera, width, height, entities, lights))
+	if (!renderer.Initialize(this->render_window.GetHWND(), camera, width, height, entities, lights, pointlights))
 		return false;
 
 	for (int i = 0; i < collisionObjects.size(); ++i)
@@ -35,7 +35,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		collisionObjects[i].Initialize(renderer.gfx11.device.Get());
 	}
 
-	renderer.InitScene(entities, lights,camera);
+	renderer.InitScene(entities, lights,pointlights, camera);
 	physicsHandler.CreatePhysicsComponents(entities, collisionObjects);
 	
 	grid.InitializeBoundsVolume(renderer.gfx11.device.Get());
@@ -133,7 +133,7 @@ void Engine::Update(int width, int height)
 
 	if (keyboard.KeyIsPressed(VK_F5))
 	{
-		saveSystem.Save(entities, lights,collisionObjects);
+		saveSystem.Save(entities, lights, pointlights, collisionObjects);
 	}
 
 	RenderFrame(dt, fps);
@@ -158,6 +158,11 @@ void Engine::RenderFrame(float& dt,float& fps)
 		AddLight();
 		renderer.bAddLight = false;
 	}
+	if (renderer.bAddPointLight)
+	{
+		AddPointLight();
+		renderer.bAddPointLight = false;
+	}
 
 	if (renderer.bAddCollisionObject)
 	{
@@ -167,7 +172,7 @@ void Engine::RenderFrame(float& dt,float& fps)
 
 	ObjectsHandler(dt);
 
-	renderer.Render(camera, entities,physicsHandler, lights, collisionObjects,grid, navMeshes, *physicsHandler.aScene);
+	renderer.Render(camera, entities,physicsHandler, lights, pointlights, collisionObjects,grid, navMeshes, *physicsHandler.aScene);
 	
 	if (physicsHandler.advance(dt, fps, camera))
 	{
@@ -224,6 +229,15 @@ void Engine::AddLight()
 	lights[lights.size() - 1].Initialize(renderer.gfx11.device.Get(), renderer.gfx11.deviceContext.Get(), renderer.gfx11.cb_vs_vertexshader);
 	lights[lights.size() - 1].m_shadowMap.Initialize(renderer.gfx11.device.Get(), 1024, 1024);
 	lights[lights.size() - 1].SetupCamera(renderer.gfx11.windowWidth, renderer.gfx11.windowHeight);
+}
+void Engine::AddPointLight()
+{
+	pointlights.push_back(Light());
+	pointlights[pointlights.size() - 1].Initialize(renderer.gfx11.device.Get(), renderer.gfx11.deviceContext.Get(), renderer.gfx11.cb_vs_vertexshader);
+	pointlights[pointlights.size() - 1].scale = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	pointlights[pointlights.size() - 1].cutOff = 0.1f;
+	pointlights[pointlights.size() - 1].radius = 5.0f;
+	pointlights[pointlights.size() - 1].lightColor = XMFLOAT3(5.0f, 5.0f, 5.0f);
 }
 
 void Engine::AddCollisionObject()

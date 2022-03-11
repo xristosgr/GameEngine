@@ -92,8 +92,10 @@ public:
 	ConstantBuffer<CB_VS_windowParams> cb_vs_windowParams;
 
 	ConstantBuffer<CB_PS_lightsShader> cb_ps_lightsShader;
+	ConstantBuffer<CB_PS_pointLightsShader> cb_ps_pointLightsShader;
 	ConstantBuffer<CB_PS_PCFshader> cb_ps_PCFshader;
 	ConstantBuffer<CB_PS_lightCull> cb_ps_lightCull;
+	ConstantBuffer<CB_PS_pointLightCull> cb_ps_pointLightCull;
 	ConstantBuffer<CB_PS_screenEffectBuffer> cb_ps_screenEffectBuffer;
 	ConstantBuffer<CB_PS_pbrBuffer> cb_ps_pbrBuffer;
 	ConstantBuffer<CB_PS_lightMatrixBuffer> cb_ps_lightMatrixBuffer;

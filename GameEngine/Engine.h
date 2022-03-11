@@ -24,6 +24,7 @@ private:
 	void AddEntity();
 	void AddPhysicsComp(Entity& entity);
 	void AddLight();
+	void AddPointLight();
 	void AddCollisionObject();
 	void ObjectsHandler(float& dt);
 	void AIHandler(float& dt);
@@ -34,6 +35,7 @@ private:
 	std::vector<Entity> entities;
 	std::vector<Entity*> AIEntities;
 	std::vector<Light> lights;
+	std::vector<Light> pointlights;
 	std::vector<CollisionObject> collisionObjects;
 
 	Camera camera;

@@ -1,4 +1,5 @@
 #define NO_LIGHTS 25
+#define NO_POINT_LIGHTS 100
 
 cbuffer lightBuffer : register(b0)
 {
@@ -25,6 +26,19 @@ cbuffer lightCull : register(b2)
 cbuffer screenEffectBuffer : register(b3)
 {
     float gamma;
+}
+
+
+
+cbuffer pointLightBuffer : register(b6)
+{
+    float4 pointdynamicLightPosition[NO_POINT_LIGHTS];
+    float4 pointdynamicLightColor[NO_POINT_LIGHTS];
+}
+cbuffer pointLightCull : register(b7)
+{
+    float4 pointRadius[NO_POINT_LIGHTS];
+    float4 pointcutOff[NO_POINT_LIGHTS];
 }
 
 struct PS_INPUT
@@ -60,7 +74,7 @@ float DistributionGGX(float3 N, float3 H, float roughness);
 float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(float3 N, float3 V, float3 L, float roughness);
 float Shadows(float4 viewPos);
-float3 pointLight(PS_INPUT input, float3 albedo, float3 bumpNormal, float roughness, float metallic, float3 V, float3 F0, int index);
+float3 pointLight(PS_INPUT input, float3 albedo, float3 pos,float3 color, float4 _cutOff, float3 bumpNormal, float roughness, float metallic, float3 V, float3 F0);
 float3 spotLight(PS_INPUT input, float3 albedo, float3 bumpNormal, float roughness, float metallic, float3 V, float3 F0, int index);
 
 float4 main(PS_INPUT input) : SV_TARGET
@@ -92,9 +106,19 @@ float4 main(PS_INPUT input) : SV_TARGET
         if (distance < Radius[i].x)
         {
             if (lightType[i].x == 0.0)
-                Lo += pointLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, i); //* Shadows(input.lightViewPosition[i], depthMapTextures[i]);
+                Lo += pointLight(input, albedo.rgb,dynamicLightPosition[i].xyz,dynamicLightColor[i].rgb, cutOff[i], bumpNormal, roughness, metallic, V, F0); //* Shadows(input.lightViewPosition[i], depthMapTextures[i]);
             else if (lightType[i].x == 1.0)
                 Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, i) * Shadows(input.lightViewPosition[i], depthMapTextures[i]);
+        }
+    }
+
+    [unroll(NO_POINT_LIGHTS)]
+    for (int j = 0; j < NO_POINT_LIGHTS; ++j)
+    {
+        float distance = length(pointdynamicLightPosition[j].xyz - input.inWorldPos);
+        if (distance < pointRadius[j].x)
+        {
+            Lo += pointLight(input, albedo.rgb, pointdynamicLightPosition[j].xyz, pointdynamicLightColor[j].rgb, pointcutOff[j], bumpNormal, roughness, metallic, V, F0);
         }
     }
    
@@ -219,21 +243,21 @@ float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
     return ggx1 * ggx2;
 }
 
-float3 pointLight(PS_INPUT input, float3 albedo, float3 bumpNormal, float roughness, float metallic, float3 V, float3 F0, int index)
+float3 pointLight(PS_INPUT input, float3 albedo, float3 pos, float3 color, float4 _cutOff, float3 bumpNormal, float roughness, float metallic, float3 V, float3 F0)
 {
-    float3 L = normalize(dynamicLightPosition[index].xyz - input.inWorldPos.xyz).xyz;
+    float3 L = normalize(pos.xyz - input.inWorldPos.xyz).xyz;
     
     //float theta = dot(L, normalize(-lightDirectionAndSpecularPower[index].xyz));
-    float outerCutOff = cutOff[index].x / 3.0f;
-    float epsilon = cutOff[index].x - outerCutOff;
+    float outerCutOff = _cutOff.x / 3.0f;
+    float epsilon = _cutOff.x - outerCutOff;
     float intensity = clamp((L - outerCutOff) / epsilon, 0.0f, 1.0f);
     
     float3 H = normalize(V + L);
         
-    float distance = length(dynamicLightPosition[index].xyz - input.inWorldPos.xyz);
+    float distance = length(pos.xyz - input.inWorldPos.xyz);
     //float attenuation = 1.0f / (distance * distance);
     float attenuation = 1.0f / (distance * distance) * epsilon;
-    float3 radiance = dynamicLightColor[index].xyz * attenuation;
+    float3 radiance = color.xyz * attenuation;
 
         
     float NDF = DistributionGGX(bumpNormal, H, roughness);
