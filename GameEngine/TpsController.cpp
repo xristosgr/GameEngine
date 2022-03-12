@@ -10,8 +10,7 @@ TpsController::TpsController()
 
 void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard, Mouse& mouse, Camera& camera)
 {
-	const float cameraSpeed = 0.015f;
-	const float cameraRotSpeed = 0.002f;
+	const float cameraSpeed = 0.007f;
 
 	XMFLOAT4 rightFloat4;
 	XMStoreFloat4(&rightFloat4, camera.GetRightVector());
@@ -271,7 +270,7 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 
 		if (entity.isFalling)
 		{
-			entity.model.SetAnimIndex(2, true, 5.0f);
+			entity.model.SetAnimIndex(2, true, 10.0f);
 		}
 		else
 		{
