@@ -6,6 +6,7 @@ ModelLoader::ModelLoader()
 	loadAsync = false;
 	isTransparent = false;
 	bConvertCordinates = false;
+	isAttached = false;
 }
 
 bool ModelLoader::Initialize(const std::string filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContex, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, bool isAnimated)
@@ -74,15 +75,19 @@ bool ModelLoader::LoadModel(const std::string filePath)
 	
 	texturesLoaded = true;
 
+	OutputDebugStringA(std::to_string(animFiles.size()).c_str());
+	OutputDebugStringA("\n");
 	for (int i = 0; i < animFiles.size(); ++i)
 	{
+		//OutputDebugStringA(animFiles[i].c_str());
+		//OutputDebugStringA("\n");
 		LoadAnimation(animFiles[i]);
 	}
 	bAnimLoaded = true;
 	return true;
 }
 
-bool ModelLoader::LoadAnimation(const std::string filePath)
+bool ModelLoader::LoadAnimation(const std::string& filePath)
 {
 	_curScene = importers.size();
 	importers.push_back(new Assimp::Importer);
@@ -91,6 +96,8 @@ bool ModelLoader::LoadAnimation(const std::string filePath)
 	if (!scenes[_curScene] || scenes[_curScene]->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scenes[_curScene]->mRootNode)
 	{
 		ErrorLogger::Log(importers[_curScene]->GetErrorString());
+		//ErrorLogger::Log(_filePath);
+		ErrorLogger::Log(filePath);
 		return false;
 	}
 	return true;
@@ -366,10 +373,16 @@ void ModelLoader::Draw(const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMA
 
 	for (int i = 0; i < meshes.size(); ++i)
 	{
-		if(!bConvertCordinates)
+		if (!bConvertCordinates)
+		{
 			this->cb_vs_vertexshader.data.worldMatrix = meshes[i].GetTranformMatrix() * DirectX::XMMatrixTranspose(worldMatrix);
+		}	
 		else
+		{
 			this->cb_vs_vertexshader.data.worldMatrix = DirectX::XMMatrixTranspose(meshes[i].GetTranformMatrix() * worldMatrix);
+
+		}
+			
 
 		this->cb_vs_vertexshader.UpdateBuffer();
 
@@ -377,6 +390,7 @@ void ModelLoader::Draw(const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMA
 
 	}
 }
+
 
 void ModelLoader::Clear()
 {

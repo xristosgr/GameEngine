@@ -75,6 +75,7 @@ public:
 
 	bool bModelsLoaded;
 
+
 	bool copyLight;
 	bool copyPointLight;
 	int selectedLight = -1;

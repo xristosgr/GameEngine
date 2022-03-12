@@ -9,7 +9,7 @@ EnvironmentProbe::EnvironmentProbe()
 	direction[4] = DirectX::XMFLOAT3(1.0f, 0.02f, -1000.0f);
 	direction[5] = DirectX::XMFLOAT3(1.0f, -0.02f, 1000.0f);
 
-	pos = DirectX::XMFLOAT3(0.0f, 4.385f, 0.0f);
+	pos = DirectX::XMFLOAT3(0.0f, 2.0f, 0.0f);
 	//pos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	scale = DirectX::XMFLOAT3(0.4, 0.4, 0.4);
 	rot = DirectX::XMFLOAT3(1.5, 0.0, 0.0);

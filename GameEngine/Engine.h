@@ -7,6 +7,7 @@
 #include "SaveSystem.h"
 #include "CollisionObject.h"
 #include "FpsController.h"
+#include "TpsController.h"
 #include "GridClass.h"
 #include <thread>
 #include "NavMeshClass.h"
@@ -51,7 +52,7 @@ private:
 	std::future<void> asyncLoadPhysics;
 	SaveSystem saveSystem;
 
-	FpsController playerController;
+	TpsController playerController;
 
 	Entity* player;
 
@@ -91,6 +92,7 @@ private:
 		XMFLOAT3 pos;
 		XMFLOAT3 scale;
 		XMFLOAT3 rot;
+		XMFLOAT3 frustumScale;
 		bool isCharacter;
 		bool isPlayer;
 		bool isWalkable;

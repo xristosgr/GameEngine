@@ -35,12 +35,15 @@ void FpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 	}
 }
 
-void FpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard& keyboard, Mouse& mouse, Camera& camera)
+void FpsController::Movement(float& dt, float gravity, Entity* entity, Keyboard& keyboard, Mouse& mouse, Camera& camera)
 {		
-	if (!entity.physicsComponent.aActor)
+	if (!entity)
+		return;
+
+	if (!entity->physicsComponent.aActor)
 		return;
 	
-	entity.isMovingLeft = false;
+	entity->isMovingLeft = false;
 
 	XMFLOAT4 forwardDir;
 	XMStoreFloat4(&forwardDir, camera.vec_forward);
@@ -48,20 +51,20 @@ void FpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 	XMStoreFloat4(&rightDir, camera.vec_right);
 
 
-	float velocity = 4.0;
+	float velocity = 5.0;
 	float moveX = 0.0f;
 	float moveZ = 0.0f;
 
 
-	entity.physicsComponent.trans = entity.physicsComponent.aActor->getGlobalPose();
+	entity->physicsComponent.trans = entity->physicsComponent.aActor->getGlobalPose();
 
-	entity.physicsComponent.trans.q = physx::PxQuat((camera.rot.y), physx::PxVec3(0, 1, 0));
+	entity->physicsComponent.trans.q = physx::PxQuat((camera.rot.y), physx::PxVec3(0, 1, 0));
 
-	entity.physicsComponent.aActor->setGlobalPose(entity.physicsComponent.trans);
 
-	entity.matrix_rotate = XMMatrixRotationRollPitchYaw(entity.rot.x, entity.rot.y, entity.rot.z);
 
-	entity.matrix_rotate *= XMMatrixRotationAxis(XMVECTOR{ 0, 1, 0 }, camera.rot.y);
+	entity->matrix_rotate = XMMatrixRotationRollPitchYaw(entity->rot.x, entity->rot.y, entity->rot.z);
+
+	entity->matrix_rotate *= XMMatrixRotationAxis(XMVECTOR{ 0, 1, 0 }, camera.rot.y);
 
 	if (keyboard.KeyIsPressed(VK_F8))
 	{
@@ -73,65 +76,65 @@ void FpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 	}
 
 
-	entity.pos = XMFLOAT3(entity.physicsComponent.trans.p.x, entity.physicsComponent.trans.p.y, entity.physicsComponent.trans.p.z);
+	entity->pos = XMFLOAT3(entity->physicsComponent.trans.p.x, entity->physicsComponent.trans.p.y, entity->physicsComponent.trans.p.z);
 	if (camera.PossessCharacter)
 	{
 
-		camera.SetPosition(XMVECTOR{ entity.physicsComponent.trans.p.x, entity.physicsComponent.trans.p.y + 0.4f ,entity.physicsComponent.trans.p.z });
+		camera.SetPosition(XMVECTOR{ entity->physicsComponent.trans.p.x, entity->physicsComponent.trans.p.y + 0.4f ,entity->physicsComponent.trans.p.z });
 
 
 
 		if (keyboard.KeyIsPressed('S') && (keyboard.KeyIsPressed('A')))
 		{
 			currRotation = RotationEnum::LEFT_DOWN;
-			entity.isMovingRight = true;
-			entity.isMovingLeft = true;
+			entity->isMovingRight = true;
+			entity->isMovingLeft = true;
 
 			moveX = -velocity * forwardDir.x - velocity * rightDir.x;
 			moveZ = -velocity * forwardDir.z - velocity * rightDir.z;
 
 
 	
-			entity.model.currAnim = 1;
+			entity->model.currAnim = 1;
 		}
 		else if (keyboard.KeyIsPressed('S') && (keyboard.KeyIsPressed('D')))
 		{
 			currRotation = RotationEnum::RIGHT_DOWN;
-			entity.isMovingRight = true;
+			entity->isMovingRight = true;
 
 			moveX = -velocity * forwardDir.x + velocity * rightDir.x;
 			moveZ = -velocity * forwardDir.z + velocity * rightDir.z;
 
-			entity.model.currAnim = 1;
+			entity->model.currAnim = 1;
 		}
 		else if (keyboard.KeyIsPressed('W') && (keyboard.KeyIsPressed('A')))
 		{
 			currRotation = RotationEnum::LEFT_UP;
-			entity.isMovingRight = true;
-			entity.isMovingLeft = true;
+			entity->isMovingRight = true;
+			entity->isMovingLeft = true;
 			moveX = velocity * forwardDir.x - velocity * rightDir.x;
 			moveZ = velocity * forwardDir.z - velocity * rightDir.z;
 
 
-			entity.model.currAnim = 1;
+			entity->model.currAnim = 1;
 		}
 		else if (keyboard.KeyIsPressed('W') && (keyboard.KeyIsPressed('D')))
 		{
 			currRotation = RotationEnum::RIGHT_UP;
-			entity.isMovingRight = true;
+			entity->isMovingRight = true;
 
 			moveX = velocity * forwardDir.x + velocity * rightDir.x;
 			moveZ = velocity * forwardDir.z + velocity * rightDir.z;
 
-			entity.model.currAnim = 1;
+			entity->model.currAnim = 1;
 		}
 		else
 		{
-			entity.isMovingRight = false;
+			entity->isMovingRight = false;
 			if (keyboard.KeyIsPressed('W'))
 			{
 				currRotation = RotationEnum::UP;
-				entity.isMovingFront = true;
+				entity->isMovingFront = true;
 
 				moveX = velocity * forwardDir.x;
 				moveZ = velocity * forwardDir.z;
@@ -140,18 +143,18 @@ void FpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 			else if (keyboard.KeyIsPressed('S'))
 			{
 				currRotation = RotationEnum::DOWN;
-				entity.isMovingFront = true;
+				entity->isMovingFront = true;
 
 				moveX = -velocity * forwardDir.x;
 				moveZ = -velocity * forwardDir.z;
 
 
-				entity.model.currAnim = 1;
+				entity->model.currAnim = 1;
 
 			}
 			else
 			{
-				entity.isMovingFront = false;
+				entity->isMovingFront = false;
 			}
 
 
@@ -159,7 +162,7 @@ void FpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 			{
 
 				currRotation = RotationEnum::RIGHT;
-				entity.isMovingRight = true;
+				entity->isMovingRight = true;
 
 				moveX = velocity * rightDir.x;
 				moveZ = velocity * rightDir.z;
@@ -170,31 +173,31 @@ void FpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 			else if (keyboard.KeyIsPressed('A'))
 			{
 				currRotation = RotationEnum::LEFT;
-				entity.isMovingRight = true;
-				entity.isMovingLeft = true;
+				entity->isMovingRight = true;
+				entity->isMovingLeft = true;
 
 
 				moveX = -velocity * rightDir.x;
 				moveZ = -velocity * rightDir.z;
 
 
-				entity.model.currAnim = 1;
+				entity->model.currAnim = 1;
 
 			}
 			else
 			{
-				entity.isMovingRight = false;
+				entity->isMovingRight = false;
 			}
 
 
-			if ((!entity.isMovingFront && !entity.isMovingRight) || entity.isFalling)
+			if ((!entity->isMovingFront && !entity->isMovingRight) || entity->isFalling)
 			{
-				entity.model.currAnim = 0;
+				entity->model.currAnim = 0;
 
 
 
 			}
-			else if (entity.isMovingFront || entity.isMovingRight)
+			else if (entity->isMovingFront || entity->isMovingRight)
 			{
 				
 
@@ -203,7 +206,7 @@ void FpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 
 
 		
-		if (!entity.isFalling)
+		if (!entity->isFalling)
 		{
 			if (canPressSpace)
 			{
@@ -212,7 +215,7 @@ void FpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 					canPressSpace = false;
 					timer.Restart();
 					isJumping = true;
-					entity.physicsComponent.aActor->addForce(physx::PxVec3(moveX, 200.0f, moveZ), physx::PxForceMode::eIMPULSE);
+					entity->physicsComponent.aActor->addForce(physx::PxVec3(moveX, 200.0f, moveZ), physx::PxForceMode::eIMPULSE);
 				}
 			}
 			
@@ -226,22 +229,23 @@ void FpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 
 		if (timer.GetMilisecondsElapsed() > 5.0f*dt)
 		{
-			if (!entity.isFalling && isJumping)
+			if (!entity->isFalling && isJumping)
 			{
 				isJumping = false;
 			}
 		}
 		if (!isJumping)
 		{
-			if (entity.isFalling)
+			if (entity->isFalling)
 			{
-				entity.physicsComponent.aActor->setLinearVelocity(physx::PxVec3(moveX, gravity, moveZ));
+				entity->physicsComponent.aActor->setLinearVelocity(physx::PxVec3(moveX, gravity, moveZ));
 			}
 			else
 			{
 				isJumping = false;
-				entity.physicsComponent.aActor->setLinearVelocity(physx::PxVec3(moveX, 0.0f, moveZ));
+				entity->physicsComponent.aActor->setLinearVelocity(physx::PxVec3(moveX, 0.0f, moveZ));
 			}
 		}
+		entity->physicsComponent.aActor->setGlobalPose(entity->physicsComponent.trans);
 	}
 }

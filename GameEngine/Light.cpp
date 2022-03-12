@@ -72,12 +72,12 @@ void Light::DrawGui(std::string name)
 	ImGui::DragFloat3("Scale", &scale.x, 0.005f);
 
 	ImGui::DragFloat3("lightColor", &lightColor.x, 0.005f);
-	ImGui::DragFloat("light strength", &lightStrenth, 0.005f, 0.0f, 100.0f);
-	ImGui::DragFloat("light attenuation", &lightAttenuation, 0.005f, 0.0f, 100.0f);
+	//ImGui::DragFloat("light strength", &lightStrenth, 0.005f, 0.0f, 100.0f);
+	//ImGui::DragFloat("light attenuation", &lightAttenuation, 0.005f, 0.0f, 100.0f);
 
 	ImGui::DragFloat3("direction", &direction.x, 0.01f);
 	ImGui::DragFloat3("SpotDir", &SpotDir.x, 0.05f);
-	ImGui::DragFloat3("offset", &offset.x, 0.05f);
+	//ImGui::DragFloat3("offset", &offset.x, 0.05f);
 	ImGui::DragFloat("radius", &radius, 0.05f);
 	ImGui::DragFloat("cutOff", &cutOff, 0.01f);
 	ImGui::InputFloat("lightType", &lightType);
@@ -91,9 +91,9 @@ void Light::DrawGui(std::string name)
 
 
 
-	ImGui::DragFloat3("coneRotate", &coneRot.x, 0.005f);
-	ImGui::DragFloat3("coneTranslation", &conePos.x, 0.005f);
-	ImGui::DragFloat3("coneScale", &coneScale.x, 0.005f);
+	//ImGui::DragFloat3("coneRotate", &coneRot.x, 0.005f);
+	//ImGui::DragFloat3("coneTranslation", &conePos.x, 0.005f);
+	//ImGui::DragFloat3("coneScale", &coneScale.x, 0.005f);
 
 	//ImGui::End();
 }

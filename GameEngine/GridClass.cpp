@@ -101,20 +101,20 @@ void GridClass::DrawGUI()
 
 void GridClass::InitThread()
 {
-	//for (int y = -bounds.y; y < bounds.y; ++y)
-	//{
+	for (int y = -bounds.y; y < bounds.y; ++y)
+	{
 		for (int z = -bounds.z; z < bounds.z; ++z)
 		{
 			for (int x = -bounds.x; x < bounds.x; ++x)
 			{
 				nodes.push_back(NodeClass());
-				nodes[nodes.size() - 1].pos = DirectX::XMFLOAT3(pos.x - x, 0, pos.z - z);
+				nodes[nodes.size() - 1].pos = DirectX::XMFLOAT3(pos.x - x, pos.y - y, pos.z - z);
 				nodes[nodes.size() - 1].Initialize(_device, _deviceContext, _transformMatrix, _cb_vs_vertexshader, true);
 				
 
 				//nodes[nodes.size() - 1].shape.pos = nodes[nodes.size() - 1].pos;
 			}
 		}
-	//}
+	}
 	isReady = true;
 }

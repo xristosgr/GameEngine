@@ -59,5 +59,7 @@ private:
 	physx::PxVec3 current_scale;
 	std::vector<Vertex>* verts;
 	std::vector<DWORD>* indices;
+
+	bool hasInit = false;
 };
 

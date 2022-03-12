@@ -201,6 +201,7 @@
     <ClCompile Include="Shadows.cpp" />
     <ClCompile Include="Shapes.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TpsController.cpp" />
     <ClCompile Include="VertexShader.cpp" />
     <ClCompile Include="WinMain.cpp" />
     <ClCompile Include="Mouse.cpp" />
@@ -267,6 +268,7 @@
     <ClInclude Include="Shapes.h" />
     <ClInclude Include="StringHelper.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TpsController.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="VertexBoneData.h" />
     <ClInclude Include="VertexBuffer.h" />

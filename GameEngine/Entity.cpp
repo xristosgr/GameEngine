@@ -7,6 +7,7 @@ Entity::Entity()
 	scale = DirectX::XMFLOAT3(1, 1, 1);
 	rot = DirectX::XMFLOAT3(0, 0, 0);
 	modelPos = DirectX::XMFLOAT3(0, 0, 0);
+	frustumScale = DirectX::XMFLOAT3(0, 0, 0);
 	isAnimated = false;
 	bRender = true;
 	isDeleted = false;
@@ -113,7 +114,7 @@ void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const Dir
 	DirectX::XMMATRIX matrix_scale;
 	DirectX::XMMATRIX matrix_rotate;
 	DirectX::XMMATRIX matrix_translate;
-	DirectX::XMMATRIX worldMatrix;
+
 
 	//if (model.isAnimated && bRender)
 	//{
@@ -131,6 +132,7 @@ void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const Dir
 		matrix_scale = DirectX::XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z);
 		matrix_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
 		matrix_rotate *= DirectX::XMMatrixRotationAxis(DirectX::XMVECTOR{ physicsComponent.trans.q.x,physicsComponent.trans.q.y, physicsComponent.trans.q.z }, physicsComponent.trans.q.getAngle());
+
 		matrix_translate = DirectX::XMMatrixTranslation(physicsComponent.trans.p.x + modelPos.x, physicsComponent.trans.p.y + modelPos.y, physicsComponent.trans.p.z + modelPos.z);
 		worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
 	}
@@ -138,9 +140,9 @@ void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const Dir
 	{
 		matrix_scale = DirectX::XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z);
 		matrix_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
-		matrix_translate = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
-		worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
+		matrix_translate = DirectX::XMMatrixTranslation(pos.x + modelPos.x, pos.y + modelPos.y, pos.z + modelPos.z);
 
+		worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
 	}
 	if (bRender)
 	{
@@ -151,9 +153,9 @@ void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const Dir
 		if (isfrustumEnabled)
 		{
 			if (physicsComponent.aActor || physicsComponent.aStaticActor)
-				frustum.checkFrustum = frustum.CheckRect(physicsComponent.trans.p.x, physicsComponent.trans.p.y, physicsComponent.trans.p.z, scale.x, scale.y, scale.z);
+				frustum.checkFrustum = frustum.CheckRect(physicsComponent.trans.p.x, physicsComponent.trans.p.y, physicsComponent.trans.p.z, scale.x + frustumScale.x, scale.y + frustumScale.x, scale.z + frustumScale.z);
 			else
-				frustum.checkFrustum = frustum.CheckRect(pos.x, pos.y, pos.z, scale.x, scale.y, scale.z);
+				frustum.checkFrustum = frustum.CheckRect(pos.x, pos.y, pos.z, scale.x + frustumScale.x, scale.y + frustumScale.y, scale.z + frustumScale.z);
 
 			if (frustum.checkFrustum)
 			{
@@ -252,6 +254,7 @@ void Entity::DrawGui(physx::PxScene& scene)
 	ImGui::Checkbox("isAI", &isAI);
 	ImGui::Checkbox("isWalkable", &isWalkable);
 	ImGui::Checkbox("isObstacle", &isObstacle);
+	ImGui::Checkbox("isAttached", &model.isAttached);
 	if (ImGui::Button("Create Controller"))
 	{
 		bCreateController = true;
@@ -264,6 +267,7 @@ void Entity::DrawGui(physx::PxScene& scene)
 	ImGui::SameLine();
 	ImGui::Text((" Z: " + std::to_string(physicsComponent.trans.p.z)).c_str());
 
+	ImGui::DragFloat("RotDir", &rotationDir, 0.01f);
 	//ImGui::DragFloat("offsetY", &offsetY);
 	//ImGui::DragFloat("dirY", &dirY);
 	//ImGui::DragFloat("maxDist", &maxDist);
@@ -278,7 +282,7 @@ void Entity::DrawGui(physx::PxScene& scene)
 
 	ImGui::DragFloat4("physics_rot", &physicsComponent.physics_rot.x, 0.01f);
 	ImGui::DragFloat3("physics_scale", &physicsComponent.physics_scale.x, 0.01f);
-
+	ImGui::DragFloat3("frustumScale", &frustumScale.x, 0.01f);
 	ImGui::Checkbox("isTransparent", &model.isTransparent);
 	ImGui::Checkbox("Frustum", &isfrustumEnabled);
 
@@ -298,6 +302,7 @@ void Entity::DrawGui(physx::PxScene& scene)
 		Clear(scene);
 	}
 }
+
 
 void Entity::Clear(physx::PxScene& scene)
 {

@@ -40,7 +40,11 @@ void PhysicsComponent::CreateCube(physx::PxPhysics& physics, physx::PxScene& sce
 		physx::PxRigidBodyExt::updateMassAndInertia(*aActor, density);
 
 		aActor->getShapes(&aShape, aActor->getNbShapes());
-		aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+		if (!hasInit)
+		{
+			aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+		}
+		
 
 		trans = aActor->getGlobalPose();
 		trans.p = _pos;
@@ -54,8 +58,10 @@ void PhysicsComponent::CreateCube(physx::PxPhysics& physics, physx::PxScene& sce
 		aStaticActor = physx::PxCreateStatic(physics, physx::PxTransform(_pos), physx::PxBoxGeometry(_scale.x, _scale.y, _scale.z), *aMaterial);
 
 		aStaticActor->getShapes(&aShape, aStaticActor->getNbShapes());
-		aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
-
+		if (!hasInit)
+		{
+			aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+		}
 		trans = aStaticActor->getGlobalPose();
 		trans.p = _pos;
 		aStaticActor->setGlobalPose(trans);
@@ -71,7 +77,10 @@ void PhysicsComponent::CreatePlane(physx::PxPhysics& physics, physx::PxScene& sc
 	aStaticActor = physx::PxCreatePlane(physics, physx::PxPlane(_pos, physx::PxVec3(0, 1, 0)), *aMaterial);
 
 	aStaticActor->getShapes(&aShape, aStaticActor->getNbShapes());
-	aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+	if (!hasInit)
+	{
+		aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+	}
 
 
 	trans = aStaticActor->getGlobalPose();
@@ -98,7 +107,10 @@ void PhysicsComponent::CreateSphere(physx::PxPhysics& physics, physx::PxScene& s
 		physx::PxRigidBodyExt::updateMassAndInertia(*aActor, density);
 
 		aActor->getShapes(&aShape, aActor->getNbShapes());
-		aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+		if (!hasInit)
+		{
+			aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+		}
 
 
 		trans = aActor->getGlobalPose();
@@ -113,7 +125,10 @@ void PhysicsComponent::CreateSphere(physx::PxPhysics& physics, physx::PxScene& s
 		aStaticActor = physx::PxCreateStatic(physics, physx::PxTransform(_pos), physx::PxSphereGeometry(radius), *aMaterial);
 
 		aStaticActor->getShapes(&aShape, aStaticActor->getNbShapes());
-		aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+		if (!hasInit)
+		{
+			aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+		}
 
 
 		trans = aStaticActor->getGlobalPose();
@@ -135,19 +150,22 @@ void PhysicsComponent::CreateCapsule(physx::PxPhysics& physics, physx::PxScene& 
 		
 		aMaterial = physics.createMaterial(1.0f, 1.0f, 0.0f);
 		aActor->setMass(mass);
-		aActor->setAngularDamping(1000.0f);
-		//aActor->setLinearDamping(1000.0f);
+		aActor->setAngularDamping(0.0f);
+		
+		aActor->setLinearDamping(0.0f);
 		//float radius = 1.0f;
 		aShape = physx::PxRigidActorExt::createExclusiveShape(*aActor,
 			physx::PxCapsuleGeometry(_scale.x, _scale.y / 2.0f), *aMaterial);
-
 		
 		aShape->setLocalPose(relativePose);
-		density = 80.0f;
+		density = 30.0f;
 		physx::PxRigidBodyExt::updateMassAndInertia(*aActor, density);
 
 		aActor->getShapes(&aShape, aActor->getNbShapes());
-		aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+		if (!hasInit)
+		{
+			aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+		}
 
 
 		trans = aActor->getGlobalPose();
@@ -162,7 +180,10 @@ void PhysicsComponent::CreateCapsule(physx::PxPhysics& physics, physx::PxScene& 
 		aStaticActor = physx::PxCreateStatic(physics, physx::PxTransform(_pos), physx::PxCapsuleGeometry(_scale.x, _scale.y / 2), *aMaterial);
 
 		aStaticActor->getShapes(&aShape, aStaticActor->getNbShapes());
-		aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+		if (!hasInit)
+		{
+			aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+		}
 
 
 		trans = aStaticActor->getGlobalPose();
@@ -171,6 +192,7 @@ void PhysicsComponent::CreateCapsule(physx::PxPhysics& physics, physx::PxScene& 
 
 		scene.addActor(*aStaticActor);
 	}
+	
 }
 
 void PhysicsComponent::CreateConvex(physx::PxPhysics& physics, physx::PxScene& scene, physx::PxCooking* cooking, std::vector<Vertex>& vertices, physx::PxVec3 _scale, physx::PxVec3 _pos)
@@ -223,7 +245,10 @@ void PhysicsComponent::CreateConvex(physx::PxPhysics& physics, physx::PxScene& s
 		scene.addActor(*aActor);
 
 		aActor->getShapes(&aShape, aActor->getNbShapes());
-		aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+		if (!hasInit)
+		{
+			aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+		}
 	}
 	else
 	{
@@ -266,7 +291,10 @@ void PhysicsComponent::CreateConvex(physx::PxPhysics& physics, physx::PxScene& s
 		scene.addActor(*aStaticActor);
 
 		aStaticActor->getShapes(&aShape, aStaticActor->getNbShapes());
-		aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+		if (!hasInit)
+		{
+			aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+		}
 	}
 }
 
@@ -333,14 +361,15 @@ void PhysicsComponent::CreateTriangleMesh(physx::PxPhysics& physics, physx::PxSc
 	scene.addActor(*aStaticActor);
 
 	aStaticActor->getShapes(&aShape, aStaticActor->getNbShapes());
-	aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
-
-
+	if (!hasInit)
+	{
+		aShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+	}
 }
 
 void PhysicsComponent::CreateController(physx::PxPhysics& physics, physx::PxScene& scene, physx::PxVec3 _pos, std::string& name)
 {
-	mass = 80.0f;
+	mass = 30.0f;
 	//physx::PxVec3 _pos;
 	//if (aActor)
 	//{
@@ -472,4 +501,5 @@ void PhysicsComponent::UpdatePhysics(physx::PxPhysics& physics, physx::PxScene& 
 			}
 		}
 	}
+	hasInit = true;
 }

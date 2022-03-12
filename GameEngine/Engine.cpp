@@ -337,6 +337,7 @@ void Engine::ObjectsHandler(float& dt)
 		entities[i].physicsComponent.UpdatePhysics(*physicsHandler.mPhysics, *physicsHandler.aScene, physicsHandler.mCooking);
 
 		entities[i].UpdatePhysics();
+
 	}
 
 	for (int i = 0; i < collisionObjects.size(); ++i)
@@ -419,6 +420,7 @@ void Engine::AIHandler(float& dt)
 			}
 		}
 	}
+
 }
 
 void Engine::CopyPasteEntity()
@@ -476,6 +478,7 @@ void Engine::CopyPasteEntity()
 				copiedEntityData.scale = entities[i].scale;
 				copiedEntityData.rot = entities[i].rot;
 				copiedEntityData.bConvertCordinates = entities[i].model.bConvertCordinates;
+				copiedEntityData.frustumScale = entities[i].frustumScale;
 			}
 		}
 	}
@@ -504,6 +507,7 @@ void Engine::CopyPasteEntity()
 		entities[entities.size() - 1].scale = copiedEntityData.scale;
 		entities[entities.size() - 1].rot = copiedEntityData.rot;
 		entities[entities.size() - 1].model.bConvertCordinates = copiedEntityData.bConvertCordinates;
+		entities[entities.size() - 1].frustumScale = copiedEntityData.frustumScale;
 
 		entities[entities.size() - 1].entityName = "Entity" + std::to_string(entities.size() - 1);
 		//asyncAddEntity = std::async(std::launch::async, &Engine::AddEntity, this, std::ref(copiedEntityData.FilePath), std::ref(copiedEntityData.isAnimated), std::ref(entities[entities.size() - 1].model.bConvertCordinates));

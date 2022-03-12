@@ -261,6 +261,9 @@
     <ClCompile Include="EnvironmentProbe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TpsController.cpp">
+      <Filter>Characters\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WindowContainer.h">
@@ -448,6 +451,9 @@
     </ClInclude>
     <ClInclude Include="EnvironmentProbe.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TpsController.h">
+      <Filter>Characters\Header files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

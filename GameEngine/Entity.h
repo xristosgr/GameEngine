@@ -32,12 +32,12 @@ public:
 	DirectX::XMFLOAT3 pos;
 	DirectX::XMFLOAT3 scale;
 	DirectX::XMFLOAT3 rot;
-
+	DirectX::XMFLOAT3 frustumScale;
 	DirectX::XMFLOAT3 modelPos;
 	DirectX::XMFLOAT3 offsetPos;
 
 	DirectX::XMMATRIX matrix_rotate;
-
+	DirectX::XMMATRIX worldMatrix;
 
 	std::string filePath;
 	std::string _filePath;
@@ -70,6 +70,8 @@ public:
 	bool isObstacle = false;
 
 	bool isSelected = false;
+
+	float rotationDir;
 private:
 
 

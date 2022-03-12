@@ -10,8 +10,8 @@ Renderer::Renderer()
 	timer.Start();
 
 	rgb[0] = 0.3f;
-	rgb[1] = 0.2f;
-	rgb[2] = 0.1f;
+	rgb[1] = 0.4f;
+	rgb[2] = 0.7f;
 	rgb[3] = 1.0f;
 
 
@@ -120,6 +120,19 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 		}
 
 	}
+
+	//for (int i = 0; i < entities.size(); ++i)
+	//{
+	//	OutputDebugStringA(std::to_string(entities[i].model.animFiles.size()).c_str());
+	//	OutputDebugStringA("\n");
+	//	for (int i = 0; i < entities[i].model.animFiles.size(); ++i)
+	//	{
+	//		OutputDebugStringA(entities[i].model.animFiles[i].c_str());
+	//		OutputDebugStringA("\n");
+	//		entities[i].model.LoadAnimation(entities[i].model.animFiles[i]);
+	//	}
+	//	entities[i].model.bAnimLoaded = true;
+	//}
 
 	rect.Initialize(gfx11.device.Get(),gfx11.windowWidth,gfx11.windowHeight);
 	rectBloom.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
@@ -589,7 +602,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		//debugCube.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
 		
 		gfx11.deviceContext->PSSetShader(gfx11.colorPS.GetShader(), nullptr, 0);
-		//environmentProbe.Draw(camera);
+		environmentProbe.Draw(camera);
 	}
 	
 	/////////////////////////////////////////////////////////////////////////////////

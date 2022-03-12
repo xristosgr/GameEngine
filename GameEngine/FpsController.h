@@ -10,7 +10,7 @@ public:
 	FpsController();
 
 	void MouseMovement(float& dt, Entity& entity, Keyboard& keyboard, Mouse& mouse, Camera& camera);
-	void Movement(float& dt, float gravity, Entity& entity, Keyboard& keyboard, Mouse& mouse, Camera& camera);
+	void Movement(float& dt, float gravity, Entity* entity, Keyboard& keyboard, Mouse& mouse, Camera& camera);
 
 private:
 	enum RotationEnum

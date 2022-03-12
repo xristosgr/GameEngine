@@ -50,6 +50,7 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 			outfile << "modelPosY= " << entities[i].modelPos.y << "\n";
 			outfile << "modelPosZ= " << entities[i].modelPos.z << "\n";
 
+
 			outfile << "physicsRotX= " << entities[i].physicsComponent.physics_rot.x << "\n";
 			outfile << "physicsRotY= " << entities[i].physicsComponent.physics_rot.y << "\n";
 			outfile << "physicsRotZ= " << entities[i].physicsComponent.physics_rot.z << "\n";
@@ -59,6 +60,11 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 			outfile << "physicsScaleY= " << entities[i].physicsComponent.physics_scale.y << "\n";
 			outfile << "physicsScaleZ= " << entities[i].physicsComponent.physics_scale.z << "\n";
 
+
+			outfile << "frustumScaleX= " << entities[i].frustumScale.x << "\n";
+			outfile << "frustumScaleY= " << entities[i].frustumScale.y << "\n";
+			outfile << "frustumScaleZ= " << entities[i].frustumScale.z << "\n";
+
 			outfile << "isCharacter= " << entities[i].physicsComponent.isCharacter << "\n";
 			outfile << "isPlayer= " << entities[i].isPlayer << "\n";
 			outfile << "isAI= " << entities[i].isAI << "\n";
@@ -67,6 +73,7 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 			outfile << "Render= " << entities[i].bRender << "\n";
 			outfile << "isAnimated= " << entities[i].isAnimated << "\n";
 			outfile << "ConvertCordinates= " << entities[i].model.bConvertCordinates << "\n";
+			outfile << "isAttached= " << entities[i].model.isAttached << "\n";
 			outfile << "Frustum= " << entities[i].isfrustumEnabled << "\n";
 			outfile << "isDeleted= " << entities[i].isDeleted << "\n";
 			outfile << "physicsShape= " << entities[i].physicsComponent.physicsShapeEnum << "\n";
@@ -346,6 +353,19 @@ void SaveSystem::LoadEntityData(std::vector<Entity>& entities)
 						entities[i].physicsComponent.physics_scale.z = (float)val;
 					}
 
+					if (path == "frustumScaleX=")
+					{
+						entities[i].frustumScale.x = (float)val;
+					}
+					if (path == "frustumScaleY=")
+					{
+						entities[i].frustumScale.y = (float)val;
+					}
+					if (path == "frustumScaleZ=")
+					{
+						entities[i].frustumScale.z = (float)val;
+					}
+
 					if (path == "isCharacter=")
 					{
 						entities[i].physicsComponent.isCharacter = (int)val;
@@ -377,6 +397,10 @@ void SaveSystem::LoadEntityData(std::vector<Entity>& entities)
 					if (path == "ConvertCordinates=")
 					{
 						entities[i].model.bConvertCordinates = (int)val;
+					}
+					if (path == "isAttached=")
+					{
+						entities[i].model.isAttached = (int)val;
 					}
 					if (path == "Frustum=")
 					{
@@ -412,14 +436,17 @@ void SaveSystem::LoadEntityData(std::vector<Entity>& entities)
 					{
 						entities[i].filePath = str;
 					}
-				}
-				for (int j = 0; j < entities[i].model.animFiles.size(); ++j)
-				{
-					if (path == "animFiles" + std::to_string(j) + "=")
+					for (int j = 0; j < entities[i].model.animFiles.size(); ++j)
 					{
-						entities[i].model.animFiles[j] = str;
+						if (path == "animFiles" + std::to_string(j) + "=")
+						{
+							OutputDebugStringA(str.c_str());
+							OutputDebugStringA("\n");
+							entities[i].model.animFiles[j] = str;
+						}
 					}
 				}
+				
 				f.close();
 				f.clear();
 			}

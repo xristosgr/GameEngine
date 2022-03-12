@@ -13,7 +13,7 @@ void NavMeshClass::CalculatePath(float& dt, Entity* start, Entity* end, AIContro
 	if (!end || !start)
 		return;
 
-	float _val = 1.1f;
+	float acceptedRadius = 1.3f;
 	start->physicsComponent.trans = start->physicsComponent.aActor->getGlobalPose();
 	controller.v1 = start->physicsComponent.trans.p;
 
@@ -28,8 +28,8 @@ void NavMeshClass::CalculatePath(float& dt, Entity* start, Entity* end, AIContro
 		validNodes[i].isInCloseList = false;
 		validNodes[i].isInOpenList = false;
 
-		if (controller.v1.x >= validNodes[i].pos.x - _val && controller.v1.x <= validNodes[i].pos.x + _val &&
-			controller.v1.z >= validNodes[i].pos.z - _val && controller.v1.z <= validNodes[i].pos.z + _val)
+		if (controller.v1.x >= validNodes[i].pos.x - acceptedRadius && controller.v1.x <= validNodes[i].pos.x + acceptedRadius &&
+			controller.v1.z >= validNodes[i].pos.z - acceptedRadius && controller.v1.z <= validNodes[i].pos.z + acceptedRadius)
 		{
 			startNode = &validNodes[i];
 			validNodes[i].isAiActive = true;
@@ -37,8 +37,8 @@ void NavMeshClass::CalculatePath(float& dt, Entity* start, Entity* end, AIContro
 		else
 			validNodes[i].isAiActive = false;
 		
-		if (controller.v2.x >= validNodes[i].pos.x - _val && controller.v2.x <= validNodes[i].pos.x + _val &&
-			controller.v2.z >= validNodes[i].pos.z - _val && controller.v2.z <= validNodes[i].pos.z + _val)
+		if (controller.v2.x >= validNodes[i].pos.x - acceptedRadius && controller.v2.x <= validNodes[i].pos.x + acceptedRadius &&
+			controller.v2.z >= validNodes[i].pos.z - acceptedRadius && controller.v2.z <= validNodes[i].pos.z + acceptedRadius)
 		{
 			endNode = &validNodes[i];
 			validNodes[i].isPlayerActive = true;
@@ -58,8 +58,8 @@ void NavMeshClass::CalculatePath(float& dt, Entity* start, Entity* end, AIContro
 	for (int i = start->locations.size() - 1; i >= 0; --i)
 	{
 			//OutputDebugStringA("HAS SIGHT!!!!\n");
-		if (controller.v1.x >= start->locations[i].x - _val && controller.v1.x <= start->locations[i].x + _val &&
-			controller.v1.z >= start->locations[i].z - _val && controller.v1.z <= start->locations[i].z + _val)
+		if (controller.v1.x >= start->locations[i].x - acceptedRadius && controller.v1.x <= start->locations[i].x + acceptedRadius &&
+			controller.v1.z >= start->locations[i].z - acceptedRadius && controller.v1.z <= start->locations[i].z + acceptedRadius)
 		{
 			if(start->m_index != i)
 				start->m_index = i;
