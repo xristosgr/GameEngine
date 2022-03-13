@@ -5,6 +5,7 @@ TpsController::TpsController()
 	isJumping = false;
 	timer.Start();
 	currRotation = RotationEnum::UP;
+	prevPos = XMFLOAT2(0, 0);
 
 	//gravity = -0.2f;
 }
@@ -17,33 +18,36 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 	XMStoreFloat4(&rightFloat4, camera.GetRightVector());
 	XMFLOAT4 forwardFloat4;
 	XMStoreFloat4(&forwardFloat4, camera.GetForwardVector());
-
+	isMouseMoving = false;
 	while (!mouse.EventBufferIsEmpty())
 	{
 
 		if (camera.PossessCharacter)
 		{
 			MouseEvent me = mouse.ReadEvent();
+
+
+			OutputDebugStringA(("X = " + std::to_string(static_cast<float>(me.GetPosX()))).c_str());
+			OutputDebugStringA(("  |Y = " + std::to_string(static_cast<float>(me.GetPosY())) + "\n").c_str());
+
+			if (prevPos.x != static_cast<float>(me.GetPosX()) || prevPos.y != static_cast<float>(me.GetPosY()))
+			{
+				isMouseMoving = true;
+			}
+			prevPos = XMFLOAT2(static_cast<float>(me.GetPosX()), static_cast<float>(me.GetPosY()));
 			
 			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
 			{
-				if (static_cast<float>(me.GetPosY()) < 0)
+				if (static_cast<float>(me.GetPosY()) < 0.0)
 				{
 					if (CharacterRotY > -1.3)
-						CharacterRotY -= cameraSpeed * 2.0f;
+						CharacterRotY -= cameraSpeed * 1.f;
 				}
-				else if (static_cast<float>(me.GetPosY()) > 0)
+				else if (static_cast<float>(me.GetPosY()) > 0.0)
 				{
 					if (CharacterRotY < 3.0)
-						CharacterRotY += cameraSpeed * 2.0f;
-				}
-				
-				OutputDebugStringA(("X = " + std::to_string(rightFloat4.x * -cameraSpeed * static_cast<float>(me.GetPosX()))).c_str());
-				OutputDebugStringA(("  |Y = " + std::to_string(forwardFloat4.y * -cameraSpeed * static_cast<float>(me.GetPosY()))).c_str());
-				OutputDebugStringA(("  |Z = " + std::to_string(rightFloat4.z * -cameraSpeed * static_cast<float>(me.GetPosX())) + "\n").c_str());
-				//camera.AdjustRotation(static_cast<float>(me.GetPosY()), static_cast<float>(me.GetPosX()), 0.0f, true);
-			
-
+						CharacterRotY += cameraSpeed * 1.f;
+				};
 				camera.AdjustPosition(rightFloat4.x * -cameraSpeed * static_cast<float>(me.GetPosX()), forwardFloat4.y * -cameraSpeed * static_cast<float>(me.GetPosY()), rightFloat4.z * -cameraSpeed * static_cast<float>(me.GetPosX()));
 			}
 		}
@@ -105,9 +109,17 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 	if (camera.PossessCharacter)
 	{
 
-		camera.SetLookAtPos(XMFLOAT3(entity.physicsComponent.trans.p.x, entity.physicsComponent.trans.p.y + 0.7f, entity.physicsComponent.trans.p.z));
-		camera.SetPosition(XMVECTOR{ entity.pos.x + (-2.4f * std::sin(camera.yaw)),entity.pos.y + CharacterRotY,entity.pos.z + (-2.4f * std::cos(camera.yaw)) });
-
+		if ((!entity.isMovingRight && !entity.isMovingLeft) || isMouseMoving)
+		{
+			camera.SetLookAtPos(XMFLOAT3(entity.physicsComponent.trans.p.x, entity.physicsComponent.trans.p.y + 0.7f, entity.physicsComponent.trans.p.z));
+			cameraPrevPos = XMFLOAT3((-2.4f * std::sin(camera.yaw)), CharacterRotY, (-2.4f * std::cos(camera.yaw)));
+			camera.SetPosition(XMVECTOR{ entity.pos.x + (-2.4f * std::sin(camera.yaw)),entity.pos.y + CharacterRotY,entity.pos.z + (-2.4f * std::cos(camera.yaw)) });
+		}
+		else
+		{
+			camera.SetPosition(XMVECTOR{ entity.pos.x + cameraPrevPos.x,entity.pos.y + cameraPrevPos.y, entity.pos.z + cameraPrevPos.z });
+		}
+		
 
 		if (keyboard.KeyIsPressed('S') && (keyboard.KeyIsPressed('A')))
 		{
