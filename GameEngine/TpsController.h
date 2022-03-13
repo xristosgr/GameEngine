@@ -45,5 +45,6 @@ private:
 	float CharacterRotY = 0.0f;
 
 	float lastCamRot = 0.0f;
+
 };
 

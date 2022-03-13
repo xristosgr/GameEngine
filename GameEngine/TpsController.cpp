@@ -5,6 +5,7 @@ TpsController::TpsController()
 	isJumping = false;
 	timer.Start();
 	currRotation = RotationEnum::UP;
+
 	//gravity = -0.2f;
 }
 
@@ -23,21 +24,26 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 		if (camera.PossessCharacter)
 		{
 			MouseEvent me = mouse.ReadEvent();
-
+			
 			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
 			{
 				if (static_cast<float>(me.GetPosY()) < 0)
 				{
-					if (CharacterRotY > -0.7)
-						CharacterRotY -= cameraSpeed;
+					if (CharacterRotY > -1.3)
+						CharacterRotY -= cameraSpeed * 2.0f;
 				}
 				else if (static_cast<float>(me.GetPosY()) > 0)
 				{
 					if (CharacterRotY < 3.0)
-						CharacterRotY += cameraSpeed;
+						CharacterRotY += cameraSpeed * 2.0f;
 				}
+				
+				OutputDebugStringA(("X = " + std::to_string(rightFloat4.x * -cameraSpeed * static_cast<float>(me.GetPosX()))).c_str());
+				OutputDebugStringA(("  |Y = " + std::to_string(forwardFloat4.y * -cameraSpeed * static_cast<float>(me.GetPosY()))).c_str());
+				OutputDebugStringA(("  |Z = " + std::to_string(rightFloat4.z * -cameraSpeed * static_cast<float>(me.GetPosX())) + "\n").c_str());
+				//camera.AdjustRotation(static_cast<float>(me.GetPosY()), static_cast<float>(me.GetPosX()), 0.0f, true);
+			
 
-				//camera.AdjustRotation(static_cast<float>(me.GetPosY()) * cameraRotSpeed, static_cast<float>(me.GetPosX()) * cameraRotSpeed, 0.0f, true);
 				camera.AdjustPosition(rightFloat4.x * -cameraSpeed * static_cast<float>(me.GetPosX()), forwardFloat4.y * -cameraSpeed * static_cast<float>(me.GetPosY()), rightFloat4.z * -cameraSpeed * static_cast<float>(me.GetPosX()));
 			}
 		}
@@ -99,7 +105,7 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 	if (camera.PossessCharacter)
 	{
 
-		camera.SetLookAtPos(XMFLOAT3(entity.physicsComponent.trans.p.x, entity.physicsComponent.trans.p.y + 0.5f, entity.physicsComponent.trans.p.z));
+		camera.SetLookAtPos(XMFLOAT3(entity.physicsComponent.trans.p.x, entity.physicsComponent.trans.p.y + 0.7f, entity.physicsComponent.trans.p.z));
 		camera.SetPosition(XMVECTOR{ entity.pos.x + (-2.4f * std::sin(camera.yaw)),entity.pos.y + CharacterRotY,entity.pos.z + (-2.4f * std::cos(camera.yaw)) });
 
 
@@ -234,7 +240,7 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 					canPressSpace = false;
 					timer.Restart();
 					isJumping = true;
-					entity.physicsComponent.aActor->addForce(physx::PxVec3(moveX, 100.0f, moveZ), physx::PxForceMode::eIMPULSE);
+					entity.physicsComponent.aActor->addForce(physx::PxVec3(moveX, 300.0f, moveZ), physx::PxForceMode::eIMPULSE);
 				}
 			}
 
@@ -246,7 +252,7 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 		}
 
 
-		if (timer.GetMilisecondsElapsed() > 3.0f * dt)
+		if (timer.GetMilisecondsElapsed() > 2.0f * dt)
 		{
 			if (!entity.isFalling && isJumping)
 			{
@@ -255,17 +261,17 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 		}
 		if (!isJumping)
 		{
-			if (entity.isFalling)
-			{
-				//entity.physicsComponent.aActor->setLinearVelocity(physx::PxVec3(moveX, gravity, moveZ));
-			}
-			else
+			if (!entity.isFalling)
 			{
 				isJumping = false;
 				entity.physicsComponent.aActor->setLinearVelocity(physx::PxVec3(moveX, 0.0f, moveZ));
 			}
 		}
-		
+
+		if (entity.isFalling)
+		{
+			entity.physicsComponent.aActor->addForce(physx::PxVec3(moveX*30, 0, moveZ*30), physx::PxForceMode::eFORCE);
+		}
 		//OutputDebugStringA(("X = " + std::to_string(moveX)+ " |Y = " + std::to_string(moveZ) + "\n").c_str());
 
 		if (entity.isFalling)

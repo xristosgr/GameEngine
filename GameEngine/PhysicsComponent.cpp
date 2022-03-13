@@ -158,7 +158,7 @@ void PhysicsComponent::CreateCapsule(physx::PxPhysics& physics, physx::PxScene& 
 			physx::PxCapsuleGeometry(_scale.x, _scale.y / 2.0f), *aMaterial);
 		
 		aShape->setLocalPose(relativePose);
-		density = 30.0f;
+		density = 100.0f;
 		physx::PxRigidBodyExt::updateMassAndInertia(*aActor, density);
 
 		aActor->getShapes(&aShape, aActor->getNbShapes());
@@ -369,7 +369,7 @@ void PhysicsComponent::CreateTriangleMesh(physx::PxPhysics& physics, physx::PxSc
 
 void PhysicsComponent::CreateController(physx::PxPhysics& physics, physx::PxScene& scene, physx::PxVec3 _pos, std::string& name)
 {
-	mass = 30.0f;
+	mass = 100.0f;
 	//physx::PxVec3 _pos;
 	//if (aActor)
 	//{

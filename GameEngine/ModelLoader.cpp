@@ -75,8 +75,6 @@ bool ModelLoader::LoadModel(const std::string filePath)
 	
 	texturesLoaded = true;
 
-	OutputDebugStringA(std::to_string(animFiles.size()).c_str());
-	OutputDebugStringA("\n");
 	for (int i = 0; i < animFiles.size(); ++i)
 	{
 		//OutputDebugStringA(animFiles[i].c_str());
