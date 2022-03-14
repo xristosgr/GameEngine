@@ -37,7 +37,7 @@ Renderer::Renderer()
 	copyLight = false;
 	copyPointLight = false;
 	switchCameraMode = 0;
-	vSync = 1;
+	vSync = 0;
 }
 
 bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights)

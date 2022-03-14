@@ -47,7 +47,11 @@ private:
 	float lastCamRot = 0.0f;
 
 	XMFLOAT3 cameraPrevPos;
-	bool isMouseMoving = false;
 	XMFLOAT2 prevPos;
+	XMVECTOR vPrev;
+	XMVECTOR vPrevPos;
+	XMVECTOR vLerp;
+	XMVECTOR vLerpPos;
+
 };
 

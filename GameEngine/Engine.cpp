@@ -133,7 +133,13 @@ void Engine::Update(int width, int height)
 		}
 
 	}
-	
+	else
+	{
+		RECT rect;
+		GetClientRect(this->render_window.GetHWND(), &rect);
+		MapWindowPoints(this->render_window.GetHWND(), nullptr, reinterpret_cast<POINT*>(&rect), 2);
+		ClipCursor(&rect);
+	}
 
 	if (keyboard.KeyIsPressed(VK_F5))
 	{
