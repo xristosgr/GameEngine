@@ -55,7 +55,7 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		scdFullScreen.RefreshRate.Denominator = 1;
 		scdFullScreen.Scaling = DXGI_MODE_SCALING::DXGI_MODE_SCALING_UNSPECIFIED;
 		scdFullScreen.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		scdFullScreen.Windowed = TRUE;
+		scdFullScreen.Windowed = FALSE;
 
 		D3D_FEATURE_LEVEL featureLevels[]
 		{

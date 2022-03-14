@@ -1,4 +1,4 @@
-mass= 30
+mass= 100
 posX= 16.8072
 posY= 0.84
 posZ= -5.21184

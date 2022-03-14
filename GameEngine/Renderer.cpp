@@ -14,6 +14,10 @@ Renderer::Renderer()
 	rgb[2] = 0.7f;
 	rgb[3] = 1.0f;
 
+	//rgb[0] = 0.0f;
+	//rgb[1] = 0.0f;
+	//rgb[2] = 0.0f;
+	//rgb[3] = 1.0f;
 
 	hasTexture = true;
 	isAnimated = false;
@@ -32,6 +36,7 @@ Renderer::Renderer()
 	bRenderCollision = false;
 	copyLight = false;
 	copyPointLight = false;
+	switchCameraMode = 0;
 	vSync = 1;
 }
 
@@ -771,7 +776,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		ImGui::DragFloat("bloomStrengh", &bloomStrengh,0.1f);
 		ImGui::DragFloat("bloomBrightness", &bloomBrightness, 0.1f);
 		ImGui::DragFloat("gamma", &gamma, 0.1f);
-		
+		ImGui::InputInt("cameraMode", &switchCameraMode);
 	}
 
 
@@ -833,14 +838,22 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		}
 	}
 	
+	ImGui::NewLine();
+	ImGui::NewLine();
+
 	if (ImGui::CollapsingHeader("Entities"))
 	{
 		static int listbox_item_current = 0;
 		std::vector<const char*> objNames;
 		for (int i = 0; i < entities.size(); ++i)
 		{
+
 			entities[i].entityName = "Entity" + std::to_string(i);
-			objNames.push_back(entities[i].entityName.c_str());
+			if (!entities[i].isDeleted)
+			{
+				objNames.push_back(entities[i].entityName.c_str());
+			}
+			
 		}
 		ImGui::ListBox("Objects", &listbox_item_current, objNames.data(), objNames.size());
 
@@ -858,6 +871,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 				{
 					if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
 					{
+						entities[i].DrawGui(scene);
 						listbox_item_current = i;
 					}
 				}
@@ -870,18 +884,26 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 
 				if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
 				{
+					entities[i].DrawGui(scene);
 					listbox_item_current = i;
 				}
 			}
-			if (objNames[listbox_item_current] == entities[i].entityName)
+			if (!entities[i].isDeleted)
 			{
-				//ImGui::BeginChild("Entity",ImVec2(0.5,0.5),true);
-				entities[i].DrawGui(scene);
-				//ImGui::EndChild();
+				if (objNames[listbox_item_current] == entities[i].entityName)
+				{
+					//ImGui::BeginChild("Entity",ImVec2(0.5,0.5),true);
+					entities[i].DrawGui(scene);
+					//ImGui::EndChild();
+				}
 			}
+			
 		}
 
 	}
+
+	ImGui::NewLine();
+	ImGui::NewLine();
 	if (ImGui::CollapsingHeader("Collision objects"))
 	{
 		static int listbox_item_current = 0;
@@ -924,7 +946,15 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 				collisionObjects[i].DrawGUI(objNames[listbox_item_current]);
 			}
 		}
+		if (ImGui::Button("AddCollisionObject"))
+		{
+			bAddCollisionObject = true;
+		}
 	}
+
+
+	ImGui::NewLine();
+	ImGui::NewLine();
 	if (ImGui::CollapsingHeader("AI"))
 	{
 		grid.DrawGUI();
@@ -935,21 +965,25 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			bCreateGrid = true;
 		}
 	}
+
+	ImGui::NewLine();
+	ImGui::NewLine();
 	if (ImGui::CollapsingHeader("EnvironmentProbe"))
 	{
 		environmentProbe.DrawGui("Probe1");
 	}
 
-	if (ImGui::Button("AddCollisionObject"))
-	{
-		bAddCollisionObject = true;
-	}
+	ImGui::NewLine();
+	ImGui::NewLine();
 	
 
-	if (ImGui::Button("CLEAR!!!!"))
-	{
-		bClear = true;
-	}
+	ImGui::NewLine();
+	ImGui::NewLine();
+
+	//if (ImGui::Button("CLEAR!!!!"))
+	//{
+	//	bClear = true;
+	//}
 	ImGui::End();
 
 

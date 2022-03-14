@@ -132,7 +132,9 @@ void PhysicsHandler::MouseRayCast(Camera& camera, Mouse& mouse, Keyboard& keyboa
 	physx::PxVec3 unitDir;
 	unitDir = physx::PxVec3(direction.x, direction.y, direction.z);
 
+
 	unitDir.normalize();
+
 	physx::PxReal maxDistance = 100000.0f;
 	if (width == 1920 && height == 1080)
 		maxDistance = 1000000.0f;

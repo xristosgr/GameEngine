@@ -52,7 +52,8 @@ private:
 	std::future<void> asyncLoadPhysics;
 	SaveSystem saveSystem;
 
-	TpsController playerController;
+	TpsController tpsPlayerController;
+	FpsController fpsPlayerController;
 
 	Entity* player;
 

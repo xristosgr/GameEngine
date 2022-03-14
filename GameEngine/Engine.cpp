@@ -84,6 +84,10 @@ void Engine::Update(int width, int height)
 		{
 			MouseEvent me = mouse.ReadEvent();
 
+			//if (me.GetType() == MouseEvent::EventType::Move)
+			//{
+			//	OutputDebugStringA(("X = " + std::to_string(static_cast<float>(me.GetPosX())) + " |Y = " + std::to_string(static_cast<float>(me.GetPosY())) + "\n").c_str());
+			//}
 			if (mouse.IsMiddleDown())
 			{
 				if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
@@ -218,8 +222,19 @@ void Engine::RenderFrame(float& dt,float& fps)
 	{
 		if (player)
 		{
-			playerController.MouseMovement(dt, *player, keyboard, mouse, camera);
-			playerController.Movement(dt, physicsHandler.aScene->getGravity().y, *player, keyboard, mouse, camera);
+			if (renderer.switchCameraMode == 0)
+			{
+				player->bRender = true;
+				tpsPlayerController.MouseMovement(dt, *player, keyboard, mouse, camera);
+				tpsPlayerController.Movement(dt, physicsHandler.aScene->getGravity().y, *player, keyboard, mouse, camera);
+			}
+			else
+			{
+				player->bRender = false;
+				fpsPlayerController.MouseMovement(dt, *player, keyboard, mouse, camera);
+				fpsPlayerController.Movement(dt, physicsHandler.aScene->getGravity().y, player, keyboard, mouse, camera);
+			}
+
 		}
 
 		if (!physicsHandler.isMouseHover)
@@ -338,6 +353,7 @@ void Engine::ObjectsHandler(float& dt)
 
 		entities[i].UpdatePhysics();
 
+		entities[i].MouseMove(mouse, keyboard,camera);
 	}
 
 	for (int i = 0; i < collisionObjects.size(); ++i)

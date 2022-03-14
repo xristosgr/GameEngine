@@ -21,14 +21,13 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 	isMouseMoving = false;
 	while (!mouse.EventBufferIsEmpty())
 	{
-
 		if (camera.PossessCharacter)
 		{
 			MouseEvent me = mouse.ReadEvent();
 
-
-			OutputDebugStringA(("X = " + std::to_string(static_cast<float>(me.GetPosX()))).c_str());
-			OutputDebugStringA(("  |Y = " + std::to_string(static_cast<float>(me.GetPosY())) + "\n").c_str());
+			OutputDebugStringA("TRUE!!!\n");
+			//OutputDebugStringA(("X = " + std::to_string(static_cast<float>(me.GetPosX()))).c_str());
+			//OutputDebugStringA(("  |Y = " + std::to_string(static_cast<float>(me.GetPosY())) + "\n").c_str());
 
 			if (prevPos.x != static_cast<float>(me.GetPosX()) || prevPos.y != static_cast<float>(me.GetPosY()))
 			{
@@ -41,13 +40,14 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 				if (static_cast<float>(me.GetPosY()) < 0.0)
 				{
 					if (CharacterRotY > -1.3)
-						CharacterRotY -= cameraSpeed * 1.f;
+						CharacterRotY -= cameraSpeed;
 				}
 				else if (static_cast<float>(me.GetPosY()) > 0.0)
 				{
 					if (CharacterRotY < 3.0)
-						CharacterRotY += cameraSpeed * 1.f;
+						CharacterRotY += cameraSpeed;
 				};
+				
 				camera.AdjustPosition(rightFloat4.x * -cameraSpeed * static_cast<float>(me.GetPosX()), forwardFloat4.y * -cameraSpeed * static_cast<float>(me.GetPosY()), rightFloat4.z * -cameraSpeed * static_cast<float>(me.GetPosX()));
 			}
 		}

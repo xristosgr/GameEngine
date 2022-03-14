@@ -5,6 +5,8 @@
 #include "ImGui/ImGuiFileBrowser.h"
 #include <fstream>
 #include "Camera.h"
+#include "Mouse.h"
+#include "Keyboard.h"
 
 class Entity
 {
@@ -17,6 +19,8 @@ public:
 	void UpdatePhysics();
 	void Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix);
 	void AttachController(physx::PxController& characterController,bool& runPhysics);
+	void MouseMove(Mouse& mouse, Keyboard& keyboard,Camera& camera);
+
 	void DrawGui(physx::PxScene& scene);
 	void Clear(physx::PxScene& scene);
 public:

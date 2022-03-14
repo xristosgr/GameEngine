@@ -12,6 +12,7 @@
 #include "EnvironmentProbe.h"
 #include <thread>
 #include "AppTimer.h"
+
 class Renderer
 {
 public:
@@ -75,7 +76,7 @@ public:
 
 	bool bModelsLoaded;
 
-
+	int switchCameraMode;
 	bool copyLight;
 	bool copyPointLight;
 	int selectedLight = -1;

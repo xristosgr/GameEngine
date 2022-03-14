@@ -202,6 +202,64 @@ void Entity::AttachController(physx::PxController& characterController, bool& ru
 
 }
 
+void Entity::MouseMove(Mouse& mouse, Keyboard& keyboard, Camera& camera)
+{
+	if (physicsComponent.aActor)
+	{
+		physicsComponent.aActor->getShapes(&physicsComponent.aShape, physicsComponent.aActor->getNbShapes());
+		if (physicsComponent.aShape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
+		{
+
+			float pointX, pointY;
+			DirectX::XMMATRIX viewMatrix, inverseViewMatrix;
+			DirectX::XMFLOAT3 direction = XMFLOAT3(0, 0, 0);
+
+			pointX = ((2.0f * (float)mouse.GetPosX()) / (float)1280) - 1.0f;
+			pointY = (((2.0f * (float)mouse.GetPosY()) / (float)720) - 1.0f) * -1.0f;
+
+
+			DirectX::XMFLOAT4X4 projection;
+			DirectX::XMStoreFloat4x4(&projection, camera.GetProjectionMatrix());
+			pointX = pointX / projection._11;
+			pointY = pointY / projection._22;
+
+			viewMatrix = camera.GetViewMatrix();
+			inverseViewMatrix = DirectX::XMMatrixInverse(nullptr, viewMatrix);
+
+
+			DirectX::XMFLOAT4X4 invView;
+			DirectX::XMStoreFloat4x4(&invView, inverseViewMatrix);
+
+			direction.x = (pointX * invView._11) + (pointY * invView._21) + invView._31;
+			direction.y = (pointX * invView._12) + (pointY * invView._22) + invView._32;
+			direction.z = (pointX * invView._13) + (pointY * invView._23) + invView._33;
+		   
+			if (keyboard.KeyIsPressed('X'))
+			{
+				
+				physicsComponent.trans = physicsComponent.aActor->getGlobalPose();
+				physicsComponent.trans.p.x += direction.x * 0.3f;
+				physicsComponent.aActor->setGlobalPose(physicsComponent.trans);
+			}
+			if (keyboard.KeyIsPressed('Y'))
+			{
+
+				physicsComponent.trans = physicsComponent.aActor->getGlobalPose();
+				physicsComponent.trans.p.y += direction.y * 0.3f;
+				physicsComponent.aActor->setGlobalPose(physicsComponent.trans);
+			}
+			if (keyboard.KeyIsPressed('Z'))
+			{
+
+				physicsComponent.trans = physicsComponent.aActor->getGlobalPose();
+				physicsComponent.trans.p.z += direction.z * 0.3f;
+				physicsComponent.aActor->setGlobalPose(physicsComponent.trans);
+			}
+
+		}
+	}
+}
+
 void Entity::DrawGui(physx::PxScene& scene)
 {
 	if (isDeleted)
@@ -249,17 +307,6 @@ void Entity::DrawGui(physx::PxScene& scene)
 		
 	}
 
-	ImGui::Checkbox("isCharacter", &physicsComponent.isCharacter);
-	ImGui::Checkbox("isPlayer", &isPlayer);
-	ImGui::Checkbox("isAI", &isAI);
-	ImGui::Checkbox("isWalkable", &isWalkable);
-	ImGui::Checkbox("isObstacle", &isObstacle);
-	ImGui::Checkbox("isAttached", &model.isAttached);
-	if (ImGui::Button("Create Controller"))
-	{
-		bCreateController = true;
-	}
-	ImGui::Checkbox("Render", &bRender);
 
 	ImGui::Text(("X: " + std::to_string(physicsComponent.trans.p.x)).c_str());
 	ImGui::SameLine();
@@ -267,40 +314,61 @@ void Entity::DrawGui(physx::PxScene& scene)
 	ImGui::SameLine();
 	ImGui::Text((" Z: " + std::to_string(physicsComponent.trans.p.z)).c_str());
 
-	ImGui::DragFloat("RotDir", &rotationDir, 0.01f);
-	//ImGui::DragFloat("offsetY", &offsetY);
-	//ImGui::DragFloat("dirY", &dirY);
-	//ImGui::DragFloat("maxDist", &maxDist);
+
 	if(physicsComponent.aActor || physicsComponent.aStaticActor || physicsComponent.isCharacter)
-		ImGui::DragFloat3("offsetPos", &offsetPos.x, 0.01f);
+		ImGui::DragFloat3("pos", &offsetPos.x, 0.01f);
 	else
 		ImGui::DragFloat3("pos", &pos.x, 0.01f);
 
 	ImGui::DragFloat3("rot", &rot.x, 0.01f);
 	ImGui::DragFloat3("scale", &scale.x, 0.01f);
-	ImGui::DragFloat3("modelPos", &modelPos.x, 0.01f);
 
-	ImGui::DragFloat4("physics_rot", &physicsComponent.physics_rot.x, 0.01f);
-	ImGui::DragFloat3("physics_scale", &physicsComponent.physics_scale.x, 0.01f);
-	ImGui::DragFloat3("frustumScale", &frustumScale.x, 0.01f);
-	ImGui::Checkbox("isTransparent", &model.isTransparent);
-	ImGui::Checkbox("Frustum", &isfrustumEnabled);
+	static bool showHidden = false;
+	ImGui::Checkbox("Show hidden", &showHidden);
 
-	ImGui::DragFloat("Mass", &physicsComponent.mass);
-	ImGui::InputInt("triangleMeshStride", &physicsComponent.triangleMeshStride);
-	ImGui::InputInt("convexMeshDetail", &physicsComponent.convexMeshDetail);
-	ImGui::InputInt("Physics Shape", &physicsComponent.selectedShape);
-
-	if (ImGui::Button("Apply"))
+	if (showHidden)
 	{
-		physicsComponent.physicsShapeEnum = static_cast<PhysicsShapeEnum>(physicsComponent.selectedShape);
-		physicsComponent.bCreatePhysicsComp = true;
-	}
 
-	if (ImGui::Button("Delete"))
-	{
-		Clear(scene);
+		ImGui::Checkbox("isCharacter", &physicsComponent.isCharacter);
+		ImGui::Checkbox("isPlayer", &isPlayer);
+		ImGui::Checkbox("isAI", &isAI);
+		ImGui::Checkbox("isWalkable", &isWalkable);
+		ImGui::Checkbox("isObstacle", &isObstacle);
+		ImGui::Checkbox("isAttached", &model.isAttached);
+		if (ImGui::Button("Create Controller"))
+		{
+			bCreateController = true;
+		}
+		ImGui::Checkbox("Render", &bRender);
+
+		ImGui::DragFloat3("modelPos", &modelPos.x, 0.01f);
+
+
+		ImGui::DragFloat4("physics_rot", &physicsComponent.physics_rot.x, 0.01f);
+		ImGui::DragFloat3("physics_scale", &physicsComponent.physics_scale.x, 0.01f);
+		ImGui::DragFloat3("frustumScale", &frustumScale.x, 0.01f);
+		ImGui::Checkbox("isTransparent", &model.isTransparent);
+		ImGui::Checkbox("Frustum", &isfrustumEnabled);
+
+		ImGui::DragFloat("Mass", &physicsComponent.mass);
+		ImGui::InputInt("triangleMeshStride", &physicsComponent.triangleMeshStride);
+		ImGui::InputInt("convexMeshDetail", &physicsComponent.convexMeshDetail);
+		ImGui::InputInt("Physics Shape", &physicsComponent.selectedShape);
+
+
+
+		if (ImGui::Button("Apply"))
+		{
+			physicsComponent.physicsShapeEnum = static_cast<PhysicsShapeEnum>(physicsComponent.selectedShape);
+			physicsComponent.bCreatePhysicsComp = true;
+		}
+
+		if (ImGui::Button("Delete"))
+		{
+			Clear(scene);
+		}
 	}
+	
 }
 
 
