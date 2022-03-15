@@ -73,14 +73,20 @@ public:
 	bool bRenderNavMesh;
 	bool bRenderNavMeshBounds;
 	bool bConvertCordinates;
-
+	bool bEnableShadows;
 	bool bModelsLoaded;
+	bool save;
 
 	int switchCameraMode;
 	bool copyLight;
 	bool copyPointLight;
 	int selectedLight = -1;
 	int selectedPointLight = -1;
+
+	float renderDistance;
+	float renderShadowDistance;
+	float shadowDist;
+	float acceptedDist;
 private:
 	int windowWidth, windowHeight;
 	EnvironmentProbe environmentProbe;

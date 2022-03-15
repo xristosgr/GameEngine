@@ -141,9 +141,19 @@ void Engine::Update(int width, int height)
 		ClipCursor(&rect);
 	}
 
-	if (keyboard.KeyIsPressed(VK_F5))
+	if (keyboard.KeyIsPressed(VK_F7))
+	{
+		renderer.runPhysics = true;
+	}
+	if (keyboard.KeyIsPressed(VK_F6))
+	{
+		renderer.runPhysics = false;
+	}
+
+	if (keyboard.KeyIsPressed(VK_F5) || renderer.save)
 	{
 		saveSystem.Save(entities, lights, pointlights, collisionObjects);
+		renderer.save = false;
 	}
 
 	if (bCanCopy)
@@ -295,10 +305,10 @@ void Engine::AddPointLight()
 {
 	pointlights.push_back(Light());
 	pointlights[pointlights.size() - 1].Initialize(renderer.gfx11.device.Get(), renderer.gfx11.deviceContext.Get(), renderer.gfx11.cb_vs_vertexshader);
-	pointlights[pointlights.size() - 1].scale = XMFLOAT3(0.02f, 0.02f, 0.02f);
-	pointlights[pointlights.size() - 1].cutOff = 0.1f;
-	pointlights[pointlights.size() - 1].radius = 5.0f;
-	pointlights[pointlights.size() - 1].lightColor = XMFLOAT3(5.0f, 5.0f, 5.0f);
+	//pointlights[pointlights.size() - 1].scale = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	//pointlights[pointlights.size() - 1].cutOff = 0.1f;
+	//pointlights[pointlights.size() - 1].radius = 5.0f;
+	//pointlights[pointlights.size() - 1].lightColor = XMFLOAT3(5.0f, 5.0f, 5.0f);
 }
 
 void Engine::AddCollisionObject()
@@ -613,7 +623,6 @@ void Engine::CopyPastePointLight()
 	{
 		if (renderer.selectedPointLight == i)
 		{
-
 			copiedPointLightData.bShadow = pointlights[i].bShadow;
 			copiedPointLightData.cutOff = pointlights[i].cutOff;
 			copiedPointLightData.dimensions = pointlights[i].dimensions;
@@ -633,20 +642,20 @@ void Engine::CopyPastePointLight()
 
 	AddPointLight();
 
-	pointlights[lights.size() - 1].bShadow = copiedPointLightData.bShadow;
-	pointlights[lights.size() - 1].cutOff = copiedPointLightData.cutOff;
-	pointlights[lights.size() - 1].dimensions = copiedPointLightData.dimensions;
-	pointlights[lights.size() - 1].direction = copiedPointLightData.direction;
-	pointlights[lights.size() - 1].farZ = copiedPointLightData.farZ;
-	pointlights[lights.size() - 1].fov = copiedPointLightData.fov;
-	pointlights[lights.size() - 1].isLightEnabled = copiedPointLightData.isLightEnabled;
-	pointlights[lights.size() - 1].lightColor = copiedPointLightData.lightColor;
-	pointlights[lights.size() - 1].lightType = copiedPointLightData.lightType;
-	pointlights[lights.size() - 1].nearZ = copiedPointLightData.nearZ;
-	pointlights[lights.size() - 1].pos = copiedPointLightData.pos;
-	pointlights[lights.size() - 1].radius = copiedPointLightData.radius;
-	pointlights[lights.size() - 1].scale = copiedPointLightData.scale;
-	pointlights[lights.size() - 1].SpotDir = copiedPointLightData.SpotDir;
+	pointlights[pointlights.size() - 1].bShadow = copiedPointLightData.bShadow;
+	pointlights[pointlights.size() - 1].cutOff = copiedPointLightData.cutOff;
+	pointlights[pointlights.size() - 1].dimensions = copiedPointLightData.dimensions;
+	pointlights[pointlights.size() - 1].direction = copiedPointLightData.direction;
+	pointlights[pointlights.size() - 1].farZ = copiedPointLightData.farZ;
+	pointlights[pointlights.size() - 1].fov = copiedPointLightData.fov;
+	pointlights[pointlights.size() - 1].isLightEnabled = copiedPointLightData.isLightEnabled;
+	pointlights[pointlights.size() - 1].lightColor = copiedPointLightData.lightColor;
+	pointlights[pointlights.size() - 1].lightType = copiedPointLightData.lightType;
+	pointlights[pointlights.size() - 1].nearZ = copiedPointLightData.nearZ;
+	pointlights[pointlights.size() - 1].pos = copiedPointLightData.pos;
+	pointlights[pointlights.size() - 1].radius = copiedPointLightData.radius;
+	pointlights[pointlights.size() - 1].scale = copiedPointLightData.scale;
+	pointlights[pointlights.size() - 1].SpotDir = copiedPointLightData.SpotDir;
 
 	renderer.copyPointLight = false;
 

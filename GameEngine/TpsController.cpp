@@ -13,7 +13,7 @@ TpsController::TpsController()
 
 void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard, Mouse& mouse, Camera& camera)
 {
-	const float cameraSpeed = 0.008f;
+	const float cameraSpeed = 0.06f;
 
 	XMFLOAT4 rightFloat4;
 	XMStoreFloat4(&rightFloat4, camera.GetRightVector());
@@ -32,18 +32,19 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 
 			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
 			{
+				//OutputDebugStringA(("Y= " + std::to_string(me.GetPosY()) + "\n").c_str());
 				if (static_cast<float>(me.GetPosY()) < 0.0)
 				{
 					if (CharacterRotY > -1.3)
-						CharacterRotY -= cameraSpeed;
+						CharacterRotY -= cameraSpeed * 0.1f;
 				}
 				else if (static_cast<float>(me.GetPosY()) > 0.0)
 				{
 					if (CharacterRotY < 3.0)
-						CharacterRotY += cameraSpeed;
+						CharacterRotY += cameraSpeed * 0.1f;
 				};
-
-				camera.AdjustPosition(rightFloat4.x * -cameraSpeed * static_cast<float>(me.GetPosX()), forwardFloat4.y * -cameraSpeed * static_cast<float>(me.GetPosY()), rightFloat4.z * -cameraSpeed * static_cast<float>(me.GetPosX()));
+				
+				camera.AdjustPosition(rightFloat4.x * -cameraSpeed * static_cast<float>(me.GetPosX()*0.1f), forwardFloat4.y * -cameraSpeed * static_cast<float>(me.GetPosY() * 0.1f), rightFloat4.z * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f));
 			}
 
 		}

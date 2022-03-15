@@ -18,6 +18,7 @@ struct CB_VS_lightsShader
 {
 	DirectX::XMMATRIX lightViewMatrix[NO_LIGHTS];
 	DirectX::XMMATRIX lightProjectionMatrix[NO_LIGHTS];
+	unsigned int lightsSize;
 };
 
 struct CB_VS_blurWeights
@@ -41,12 +42,16 @@ struct CB_PS_lightsShader
 	DirectX::XMFLOAT4 SpotlightDir[NO_LIGHTS];
 	DirectX::XMFLOAT4 cameraPos;
 	DirectX::XMFLOAT4 lightType[NO_LIGHTS];
+	float acceptedDistShadow;
+	float acceptedDist;
+	unsigned int lightsSize;
 };
 
 struct CB_PS_pointLightsShader
 {
 	DirectX::XMFLOAT4 dynamicLightPosition[NO_POINT_LIGHTS];
 	DirectX::XMFLOAT4 dynamicLightColor[NO_POINT_LIGHTS];
+	unsigned int pointLightsSize;
 };
 
 struct CB_PS_PCFshader

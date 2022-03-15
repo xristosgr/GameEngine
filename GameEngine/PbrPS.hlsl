@@ -8,6 +8,9 @@ cbuffer lightBuffer : register(b0)
     float4 SpotlightDir[NO_LIGHTS];
     float4 cameraPos;
     float4 lightType[NO_LIGHTS];
+    float acceptedDistShadow;
+    float acceptedDist;
+    uint lightsSize;
 }
 
 cbuffer PCFbuffer : register(b1)
@@ -34,6 +37,7 @@ cbuffer pointLightBuffer : register(b6)
 {
     float4 pointdynamicLightPosition[NO_POINT_LIGHTS];
     float4 pointdynamicLightColor[NO_POINT_LIGHTS];
+    uint pointLightsSize;
 }
 cbuffer pointLightCull : register(b7)
 {
@@ -50,6 +54,7 @@ struct PS_INPUT
     float3 inTangent : TANGENT;
     float3 inBinormal : BINORMAL;
     float4 ViewPosition : TEXCOORD1;
+    float distToCamera : TEXCOORD2;
     float4 lightViewPosition[NO_LIGHTS] : LIGHTVIEWS;
 };
 
@@ -66,7 +71,7 @@ Texture2D depthMapTextures[NO_LIGHTS] : TEXTURE : register(t6);
 SamplerState SampleTypeWrap : register(s0);
 
 
-float Shadows(float4 lightViewPosition, Texture2D depthMapTexture);
+float Shadows(float4 lightViewPosition, Texture2D depthMapTexture,float dist);
 
 float3 fresnelSchlick(float cosTheta, float3 F0);
 float3 fresnelSchlickRoughness(float cosTheta, float3 F0, float roughness);
@@ -102,24 +107,44 @@ float4 main(PS_INPUT input) : SV_TARGET
     [unroll(NO_LIGHTS)]
     for (int i = 0; i < NO_LIGHTS;++i)
     {
-        float distance = length(dynamicLightPosition[i].xyz - input.inWorldPos);
-        if (distance < Radius[i].x)
+        if (i > lightsSize-1)
+            break;
+
+        if (input.distToCamera < acceptedDist)
         {
-            if (lightType[i].x == 0.0)
-                Lo += pointLight(input, albedo.rgb,dynamicLightPosition[i].xyz,dynamicLightColor[i].rgb, cutOff[i], bumpNormal, roughness, metallic, V, F0); //* Shadows(input.lightViewPosition[i], depthMapTextures[i]);
-            else if (lightType[i].x == 1.0)
-                Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, i) * Shadows(input.lightViewPosition[i], depthMapTextures[i]);
+            float distance = length(dynamicLightPosition[i].xyz - input.inWorldPos);
+            if (distance < Radius[i].x)
+            {
+                if (lightType[i].x == 0.0)
+                    Lo += pointLight(input, albedo.rgb, dynamicLightPosition[i].xyz, dynamicLightColor[i].rgb, cutOff[i], bumpNormal, roughness, metallic, V, F0); //* Shadows(input.lightViewPosition[i], depthMapTextures[i]);
+                else if (lightType[i].x == 1.0)
+                {
+                    if (input.distToCamera < acceptedDistShadow * 2.0f)
+                        Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, i) * Shadows(input.lightViewPosition[i], depthMapTextures[i], input.distToCamera);
+                    else
+                        Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, i);
+                }
+
+            }
         }
+       
     }
 
     [unroll(NO_POINT_LIGHTS)]
     for (int j = 0; j < NO_POINT_LIGHTS; ++j)
     {
-        float distance = length(pointdynamicLightPosition[j].xyz - input.inWorldPos);
-        if (distance < pointRadius[j].x)
+        if (j > pointLightsSize - 1)
+            break;
+
+        if (input.distToCamera < acceptedDist)
         {
-            Lo += pointLight(input, albedo.rgb, pointdynamicLightPosition[j].xyz, pointdynamicLightColor[j].rgb, pointcutOff[j], bumpNormal, roughness, metallic, V, F0);
+            float distance = length(pointdynamicLightPosition[j].xyz - input.inWorldPos);
+            if (distance < pointRadius[j].x)
+            {
+                Lo += pointLight(input, albedo.rgb, pointdynamicLightPosition[j].xyz, pointdynamicLightColor[j].rgb, pointcutOff[j], bumpNormal, roughness, metallic, V, F0);
+            }
         }
+        
     }
    
 
@@ -149,7 +174,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     return float4(color, 1.0);
 }
 
-float Shadows(float4 lightViewPosition, Texture2D depthMapTexture)
+float Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist)
 {
     //float zbias = bias;
     float2 projectTexCoord;
@@ -175,22 +200,53 @@ float Shadows(float4 lightViewPosition, Texture2D depthMapTexture)
     {
         lightDepthValue = lightViewPosition.z / lightViewPosition.w;
         
-       
-        int PCF_RANGE = 2;
-        lightDepthValue = lightDepthValue - bias;
+       if (dist < acceptedDistShadow)
+       {
+            lightDepthValue = lightDepthValue - bias;
         
-       [unroll(PCF_RANGE*2+1)]
-        for (int x = -PCF_RANGE; x <= PCF_RANGE; x++)
-        {
+        
+            int PCF_RANGE = 2;
+
             [unroll(PCF_RANGE*2+1)]
-            for (int y = -PCF_RANGE; y <= PCF_RANGE; y++)
+            for (int x = -PCF_RANGE; x <= PCF_RANGE; x++)
             {
-                float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projectTexCoord + float2(x, y) * texelSize).r;
+                [unroll(PCF_RANGE*2+1)]
+                for (int y = -PCF_RANGE; y <= PCF_RANGE; y++)
+                {
+                    float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projectTexCoord + float2(x, y) * texelSize).r;
                 
-                shadow += lightDepthValue > pcfDepth ? 0.0f : 1.0f;
+                    shadow += lightDepthValue > pcfDepth ? 0.0f : 1.0f;
+                }
             }
+            shadow /= ((PCF_RANGE * 2 + 1) * (PCF_RANGE * 2 + 1));
         }
-        shadow /= ((PCF_RANGE * 2 + 1) * (PCF_RANGE * 2 + 1));
+        else
+        {
+            lightDepthValue = lightDepthValue - bias;
+        
+            float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projectTexCoord).r;
+            shadow += lightDepthValue > pcfDepth ? 0.0f : 1.0f;
+        }
+     
+    
+      
+       //lightDepthValue = lightDepthValue - bias;
+       // 
+       // 
+       //int PCF_RANGE = _range;
+       //
+       //[unroll(PCF_RANGE*2+1)]
+       // for (int x = -PCF_RANGE; x <= PCF_RANGE; x++)
+       // {
+       //     [unroll(PCF_RANGE*2+1)]
+       //     for (int y = -PCF_RANGE; y <= PCF_RANGE; y++)
+       //     {
+       //         float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projectTexCoord + float2(x, y) * texelSize).r;
+       //         
+       //         shadow += lightDepthValue > pcfDepth ? 0.0f : 1.0f;
+       //     }
+       // }
+       // shadow /= ((PCF_RANGE * 2 + 1) * (PCF_RANGE * 2 + 1));
      
     }
    // else

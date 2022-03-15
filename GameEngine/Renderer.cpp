@@ -9,16 +9,17 @@ Renderer::Renderer()
 {
 	timer.Start();
 
-	rgb[0] = 0.3f;
-	rgb[1] = 0.4f;
-	rgb[2] = 0.7f;
-	rgb[3] = 1.0f;
-
-	//rgb[0] = 0.0f;
-	//rgb[1] = 0.0f;
-	//rgb[2] = 0.0f;
+	//rgb[0] = 0.3f;
+	//rgb[1] = 0.4f;
+	//rgb[2] = 0.7f;
 	//rgb[3] = 1.0f;
 
+	rgb[0] = 0.0f;
+	rgb[1] = 0.0f;
+	rgb[2] = 0.0f;
+	rgb[3] = 1.0f;
+
+	save = false;
 	hasTexture = true;
 	isAnimated = false;
 	isFileOpen = false;
@@ -36,8 +37,14 @@ Renderer::Renderer()
 	bRenderCollision = false;
 	copyLight = false;
 	copyPointLight = false;
+	bEnableShadows = true;
 	switchCameraMode = 0;
 	vSync = 0;
+
+	renderDistance = 6000.0f;
+	renderShadowDistance = 1600.0f;
+	shadowDist = 10.0f;
+	acceptedDist = 100.0f;
 }
 
 bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights)
@@ -246,66 +253,94 @@ void Renderer::RenderEntitiesAndLights(std::vector<Entity>& entities, std::vecto
 	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
 	for (int i = 0; i < entities.size(); ++i)
 	{
-		if (!entities[i].model.isTransparent)
+		XMFLOAT3 diff = XMFLOAT3(camera.GetPositionFloat3().x - entities[i].pos.x, camera.GetPositionFloat3().y - entities[i].pos.y, camera.GetPositionFloat3().z - entities[i].pos.z);
+		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
+		float dist = diffVec.dot(diffVec);
+
+		if (dist < renderDistance)
 		{
-			if (entities[i].model.isAnimated)
+			if (!entities[i].model.isTransparent)
 			{
-				gfx11.deviceContext->IASetInputLayout(gfx11.animVS.GetInputLayout());
-				gfx11.deviceContext->VSSetShader(gfx11.animVS.GetShader(), nullptr, 0);
-			}
-			else
-			{
-				gfx11.deviceContext->IASetInputLayout(gfx11.pbrVS.GetInputLayout());
-				gfx11.deviceContext->VSSetShader(gfx11.pbrVS.GetShader(), nullptr, 0);
+				if (entities[i].model.isAnimated)
+				{
+					gfx11.deviceContext->IASetInputLayout(gfx11.animVS.GetInputLayout());
+					gfx11.deviceContext->VSSetShader(gfx11.animVS.GetShader(), nullptr, 0);
+				}
+				else
+				{
+					gfx11.deviceContext->IASetInputLayout(gfx11.pbrVS.GetInputLayout());
+					gfx11.deviceContext->VSSetShader(gfx11.pbrVS.GetShader(), nullptr, 0);
+				}
+
+				entities[i].Draw(camera, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 			}
 
-			entities[i].Draw(camera, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+		}
 		}
 		
-	}
 
 	gfx11.deviceContext->OMSetBlendState(gfx11.AdditiveBlendState.Get(), NULL, 0xFFFFFFFF);
 	gfx11.deviceContext->PSSetShader(gfx11.transparentPbrPS.GetShader(), nullptr, 0);
 	for (int i = 0; i < entities.size(); ++i)
 	{
-		if (entities[i].model.isTransparent)
-		{
-			if (entities[i].model.isAnimated)
-			{
-				gfx11.deviceContext->IASetInputLayout(gfx11.animVS.GetInputLayout());
-				gfx11.deviceContext->VSSetShader(gfx11.animVS.GetShader(), nullptr, 0);
-			}
-			else
-			{
-				gfx11.deviceContext->IASetInputLayout(gfx11.pbrVS.GetInputLayout());
-				gfx11.deviceContext->VSSetShader(gfx11.pbrVS.GetShader(), nullptr, 0);
-			}
+		XMFLOAT3 diff = XMFLOAT3(camera.GetPositionFloat3().x - entities[i].pos.x, camera.GetPositionFloat3().y - entities[i].pos.y, camera.GetPositionFloat3().z - entities[i].pos.z);
+		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
+		float dist = diffVec.dot(diffVec);
 
-			entities[i].Draw(camera, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+		if (dist < renderDistance)
+		{
+			if (entities[i].model.isTransparent)
+			{
+				if (entities[i].model.isAnimated)
+				{
+					gfx11.deviceContext->IASetInputLayout(gfx11.animVS.GetInputLayout());
+					gfx11.deviceContext->VSSetShader(gfx11.animVS.GetShader(), nullptr, 0);
+				}
+				else
+				{
+					gfx11.deviceContext->IASetInputLayout(gfx11.pbrVS.GetInputLayout());
+					gfx11.deviceContext->VSSetShader(gfx11.pbrVS.GetShader(), nullptr, 0);
+				}
+
+				entities[i].Draw(camera, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+			}
 		}
+		
 	}
 
 
 	for (int i = 0; i < lights.size(); ++i)
 	{
+		XMFLOAT3 diff = XMFLOAT3(camera.GetPositionFloat3().x - lights[i].pos.x, camera.GetPositionFloat3().y - lights[i].pos.y, camera.GetPositionFloat3().z - lights[i].pos.z);
+		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
+		float dist = diffVec.dot(diffVec);
 
-		gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
-		gfx11.deviceContext->IASetInputLayout(gfx11.testVS.GetInputLayout());
-		gfx11.deviceContext->VSSetShader(gfx11.testVS.GetShader(), nullptr, 0);
-		gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
+		if (dist < renderDistance)
+		{
+			gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
+			gfx11.deviceContext->IASetInputLayout(gfx11.testVS.GetInputLayout());
+			gfx11.deviceContext->VSSetShader(gfx11.testVS.GetShader(), nullptr, 0);
+			gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
 
-		lights[i].Draw(camera);
+			lights[i].Draw(camera);
+		}
 	}
 
 	for (int i = 0; i < pointLights.size(); ++i)
 	{
+		XMFLOAT3 diff = XMFLOAT3(camera.GetPositionFloat3().x - pointLights[i].pos.x, camera.GetPositionFloat3().y - pointLights[i].pos.y, camera.GetPositionFloat3().z - pointLights[i].pos.z);
+		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
+		float dist = diffVec.dot(diffVec);
 
-		gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
-		gfx11.deviceContext->IASetInputLayout(gfx11.testVS.GetInputLayout());
-		gfx11.deviceContext->VSSetShader(gfx11.testVS.GetShader(), nullptr, 0);
-		gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
+		if (dist < renderDistance)
+		{
+			gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
+			gfx11.deviceContext->IASetInputLayout(gfx11.testVS.GetInputLayout());
+			gfx11.deviceContext->VSSetShader(gfx11.testVS.GetShader(), nullptr, 0);
+			gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
 
-		pointLights[i].Draw(camera);
+			pointLights[i].Draw(camera);
+		}
 	}
 
 	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
@@ -369,10 +404,12 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 		gfx11.cb_ps_lightsShader.data.SpotlightDir[i] = DirectX::XMFLOAT4(lights[i].SpotDir.x, lights[i].SpotDir.y, lights[i].SpotDir.z, 1.0f);
 
 		gfx11.cb_ps_lightsShader.data.lightType[i].x = lights[i].lightType;
+		XMFLOAT3 diff = XMFLOAT3(camera.GetPositionFloat3().x - lights[i].pos.x, camera.GetPositionFloat3().y - lights[i].pos.y, camera.GetPositionFloat3().z - lights[i].pos.z);
+		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
+		float dist = diffVec.dot(diffVec);
 		gfx11.cb_ps_lightsShader.data.lightType[i].y = 0;
 		gfx11.cb_ps_lightsShader.data.lightType[i].z = 0;
 		gfx11.cb_ps_lightsShader.data.lightType[i].w = 0;
-
 
 		gfx11.cb_ps_lightCull.data.Radius[i].x = lights[i].radius;
 		gfx11.cb_ps_lightCull.data.Radius[i].y = lights[i].radius;
@@ -384,6 +421,12 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 		gfx11.cb_ps_lightCull.data.cutOff[i].z = lights[i].cutOff;
 		gfx11.cb_ps_lightCull.data.cutOff[i].w = lights[i].cutOff;
 	}
+	gfx11.cb_ps_lightsShader.data.lightsSize = lights.size();
+	//gfx11.cb_ps_lightsShader.data.acceptedDistShadow = shadowDist;
+
+	gfx11.cb_ps_lightsShader.data.acceptedDistShadow = shadowDist;
+	gfx11.cb_ps_lightsShader.data.acceptedDist = acceptedDist;
+	gfx11.cb_vs_lightsShader.data.lightsSize = lights.size();
 
 	for (int i = 0; i < pointLights.size(); ++i)
 	{
@@ -400,7 +443,8 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 		gfx11.cb_ps_pointLightCull.data.cutOff[i].z = pointLights[i].cutOff;
 		gfx11.cb_ps_pointLightCull.data.cutOff[i].w = pointLights[i].cutOff;
 	}
-	
+	gfx11.cb_ps_pointLightsShader.data.pointLightsSize = pointLights.size();
+
 	gfx11.cb_ps_lightsShader.data.cameraPos.x = camera.pos.x;
 	gfx11.cb_ps_lightsShader.data.cameraPos.y = camera.pos.y;
 	gfx11.cb_ps_lightsShader.data.cameraPos.z = camera.pos.z;
@@ -468,13 +512,17 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	
 	gfx11.deviceContext->RSSetState(shadowRasterizerState.Get());
 
-	for (int i = 0; i < lights.size(); ++i)
+	if (bEnableShadows)
 	{
-		lights[i].UpdateCamera();
+		for (int i = 0; i < lights.size(); ++i)
+		{
+			lights[i].UpdateCamera();
 
-		if(lights[i].bShadow)
-			shadowsRenderer.RenderShadows(gfx11, entities, lights[i], camera, i);
+			if (lights[i].bShadow)
+				shadowsRenderer.RenderShadows(gfx11, entities, lights[i], camera, renderShadowDistance, i);
+		}
 	}
+
 
 	////////////
 	environmentProbe.UpdateCamera();
@@ -548,11 +596,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	//////////////BLOOM///////////////////////////////////////
 	if (enablePostProccess)
 	{
-		gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
-		gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-		gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
-		gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
 		BloomRender(camera);
 
 		gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
@@ -566,10 +609,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	////////////////////////////////
 	// 
 	//////////////////////////////////////////////////////
-	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
-	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-	gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
-	gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	gfx11.deviceContext->PSSetShader(gfx11.postProccessPS.GetShader(), nullptr, 0);
 	rect.SetRenderTexture(gfx11.deviceContext.Get(), gfx11.renderTexture);
@@ -654,6 +693,8 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	//GUI
 	////////////////////////////////////
 	////////////////////////////////////
+
+	
 	gfxGui.BeginRender();
 
 
@@ -665,11 +706,11 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	static bool show_objects = true;
 	static bool show_particles = false;
 	static bool show_general = false;
-
+	static bool bGuiEnabled = true;
 
 	if (show_app_metrics) { ImGui::ShowMetricsWindow(&show_app_metrics); }
 
-	bool open = false, save = false;
+	bool open = false;
 
 	if (ImGui::BeginMainMenuBar())
 	{
@@ -681,7 +722,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			ImGui::MenuItem("Objects", NULL, &show_objects);
 			ImGui::MenuItem("Particles", NULL, &show_particles);
 			ImGui::MenuItem("General", NULL, &show_general);
-
+			ImGui::MenuItem("Gui", NULL, &bGuiEnabled);
 
 			ImGui::EndMenu();
 		}
@@ -740,258 +781,22 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			isFileOpen = true;
 		}
 
-		
-		
+
+
 		//ImGui::Text(inName.c_str());
 
 		ImGui::EndMainMenuBar();
 	}
 
-
-	//cube.DrawGUI("cube");
-	rectBloom.DrawGUI("rectBloom");
-	//rectSmall.DrawGUI("rectSmall");
-	//debugCube.DrawGUI("debugCube");
-	ImGui::Begin("World");
-
-	if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0) || ImGui::IsMouseClicked(0))
+	if (bGuiEnabled)
 	{
-		physicsHandler.isMouseHover = true;
-		//OutputDebugStringA("VALID!!!!!\n");
-	}
-	else
-	{
-		physicsHandler.isMouseHover = false;
-		//OutputDebugStringA("INVALID!!!!!\n");
-	}
+		//cube.DrawGUI("cube");
+		rectBloom.DrawGUI("rectBloom");
+		//rectSmall.DrawGUI("rectSmall");
+		//debugCube.DrawGUI("debugCube");
+		ImGui::Begin("World");
 
-	if (ImGui::CollapsingHeader("Options"))
-	{
-		ImGui::Checkbox("runPhysics", &runPhysics);
-		ImGui::Checkbox("Possess", &camera.PossessCharacter);
-		ImGui::Checkbox("enablePostProccess", &enablePostProccess);
-		ImGui::Checkbox("debugEnabled", &debugEnabled);
-		ImGui::Checkbox("renderCollision", &bRenderCollision);
-		ImGui::DragInt("vSync", &vSync);
-		ImGui::DragFloat("bloomStrengh", &bloomStrengh,0.1f);
-		ImGui::DragFloat("bloomBrightness", &bloomBrightness, 0.1f);
-		ImGui::DragFloat("gamma", &gamma, 0.1f);
-		ImGui::InputInt("cameraMode", &switchCameraMode);
-	}
-
-
-	if (ImGui::CollapsingHeader("Lights"))
-	{
-		static int listbox_light_current = 0;
-		std::vector<const char*> lightNames;
-		for (int i = 0; i < lights.size(); ++i)
-		{
-
-			lights[i].name = "light" + std::to_string(i);
-			lightNames.push_back(lights[i].name.c_str());
-		}
-		ImGui::ListBox("Lights", &listbox_light_current, lightNames.data(), lightNames.size());
-		for (int i = 0; i < lights.size(); ++i)
-		{
-			if (lightNames[listbox_light_current] == lights[i].name.c_str())
-			{
-				selectedLight = i;
-				lights[i].DrawGui("light");
-			}
-		}
-		if(ImGui::Button("Add"))
-		{
-			bAddLight = true;
-		}
-		if (ImGui::Button("Copy"))
-		{
-			copyLight = true;
-		}
-	}
-
-	if (ImGui::CollapsingHeader("pointLights"))
-	{
-		static int listbox_light_current = 0;
-		std::vector<const char*> lightNames;
-		for (int i = 0; i < pointLights.size(); ++i)
-		{
-
-			pointLights[i].name = "pointLight" + std::to_string(i);
-			lightNames.push_back(pointLights[i].name.c_str());
-		}
-		ImGui::ListBox("pointLights", &listbox_light_current, lightNames.data(), lightNames.size());
-		for (int i = 0; i < pointLights.size(); ++i)
-		{
-			if (lightNames[listbox_light_current] == pointLights[i].name.c_str())
-			{
-				selectedPointLight = i;
-				pointLights[i].DrawGui("pointLight");
-			}
-		}
-		if (ImGui::Button("Add"))
-		{
-			bAddPointLight = true;
-		}
-		if (ImGui::Button("Copy"))
-		{
-			copyPointLight = true;
-		}
-	}
-	
-	ImGui::NewLine();
-	ImGui::NewLine();
-
-	if (ImGui::CollapsingHeader("Entities"))
-	{
-		static int listbox_item_current = 0;
-		std::vector<const char*> objNames;
-		for (int i = 0; i < entities.size(); ++i)
-		{
-
-			entities[i].entityName = "Entity" + std::to_string(i);
-			if (!entities[i].isDeleted)
-			{
-				objNames.push_back(entities[i].entityName.c_str());
-			}
-			
-		}
-		ImGui::ListBox("Objects", &listbox_item_current, objNames.data(), objNames.size());
-
-		for (int i = 0; i < entities.size(); ++i)
-		{
-			if (entities[i].isDeleted)
-				continue;
-
-			if (entities[i].physicsComponent.aActor)
-			{
-				physx::PxShape* _shape = nullptr;
-				entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
-
-				if (_shape)
-				{
-					if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
-					{
-						entities[i].DrawGui(scene);
-						listbox_item_current = i;
-					}
-				}
-
-			}
-			else if (entities[i].physicsComponent.aStaticActor)
-			{
-				physx::PxShape* _shape = nullptr;
-				entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
-
-				if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
-				{
-					entities[i].DrawGui(scene);
-					listbox_item_current = i;
-				}
-			}
-			if (!entities[i].isDeleted)
-			{
-				if (objNames[listbox_item_current] == entities[i].entityName)
-				{
-					//ImGui::BeginChild("Entity",ImVec2(0.5,0.5),true);
-					entities[i].DrawGui(scene);
-					//ImGui::EndChild();
-				}
-			}
-			
-		}
-
-	}
-
-	ImGui::NewLine();
-	ImGui::NewLine();
-	if (ImGui::CollapsingHeader("Collision objects"))
-	{
-		static int listbox_item_current = 0;
-		std::vector<const char*> objNames;
-		for (int i = 0; i < collisionObjects.size(); ++i)
-		{
-			collisionObjects[i].entityName = "collisionObject" + std::to_string(i);
-			objNames.push_back(collisionObjects[i].entityName.c_str());
-		}
-		ImGui::ListBox("collisionObjects", &listbox_item_current, objNames.data(), objNames.size());
-
-		for (int i = 0; i < collisionObjects.size(); ++i)
-		{
-			//if (entities[i].physicsComponent.aActor)
-			//{
-			//	physx::PxShape* _shape = nullptr;
-			//	entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
-			//
-			//	if (_shape)
-			//	{
-			//		if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
-			//		{
-			//			listbox_item_current = i;
-			//		}
-			//	}
-			//
-			//}
-			//else if (entities[i].physicsComponent.aStaticActor)
-			//{
-			//	physx::PxShape* _shape = nullptr;
-			//	entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
-			//
-			//	if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
-			//	{
-			//		listbox_item_current = i;
-			//	}
-			//}
-			if (objNames[listbox_item_current] == collisionObjects[i].entityName)
-			{
-				collisionObjects[i].DrawGUI(objNames[listbox_item_current]);
-			}
-		}
-		if (ImGui::Button("AddCollisionObject"))
-		{
-			bAddCollisionObject = true;
-		}
-	}
-
-
-	ImGui::NewLine();
-	ImGui::NewLine();
-	if (ImGui::CollapsingHeader("AI"))
-	{
-		grid.DrawGUI();
-		ImGui::Checkbox("renderNavMesh", &bRenderNavMesh);
-		ImGui::Checkbox("renderNavMeshBounds", &bRenderNavMeshBounds);
-		if (ImGui::Button("Create grid"))
-		{
-			bCreateGrid = true;
-		}
-	}
-
-	ImGui::NewLine();
-	ImGui::NewLine();
-	if (ImGui::CollapsingHeader("EnvironmentProbe"))
-	{
-		environmentProbe.DrawGui("Probe1");
-	}
-
-	ImGui::NewLine();
-	ImGui::NewLine();
-	
-
-	ImGui::NewLine();
-	ImGui::NewLine();
-
-	//if (ImGui::Button("CLEAR!!!!"))
-	//{
-	//	bClear = true;
-	//}
-	ImGui::End();
-
-
-	
-	if (isFileOpen)
-	{
-		ImGui::Begin("Import");
-		if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0))
+		if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0) || ImGui::IsMouseClicked(0))
 		{
 			physicsHandler.isMouseHover = true;
 			//OutputDebugStringA("VALID!!!!!\n");
@@ -1001,15 +806,270 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			physicsHandler.isMouseHover = false;
 			//OutputDebugStringA("INVALID!!!!!\n");
 		}
-		ImGui::Checkbox("Textures", &hasTexture);
-		ImGui::Checkbox("Animated", &isAnimated);
-		ImGui::Checkbox("ConvertCordinates", &bConvertCordinates);
-		if (ImGui::Button("Add"))
+
+		if (ImGui::CollapsingHeader("Options"))
 		{
-			bAddEntity = true;
-			isFileOpen = false;
+			ImGui::Checkbox("runPhysics", &runPhysics);
+			ImGui::Checkbox("Possess", &camera.PossessCharacter);
+			ImGui::Checkbox("bEnableShadows", &bEnableShadows);
+			ImGui::Checkbox("enablePostProccess", &enablePostProccess);
+			ImGui::Checkbox("debugEnabled", &debugEnabled);
+			ImGui::Checkbox("renderCollision", &bRenderCollision);
+			ImGui::DragInt("vSync", &vSync);
+			ImGui::DragFloat("bloomStrengh", &bloomStrengh, 0.1f);
+			ImGui::DragFloat("bloomBrightness", &bloomBrightness, 0.1f);
+			ImGui::DragFloat("gamma", &gamma, 0.1f);
+			ImGui::InputInt("cameraMode", &switchCameraMode);
+			ImGui::DragFloat("renderDistance", &renderDistance, 1.0f);
+			ImGui::DragFloat("renderShadowDistance", &renderShadowDistance, 1.0f);
+			ImGui::DragFloat("shadowDist", &shadowDist, 0.1f);
+			ImGui::DragFloat("acceptedDist", &acceptedDist, 0.1f);
 		}
+
+
+		if (ImGui::CollapsingHeader("Lights"))
+		{
+			static int listbox_light_current = 0;
+			std::vector<const char*> lightNames;
+			for (int i = 0; i < lights.size(); ++i)
+			{
+
+				lights[i].name = "light" + std::to_string(i);
+				lightNames.push_back(lights[i].name.c_str());
+			}
+			ImGui::ListBox("Lights", &listbox_light_current, lightNames.data(), lightNames.size());
+			for (int i = 0; i < lights.size(); ++i)
+			{
+				if (lightNames[listbox_light_current] == lights[i].name.c_str())
+				{
+					selectedLight = i;
+					lights[i].DrawGui("light");
+				}
+			}
+			if (ImGui::Button("Add"))
+			{
+				bAddLight = true;
+			}
+			if (ImGui::Button("Copy"))
+			{
+				copyLight = true;
+			}
+		}
+
+		if (ImGui::CollapsingHeader("pointLights"))
+		{
+			static int listbox_light_current = 0;
+			std::vector<const char*> lightNames;
+			for (int i = 0; i < pointLights.size(); ++i)
+			{
+
+				pointLights[i].name = "pointLight" + std::to_string(i);
+				lightNames.push_back(pointLights[i].name.c_str());
+			}
+			ImGui::ListBox("pointLights", &listbox_light_current, lightNames.data(), lightNames.size());
+			for (int i = 0; i < pointLights.size(); ++i)
+			{
+				if (lightNames[listbox_light_current] == pointLights[i].name.c_str())
+				{
+					selectedPointLight = i;
+					pointLights[i].DrawGui("pointLight");
+				}
+			}
+			if (ImGui::Button("Add"))
+			{
+				bAddPointLight = true;
+			}
+			if (ImGui::Button("Copy"))
+			{
+				copyPointLight = true;
+			}
+		}
+
+		ImGui::NewLine();
+		ImGui::NewLine();
+
+		if (ImGui::CollapsingHeader("Entities"))
+		{
+			static int listbox_item_current = 0;
+			std::vector<const char*> objNames;
+			for (int i = 0; i < entities.size(); ++i)
+			{
+
+				entities[i].entityName = "Entity" + std::to_string(i);
+				if (!entities[i].isDeleted)
+				{
+					objNames.push_back(entities[i].entityName.c_str());
+				}
+
+			}
+			ImGui::ListBox("Objects", &listbox_item_current, objNames.data(), objNames.size());
+
+			for (int i = 0; i < entities.size(); ++i)
+			{
+				if (entities[i].isDeleted)
+					continue;
+
+				if (entities[i].physicsComponent.aActor)
+				{
+					physx::PxShape* _shape = nullptr;
+					entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
+
+					if (_shape)
+					{
+						if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
+						{
+							entities[i].DrawGui(scene);
+							listbox_item_current = i;
+						}
+					}
+
+				}
+				else if (entities[i].physicsComponent.aStaticActor)
+				{
+					physx::PxShape* _shape = nullptr;
+					entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
+
+					if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
+					{
+						entities[i].DrawGui(scene);
+						listbox_item_current = i;
+					}
+				}
+				
+
+			}
+			for (int j = 0; j < objNames.size(); ++j)
+			{
+				for (int i = 0; i < entities.size(); ++i)
+				{
+					if (!entities[i].isDeleted)
+					{
+						if (j == listbox_item_current)
+						{
+							if (objNames[j] == entities[i].entityName)
+							{
+								//ImGui::BeginChild("Entity",ImVec2(0.5,0.5),true);
+								entities[i].DrawGui(scene);
+								//ImGui::EndChild();
+							}
+						}
+						
+					}
+				}
+				
+			}
+
+		}
+
+		ImGui::NewLine();
+		ImGui::NewLine();
+		if (ImGui::CollapsingHeader("Collision objects"))
+		{
+			static int listbox_item_current = 0;
+			std::vector<const char*> objNames;
+			for (int i = 0; i < collisionObjects.size(); ++i)
+			{
+				collisionObjects[i].entityName = "collisionObject" + std::to_string(i);
+				objNames.push_back(collisionObjects[i].entityName.c_str());
+			}
+			ImGui::ListBox("collisionObjects", &listbox_item_current, objNames.data(), objNames.size());
+
+			for (int i = 0; i < collisionObjects.size(); ++i)
+			{
+				//if (entities[i].physicsComponent.aActor)
+				//{
+				//	physx::PxShape* _shape = nullptr;
+				//	entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
+				//
+				//	if (_shape)
+				//	{
+				//		if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
+				//		{
+				//			listbox_item_current = i;
+				//		}
+				//	}
+				//
+				//}
+				//else if (entities[i].physicsComponent.aStaticActor)
+				//{
+				//	physx::PxShape* _shape = nullptr;
+				//	entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
+				//
+				//	if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
+				//	{
+				//		listbox_item_current = i;
+				//	}
+				//}
+				if (objNames[listbox_item_current] == collisionObjects[i].entityName)
+				{
+					collisionObjects[i].DrawGUI(objNames[listbox_item_current]);
+				}
+			}
+			if (ImGui::Button("AddCollisionObject"))
+			{
+				bAddCollisionObject = true;
+			}
+		}
+
+
+		ImGui::NewLine();
+		ImGui::NewLine();
+		if (ImGui::CollapsingHeader("AI"))
+		{
+			grid.DrawGUI();
+			ImGui::Checkbox("renderNavMesh", &bRenderNavMesh);
+			ImGui::Checkbox("renderNavMeshBounds", &bRenderNavMeshBounds);
+			if (ImGui::Button("Create grid"))
+			{
+				bCreateGrid = true;
+			}
+		}
+
+		ImGui::NewLine();
+		ImGui::NewLine();
+		if (ImGui::CollapsingHeader("EnvironmentProbe"))
+		{
+			environmentProbe.DrawGui("Probe1");
+		}
+
+		ImGui::NewLine();
+		ImGui::NewLine();
+
+
+		ImGui::NewLine();
+		ImGui::NewLine();
+
+		//if (ImGui::Button("CLEAR!!!!"))
+		//{
+		//	bClear = true;
+		//}
 		ImGui::End();
+
+
+
+		if (isFileOpen)
+		{
+			ImGui::Begin("Import");
+			if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0))
+			{
+				physicsHandler.isMouseHover = true;
+				//OutputDebugStringA("VALID!!!!!\n");
+			}
+			else
+			{
+				physicsHandler.isMouseHover = false;
+				//OutputDebugStringA("INVALID!!!!!\n");
+			}
+			ImGui::Checkbox("Textures", &hasTexture);
+			ImGui::Checkbox("Animated", &isAnimated);
+			ImGui::Checkbox("ConvertCordinates", &bConvertCordinates);
+			if (ImGui::Button("Add"))
+			{
+				bAddEntity = true;
+				isFileOpen = false;
+			}
+			ImGui::End();
+		}
 	}
 
 	gfxGui.EndRender();
@@ -1181,13 +1241,6 @@ void Renderer::BloomRender(Camera& camera)
 
 	rect.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
 
-
-
-	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
-	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-	gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
-	gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
 	//Vertical bloom
 	gfx11.deviceContext->RSSetViewports(1, &BloomVerticalBlurTexture.m_viewport);
 	BloomVerticalBlurTexture.SetRenderTarget(gfx11.deviceContext.Get(), BloomVerticalBlurTexture.m_depthStencilView);
@@ -1200,12 +1253,6 @@ void Renderer::BloomRender(Camera& camera)
 	gfx11.deviceContext->PSSetShaderResources(0, 1, &bloomRenderTexture.shaderResourceView);
 
 	rectBloom.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
-
-
-	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
-	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-	gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
-	gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	//Horizontal Bloom
 	gfx11.deviceContext->RSSetViewports(1, &BloomHorizontalBlurTexture.m_viewport);

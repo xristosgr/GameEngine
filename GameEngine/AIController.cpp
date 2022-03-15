@@ -10,7 +10,7 @@ void AIController::MoveTo(float& dt, Entity* start, Entity* end, float& gravity)
 		return;
 
 	_force = 3.0f;
-	radius = 1.0f;
+	radius = 8.0f;
 
 	physx::PxVec3 moveVec = Move(dt, start,gravity);
 	//physx::PxVec3 moveVec = MoveDirectlyTo(dt, v1, v2);
