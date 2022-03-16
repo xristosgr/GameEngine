@@ -3,17 +3,19 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "Camera.h"
+#include "SoundComponent.h"
 
 class TpsController
 {
 public:
 	TpsController();
 
+	void Intitialize();
 	void MouseMovement(float& dt, Entity& entity, Keyboard& keyboard, Mouse& mouse, Camera& camera);
 	void Movement(float& dt, float gravity, Entity& entity, Keyboard& keyboard, Mouse& mouse, Camera& camera);
 
 	void SetCharacterRotation(Entity& entity, Camera& camera);
-
+	void Update();
 private:
 	enum RotationEnum
 	{
@@ -45,13 +47,16 @@ private:
 	float CharacterRotY = 0.0f;
 
 	float lastCamRot = 0.0f;
-
+	bool isMoving = false;
+	bool isFalling = false;
 	XMFLOAT3 cameraPrevPos;
 	XMFLOAT2 prevPos;
 	XMVECTOR vPrev;
 	XMVECTOR vPrevPos;
 	XMVECTOR vLerp;
 	XMVECTOR vLerpPos;
+
+	SoundComponent sound;
 
 };
 

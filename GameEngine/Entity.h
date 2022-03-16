@@ -8,6 +8,7 @@
 #include "Mouse.h"
 #include "Keyboard.h"
 
+
 class Entity
 {
 public:
@@ -17,6 +18,7 @@ public:
 	//void LoadAnimation();
 	void CreatePhysicsComponent(physx::PxPhysics& physics, physx::PxScene& scene, physx::PxCooking* cooking);
 	void UpdatePhysics();
+	void Update();
 	void Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix);
 	void AttachController(physx::PxController& characterController,bool& runPhysics);
 	void MouseMove(Mouse& mouse, Keyboard& keyboard,Camera& camera);
@@ -26,6 +28,7 @@ public:
 public:
 	std::string entityName = " ";
 	PhysicsComponent physicsComponent;
+
 
 public:
 	ModelLoader model;
@@ -77,7 +80,6 @@ public:
 
 	float rotationDir;
 private:
-
 
 	imgui_addons::ImGuiFileBrowser file_dialog;
 

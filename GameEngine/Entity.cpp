@@ -17,11 +17,11 @@ bool Entity::Intitialize(const std::string filePath, ID3D11Device* device, ID3D1
 {
 	this->_filePath = filePath;
 	this->isAnimated = isAnimated;
+
 	if (!model.Initialize(this->filePath, device, deviceContext, cb_vs_vertexshader, this->isAnimated))
 	{
 		return false;
 	}
-
 
 	return true;
 }
@@ -103,6 +103,14 @@ void Entity::UpdatePhysics()
 	{
 		physicsComponent.aStaticActor->setGlobalPose(physicsComponent.trans);
 	}
+
+}
+
+void Entity::Update()
+{
+	UpdatePhysics();
+
+	
 
 }
 

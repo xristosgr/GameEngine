@@ -11,6 +11,11 @@ TpsController::TpsController()
 
 }
 
+void TpsController::Intitialize()
+{
+	//sound.Initialize("./Data/Sounds/walk.wav",true,);
+}
+
 void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard, Mouse& mouse, Camera& camera)
 {
 	const float cameraSpeed = 0.06f;
@@ -298,14 +303,17 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 		{
 			if (moveX != 0 || moveZ != 0)
 			{
+				isMoving = true;
 				entity.model.SetAnimIndex(1, true, 5.0f);
 			}
 			else
 			{
+				isMoving = false;
 				entity.model.SetAnimIndex(0,true,5.0f);
 			}
 		}
-		
+		isFalling = entity.isFalling;
+
 		entity.model.Update();
 
 		entity.physicsComponent.aActor->setGlobalPose(entity.physicsComponent.trans);
@@ -346,260 +354,25 @@ void TpsController::SetCharacterRotation(Entity& entity, Camera& camera)
 
 
 	}
+}
 
-
-	//switch (currRotation)
+void TpsController::Update()
+{
+	//if (isMoving && !isFalling)
 	//{
-
-
-	//case UP:
-	//{
-	//	rotateRight = false;
-	//	rotateUp = true;
-	//	rotateLeft = true;
-	//	if (entity.rotationDir < 3.0)
+	//	sound.channel->setVolume(2.0f);
+	//	sound.channel->setPitch(0.3f);
+	//	bool fResult;
+	//	sound.channel->isPlaying(&fResult);
+	//	if (!fResult)
 	//	{
-	//		entity.rotationDir += rotSpeed;
+	//		sound.Play();
 	//	}
-	//	else if (entity.rotationDir > 3.2)
-	//	{
-	//		entity.rotationDir -= rotSpeed;
-	//	}
-	//	else
-	//	{
-	//		entity.rotationDir = 3.1;
-	//	}
-	//	break;
 	//}
-	//case DOWN:
+	//else
 	//{
-	//	rotateLeft = false;
-	//
-	//	if (!rotateRight)
-	//	{
-	//		if (rotateUp == true)
-	//		{
-	//			if (entity.rotationDir < 6.2)
-	//			{
-	//				entity.rotationDir += rotSpeed;
-	//			}
-	//			else
-	//			{
-	//				entity.rotationDir = 6.3;
-	//				rotateUp = false;
-	//			}
-	//
-	//		}
-	//		else
-	//		{
-	//			if (entity.rotationDir <= 2)
-	//			{
-	//				if (entity.rotationDir >= 0.0f && entity.rotationDir < 6.2)
-	//				{
-	//					entity.rotationDir -= rotSpeed;
-	//				}
-	//				else
-	//				{
-	//					entity.rotationDir = 6.3;
-	//				}
-	//			}
-	//			else if (entity.rotationDir > 4.0f)
-	//			{
-	//				if (entity.rotationDir >= 5.0f && entity.rotationDir < 6.3)
-	//				{
-	//					entity.rotationDir += rotSpeed;
-	//				}
-	//				else
-	//				{
-	//					//entity.rotationDir = 0.0f;
-	//				}
-	//			}
-	//			else
-	//			{
-	//
-	//				if (entity.rotationDir < 6.2)
-	//				{
-	//					entity.rotationDir += rotSpeed;
-	//				}
-	//				else if (entity.rotationDir > 6.4)
-	//				{
-	//					entity.rotationDir -= rotSpeed;
-	//				}
-	//				else
-	//				{
-	//					entity.rotationDir = 6.3;
-	//				}
-	//			}
-	//
-	//		}
-	//	}
-	//	else
-	//	{
-	//		if (entity.rotationDir < 6.2)
-	//		{
-	//			entity.rotationDir += rotSpeed;
-	//		}
-	//		else
-	//		{
-	//			entity.rotationDir = 6.3;
-	//		}
-	//
-	//	}
-	//
-	//	break;
+	//	sound.channel->stop();
 	//}
 	//
-	//
-	//case LEFT:
-	//	rotateRight = true;
-	//	rotateUp = false;
-	//	rotateLeft = true;
-	//	if (entity.rotationDir < 4.7)
-	//	{
-	//		entity.rotationDir += rotSpeed;
-	//	}
-	//	else if (entity.rotationDir > 4.9)
-	//	{
-	//		entity.rotationDir -= rotSpeed;
-	//	}
-	//	else
-	//	{
-	//		entity.rotationDir = 4.8;
-	//	}
-	//	break;
-	//case RIGHT:
-	//	rotateRight = false;
-	//	rotateUp = false;
-	//	//rotateLeft = false;
-	//	if (!rotateLeft)
-	//	{
-	//		if (entity.rotationDir > 2 && entity.rotationDir <= 6.6f)
-	//			entity.rotationDir = 0.0f;
-	//		if (entity.rotationDir < 0.7)
-	//		{
-	//			entity.rotationDir += rotSpeed;
-	//		}
-	//		else if (entity.rotationDir > 1.5)
-	//		{
-	//			entity.rotationDir -= rotSpeed;
-	//		}
-	//		else
-	//		{
-	//			entity.rotationDir = 1.4;
-	//
-	//			rotateLeft = true;
-	//		}
-	//
-	//	}
-	//	else
-	//	{
-	//		if (entity.rotationDir < 1.3)
-	//		{
-	//			entity.rotationDir += rotSpeed;
-	//		}
-	//		else if (entity.rotationDir > 1.5)
-	//		{
-	//			entity.rotationDir -= rotSpeed;
-	//		}
-	//		else
-	//		{
-	//			entity.rotationDir = 1.4;
-	//		}
-	//	}
-	//
-	//	break;
-
-	//case RIGHT_UP:
-	//	rotateRight = false;
-	//	rotateUp = false;
-	//	rotateLeft = true;
-	//	if (entity.rotationDir < 2.1)
-	//	{
-	//		entity.rotationDir += rotSpeed;
-	//	}
-	//	else if (entity.rotationDir > 2.3)
-	//	{
-	//		entity.rotationDir -= rotSpeed;
-	//	}
-	//	else
-	//	{
-	//		entity.rotationDir = 2.2;
-	//	}
-	//	break;
-	//case RIGHT_DOWN:
-	//	rotateRight = false;
-	//	rotateUp = false;
-	//	rotateLeft = false;
-	//	if (!rotateLeft)
-	//	{
-	//		if (entity.rotationDir > 2 && entity.rotationDir <= 6.6f)
-	//			entity.rotationDir = 0.0f;
-	//		if (entity.rotationDir < 0.7)
-	//		{
-	//			entity.rotationDir += rotSpeed;
-	//		}
-	//		else if (entity.rotationDir > 0.9)
-	//		{
-	//			entity.rotationDir -= rotSpeed;
-	//		}
-	//		else
-	//		{
-	//			entity.rotationDir = 0.8;
-	//
-	//			rotateLeft = true;
-	//		}
-	//
-	//	}
-	//	else
-	//	{
-	//		if (entity.rotationDir < 0.7)
-	//		{
-	//			entity.rotationDir += rotSpeed;
-	//		}
-	//		else if (entity.rotationDir > 0.9)
-	//		{
-	//			entity.rotationDir -= rotSpeed;
-	//		}
-	//		else
-	//		{
-	//			entity.rotationDir = 0.8;
-	//		}
-	//	}
-	//
-	//	break;
-	//case LEFT_UP:
-	//	rotateRight = false;
-	//	rotateUp = false;
-	//	rotateLeft = true;
-	//	if (entity.rotationDir < 3.9)
-	//	{
-	//		entity.rotationDir += rotSpeed;
-	//	}
-	//	else if (entity.rotationDir > 4.1)
-	//	{
-	//		entity.rotationDir -= rotSpeed;
-	//	}
-	//	else
-	//	{
-	//		entity.rotationDir = 4.0;
-	//	}
-	//	break;
-	//case LEFT_DOWN:
-	//	rotateRight = false;
-	//	rotateUp = false;
-	//	rotateLeft = true;
-	//	if (entity.rotationDir < 5.4)
-	//	{
-	//		entity.rotationDir += rotSpeed;
-	//	}
-	//	else if (entity.rotationDir > 5.6)
-	//	{
-	//		entity.rotationDir -= rotSpeed;
-	//	}
-	//	else
-	//	{
-	//		entity.rotationDir = 5.5;
-	//	}
-	//	break;
-	//}
+	//sound.Update();
 }

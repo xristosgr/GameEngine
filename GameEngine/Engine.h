@@ -11,6 +11,7 @@
 #include "GridClass.h"
 #include <thread>
 #include "NavMeshClass.h"
+#include "SoundComponent.h"
 
 class Engine : virtual WindowContainer
 {
@@ -41,6 +42,7 @@ private:
 	std::vector<Light> lights;
 	std::vector<Light> pointlights;
 	std::vector<CollisionObject> collisionObjects;
+	std::vector<SoundComponent*> sounds;
 
 	Camera camera;
 	Renderer renderer;
@@ -127,4 +129,8 @@ private:
 	CopiedEntityData copiedEntityData;
 	CopiedLightData copiedLightData;
 	CopiedLightData copiedPointLightData;
+
+
+
+	SoundComponent backGroundSound;
 };

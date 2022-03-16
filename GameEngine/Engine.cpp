@@ -39,6 +39,13 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	physicsHandler.CreatePhysicsComponents(entities, collisionObjects);
 	
 	grid.InitializeBoundsVolume(renderer.gfx11.device.Get());
+
+
+
+	tpsPlayerController.Intitialize();
+	backGroundSound.Initialize("./Data/Sounds/through space.ogg",true, renderer.gfx11.device.Get());
+	sounds.push_back(&backGroundSound);
+
 	return true;
 }
 
@@ -232,7 +239,7 @@ void Engine::RenderFrame(float& dt,float& fps)
 
 	ObjectsHandler(dt);
 
-	renderer.Render(camera, entities,physicsHandler, lights, pointlights, collisionObjects,grid, navMeshes, *physicsHandler.aScene);
+	renderer.Render(camera, entities,physicsHandler, lights, pointlights, collisionObjects,grid, navMeshes, *physicsHandler.aScene, sounds);
 	
 	if (physicsHandler.advance(dt, fps, camera))
 	{
@@ -243,6 +250,7 @@ void Engine::RenderFrame(float& dt,float& fps)
 				player->bRender = true;
 				tpsPlayerController.MouseMovement(dt, *player, keyboard, mouse, camera);
 				tpsPlayerController.Movement(dt, physicsHandler.aScene->getGravity().y, *player, keyboard, mouse, camera);
+				tpsPlayerController.Update();
 			}
 			else
 			{
@@ -270,6 +278,16 @@ void Engine::RenderFrame(float& dt,float& fps)
 		renderer.bClear = false;
 	}
 
+	
+	backGroundSound.UpdatePos(FMOD_VECTOR{ 0,2,0 }, camera.pos,camera.GetForwardVector());
+	bool fResult;
+	backGroundSound.channel->isPlaying(&fResult);
+	if (!fResult)
+	{
+		backGroundSound.Play();
+	}
+
+	backGroundSound.Update();
 }
 
 void Engine::AddEntity(std::string& _inName,bool& isAnimated, bool& bConvertCordinates)
@@ -367,8 +385,8 @@ void Engine::ObjectsHandler(float& dt)
 		}
 		entities[i].physicsComponent.UpdatePhysics(*physicsHandler.mPhysics, *physicsHandler.aScene, physicsHandler.mCooking);
 
-		entities[i].UpdatePhysics();
-
+		//entities[i].UpdatePhysics();
+		entities[i].Update();
 		entities[i].MouseMove(mouse, keyboard,camera);
 	}
 

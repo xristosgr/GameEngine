@@ -481,7 +481,7 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 //**********************************************************************************
 
 
-void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHandler& physicsHandler, std::vector<Light>& lights, std::vector<Light>& pointLights, std::vector< CollisionObject>& collisionObjects, GridClass& grid, std::vector<NavMeshClass>& navMeshes, physx::PxScene& scene)
+void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHandler& physicsHandler, std::vector<Light>& lights, std::vector<Light>& pointLights, std::vector< CollisionObject>& collisionObjects, GridClass& grid, std::vector<NavMeshClass>& navMeshes, physx::PxScene& scene, std::vector<SoundComponent*>& sounds)
 {
 	//for(int i=0; i<lights.size();++i)
 	//	lights[i].UpdateCamera();
@@ -622,6 +622,19 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	//////////////////////////////////////////////////////////////////////////////////
 
 	/////////////////////////////////////////////////////////////////////////////////
+
+
+	if (!runPhysics)
+	{
+		gfx11.deviceContext->IASetInputLayout(gfx11.testVS.GetInputLayout());
+		gfx11.deviceContext->VSSetShader(gfx11.testVS.GetShader(), nullptr, 0);
+		gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
+		for (int i = 0; i < sounds.size(); ++i)
+		{
+			sounds[i]->Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
+		}
+	}
+	
 
 	if (debugEnabled)
 	{
@@ -1022,6 +1035,15 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			if (ImGui::Button("Create grid"))
 			{
 				bCreateGrid = true;
+			}
+		}
+		ImGui::NewLine();
+		ImGui::NewLine();
+		if (ImGui::CollapsingHeader("Sounds"))
+		{
+			for (int i = 0; i < sounds.size(); ++i)
+			{
+				sounds[i]->cube.DrawGUI("sound" + std::to_string(i));
 			}
 		}
 
