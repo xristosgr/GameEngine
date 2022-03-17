@@ -7,6 +7,7 @@ SoundComponent::SoundComponent()
 bool SoundComponent::Initialize(const char* filePath, bool is3D, ID3D11Device* device)
 {
     cube.Initialize(device);
+    cube.pos = DirectX::XMFLOAT3(0, 2, 0);
     b3D = is3D;
     system = NULL;
     FMOD_RESULT result;

@@ -494,9 +494,7 @@ void Engine::CopyPasteEntity()
 				else
 					entities[i].isSelected = false;
 			}
-			else
-				entities[i].isSelected = false;
-
+			
 			if (entities[i].isSelected)
 			{
 				if (entities[i].physicsComponent.aActor)
@@ -529,6 +527,8 @@ void Engine::CopyPasteEntity()
 				copiedEntityData.rot = entities[i].rot;
 				copiedEntityData.bConvertCordinates = entities[i].model.bConvertCordinates;
 				copiedEntityData.frustumScale = entities[i].frustumScale;
+				copiedEntityData.isEmissive = entities[i].isEmissive;
+				copiedEntityData.emissiveColor = entities[i].emissiveColor;
 			}
 		}
 	}
@@ -558,6 +558,8 @@ void Engine::CopyPasteEntity()
 		entities[entities.size() - 1].rot = copiedEntityData.rot;
 		entities[entities.size() - 1].model.bConvertCordinates = copiedEntityData.bConvertCordinates;
 		entities[entities.size() - 1].frustumScale = copiedEntityData.frustumScale;
+		entities[entities.size() - 1].isEmissive = copiedEntityData.isEmissive;
+		entities[entities.size() - 1].emissiveColor = copiedEntityData.emissiveColor;
 
 		entities[entities.size() - 1].entityName = "Entity" + std::to_string(entities.size() - 1);
 		//asyncAddEntity = std::async(std::launch::async, &Engine::AddEntity, this, std::ref(copiedEntityData.FilePath), std::ref(copiedEntityData.isAnimated), std::ref(entities[entities.size() - 1].model.bConvertCordinates));

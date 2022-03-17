@@ -85,7 +85,8 @@ struct CB_PS_pbrBuffer
 	float roughness;
 };
 
-struct CB_PS_lightMatrixBuffer
+struct CB_PS_lightBuffer
 {
 	DirectX::XMMATRIX viewProjMatrix;
+	DirectX::XMFLOAT3 color;
 };

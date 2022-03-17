@@ -98,7 +98,7 @@ public:
 	ConstantBuffer<CB_PS_pointLightCull> cb_ps_pointLightCull;
 	ConstantBuffer<CB_PS_screenEffectBuffer> cb_ps_screenEffectBuffer;
 	ConstantBuffer<CB_PS_pbrBuffer> cb_ps_pbrBuffer;
-	ConstantBuffer<CB_PS_lightMatrixBuffer> cb_ps_lightMatrixBuffer;
+	ConstantBuffer<CB_PS_lightBuffer> cb_ps_lightBuffer;
 
 	RenderTexture renderTexture;
 	//RenderTexture shadowTexture;

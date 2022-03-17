@@ -65,6 +65,10 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 			outfile << "frustumScaleY= " << entities[i].frustumScale.y << "\n";
 			outfile << "frustumScaleZ= " << entities[i].frustumScale.z << "\n";
 
+			outfile << "emissiveColorX= " << entities[i].emissiveColor.x << "\n";
+			outfile << "emissiveColorY= " << entities[i].emissiveColor.y << "\n";
+			outfile << "emissiveColorZ= " << entities[i].emissiveColor.z << "\n";
+
 			outfile << "isCharacter= " << entities[i].physicsComponent.isCharacter << "\n";
 			outfile << "isPlayer= " << entities[i].isPlayer << "\n";
 			outfile << "isAI= " << entities[i].isAI << "\n";
@@ -76,6 +80,7 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 			outfile << "isAttached= " << entities[i].model.isAttached << "\n";
 			outfile << "Frustum= " << entities[i].isfrustumEnabled << "\n";
 			outfile << "isDeleted= " << entities[i].isDeleted << "\n";
+			outfile << "isEmissive= " << entities[i].isEmissive << "\n";
 			outfile << "physicsShape= " << entities[i].physicsComponent.physicsShapeEnum << "\n";
 			outfile << "animFilesCount= " << entities[i].model.animFiles.size() << "\n";
 			
@@ -125,6 +130,10 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 			outfile << "colorY= " << lights[i].lightColor.y << "\n";
 			outfile << "colorZ= " << lights[i].lightColor.z << "\n";
 
+			outfile << "emissionColorX= " << lights[i].emissionColor.x << "\n";
+			outfile << "emissionColorY= " << lights[i].emissionColor.y << "\n";
+			outfile << "emissionColorZ= " << lights[i].emissionColor.z << "\n";
+
 			outfile << "directionX= " << lights[i].direction.x << "\n";
 			outfile << "directionY= " << lights[i].direction.y << "\n";
 			outfile << "directionZ= " << lights[i].direction.z << "\n";
@@ -161,6 +170,10 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 			outfile << "colorX= " << pointLights[i].lightColor.x << "\n";
 			outfile << "colorY= " << pointLights[i].lightColor.y << "\n";
 			outfile << "colorZ= " << pointLights[i].lightColor.z << "\n";
+
+			outfile << "emissionColorX= " << pointLights[i].emissionColor.x << "\n";
+			outfile << "emissionColorY= " << pointLights[i].emissionColor.y << "\n";
+			outfile << "emissionColorZ= " << pointLights[i].emissionColor.z << "\n";
 
 			outfile << "directionX= " << pointLights[i].direction.x << "\n";
 			outfile << "directionY= " << pointLights[i].direction.y << "\n";
@@ -366,6 +379,19 @@ void SaveSystem::LoadEntityData(std::vector<Entity>& entities)
 						entities[i].frustumScale.z = (float)val;
 					}
 
+					if (path == "emissiveColorX=")
+					{
+						entities[i].emissiveColor.x = (float)val;
+					}
+					if (path == "emissiveColorY=")
+					{
+						entities[i].emissiveColor.y = (float)val;
+					}
+					if (path == "emissiveColorZ=")
+					{
+						entities[i].emissiveColor.z = (float)val;
+					}
+
 					if (path == "isCharacter=")
 					{
 						entities[i].physicsComponent.isCharacter = (int)val;
@@ -409,6 +435,10 @@ void SaveSystem::LoadEntityData(std::vector<Entity>& entities)
 					if (path == "isDeleted=")
 					{
 						entities[i].isDeleted = (int)val;
+					}
+					if (path == "isEmissive=")
+					{
+						entities[i].isEmissive = (int)val;
 					}
 					if (path == "physicsShape=")
 					{
@@ -509,6 +539,19 @@ void SaveSystem::LoadLightData(std::vector<Light>& lights, std::vector<Light>& p
 					if (path == "colorZ=")
 					{
 						lights[i].lightColor.z = (float)val;
+					}
+
+					if (path == "emissionColorX=")
+					{
+						lights[i].emissionColor.x = (float)val;
+					}
+					if (path == "emissionColorY=")
+					{
+						lights[i].emissionColor.y = (float)val;
+					}
+					if (path == "emissionColorZ=")
+					{
+						lights[i].emissionColor.z = (float)val;
 					}
 
 					if (path == "directionX=")
@@ -626,6 +669,19 @@ void SaveSystem::LoadLightData(std::vector<Light>& lights, std::vector<Light>& p
 					if (path == "colorZ=")
 					{
 						pointLights[i].lightColor.z = (float)val;
+					}
+
+					if (path == "emissionColorX=")
+					{
+						pointLights[i].emissionColor.x = (float)val;
+					}
+					if (path == "emissionColorY=")
+					{
+						pointLights[i].emissionColor.y = (float)val;
+					}
+					if (path == "emissionColorZ=")
+					{
+						pointLights[i].emissionColor.z = (float)val;
 					}
 
 					if (path == "directionX=")

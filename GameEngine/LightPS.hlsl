@@ -1,3 +1,9 @@
+cbuffer lightBuffer : register(b5)
+{
+    float4x4 viewMatrix;
+    float3 color;
+}
+
 struct PS_INPUT
 {
     float4 inPosition : SV_POSITION;
@@ -7,5 +13,5 @@ struct PS_INPUT
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    return float4(1, 1, 1, 1.0);
+    return float4(color, 1.0);
 }

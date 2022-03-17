@@ -106,6 +106,8 @@ private:
 		physx::PxQuat physics_rot;
 		physx::PxVec3 physics_scale;
 		bool isfrustumEnabled;
+		bool isEmissive;
+		XMFLOAT3 emissiveColor;
 		PhysicsShapeEnum physicsShapeEnum;
 	};
 	struct CopiedLightData

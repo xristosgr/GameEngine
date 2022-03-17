@@ -42,6 +42,8 @@ public:
 	DirectX::XMFLOAT3 frustumScale;
 	DirectX::XMFLOAT3 modelPos;
 	DirectX::XMFLOAT3 offsetPos;
+	DirectX::XMFLOAT3 emissiveColor;
+
 
 	DirectX::XMMATRIX matrix_rotate;
 	DirectX::XMMATRIX worldMatrix;
@@ -50,7 +52,7 @@ public:
 	std::string _filePath;
 	bool isAnimated;
 	bool bRender;
-
+	bool isEmissive = false;
 	bool isMovingFront = false;
 	bool isMovingRight = false;
 	bool isMovingLeft = false;
@@ -77,7 +79,6 @@ public:
 	bool isObstacle = false;
 
 	bool isSelected = false;
-
 	float rotationDir;
 private:
 

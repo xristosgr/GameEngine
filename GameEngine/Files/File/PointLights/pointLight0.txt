@@ -1,12 +1,15 @@
 posX= 4.865
 posY= 1.29
-posZ= -10.72
+posZ= -11.575
 scaleX= 0.02
 scaleY= 0.02
 scaleZ= 0.02
 colorX= 40
 colorY= 5
 colorZ= 5
+emissionColorX= 6.505
+emissionColorY= 0.61
+emissionColorZ= 0.775
 directionX= -1.21
 directionY= 0
 directionZ= -12.69

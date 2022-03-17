@@ -23,6 +23,7 @@ public:
 	Camera camera;
 
 	DirectX::XMFLOAT3 lightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+	DirectX::XMFLOAT3 emissionColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 	DirectX::XMFLOAT3 specularColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	float specularPower = 1.0f;

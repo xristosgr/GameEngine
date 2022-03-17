@@ -343,6 +343,7 @@ void Entity::DrawGui(physx::PxScene& scene)
 		ImGui::Checkbox("isWalkable", &isWalkable);
 		ImGui::Checkbox("isObstacle", &isObstacle);
 		ImGui::Checkbox("isAttached", &model.isAttached);
+		ImGui::Checkbox("isEmissive", &isEmissive);
 		if (ImGui::Button("Create Controller"))
 		{
 			bCreateController = true;
@@ -355,6 +356,7 @@ void Entity::DrawGui(physx::PxScene& scene)
 		ImGui::DragFloat4("physics_rot", &physicsComponent.physics_rot.x, 0.01f);
 		ImGui::DragFloat3("physics_scale", &physicsComponent.physics_scale.x, 0.01f);
 		ImGui::DragFloat3("frustumScale", &frustumScale.x, 0.01f);
+		ImGui::DragFloat3("emissiveColor", &emissiveColor.x, 0.01f);
 		ImGui::Checkbox("isTransparent", &model.isTransparent);
 		ImGui::Checkbox("Frustum", &isfrustumEnabled);
 
@@ -370,7 +372,7 @@ void Entity::DrawGui(physx::PxScene& scene)
 			physicsComponent.physicsShapeEnum = static_cast<PhysicsShapeEnum>(physicsComponent.selectedShape);
 			physicsComponent.bCreatePhysicsComp = true;
 		}
-
+		
 		if (ImGui::Button("Delete"))
 		{
 			Clear(scene);
