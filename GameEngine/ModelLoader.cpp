@@ -360,8 +360,6 @@ void ModelLoader::Draw(const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMA
 		for (unsigned int i = 0; i < transforms.size(); ++i)
 		{
 			this->cb_vs_vertexshader.data.bones_transform[i] = transforms[i];
-
-
 		}
 	}
 	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader.GetBuffer().GetAddressOf());
@@ -369,6 +367,7 @@ void ModelLoader::Draw(const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMA
 	this->cb_vs_vertexshader.data.viewMatrix = DirectX::XMMatrixTranspose(viewMatrix);
 	this->cb_vs_vertexshader.data.projectionMatrix = DirectX::XMMatrixTranspose(projectionMatrix);
 
+	_worldMatrix = worldMatrix;
 	for (int i = 0; i < meshes.size(); ++i)
 	{
 		if (!bConvertCordinates)
@@ -381,6 +380,7 @@ void ModelLoader::Draw(const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMA
 
 		}
 			
+		
 
 		this->cb_vs_vertexshader.UpdateBuffer();
 

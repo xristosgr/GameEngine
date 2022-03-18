@@ -106,12 +106,53 @@ void Entity::UpdatePhysics()
 
 }
 
-void Entity::Update()
+void Entity::Update(Entity* entity)
 {
+	parent = entity;
 	UpdatePhysics();
-
 	
+	if (isPlayer)
+	{
+		//for (int i = 0; i < model.boneNames.size(); ++i)
+		//{
+		//	if (model.boneNames[i] == "mixamorig_RightHand")
+		//	{
+		//		OutputDebugStringA((" Name= " + model.boneNames[i]).c_str());
+		//		OutputDebugStringA("\n");
+		//	}
+		//}
+		
+		//OutputDebugStringA(("X= " + std::to_string(model.worldPos.x)).c_str());
+		//OutputDebugStringA((" Y= " + std::to_string(model.worldPos.y)).c_str());
+		//OutputDebugStringA((" Z= " + std::to_string(model.worldPos.z)+"\n").c_str());
+		//OutputDebugStringA((" W= " + std::to_string(model.worldRot.w) + "\n").c_str());
+	}
 
+	if (model.isAttached)
+	{
+		if (parent)
+		{
+			//DirectX::XMMATRIX _invMat = DirectX::XMMatrixInverse(nullptr, parent->model.boneTrans);
+			
+			parent->model.FinalBoneTrans = parent->model.boneTrans * parent->model._worldMatrix;
+		
+
+			DirectX::XMMatrixDecompose(&_scale, &_rot, &_pos, parent->model.FinalBoneTrans);
+			
+			DirectX::XMStoreFloat3(&parent->model.worldPos, _pos);
+			DirectX::XMStoreFloat3(&parent->model.worldScale, _scale);
+			DirectX::XMStoreFloat4(&parent->model.worldRot, _rot);
+			
+			OutputDebugStringA(("X= " + std::to_string(parent->model.worldPos.x)).c_str());
+			OutputDebugStringA((" Y= " + std::to_string(parent->model.worldPos.y)).c_str());
+			//OutputDebugStringA((" Z= " + std::to_string(parent->model.worldPos.z)).c_str());
+			OutputDebugStringA((" Z= " + std::to_string(parent->model.worldPos.z) + "\n").c_str());
+
+			pos = XMFLOAT3(parent->model.worldPos.x, parent->model.worldPos.y, parent->model.worldPos.z);
+			//pos = XMFLOAT3(parent->pos.x + parent->model.worldPos.x + offsetPos.x, parent->pos.y + parent->model.worldPos.y+ offsetPos.y, parent->pos.z + parent->model.worldPos.z + offsetPos.z);
+			//rot = XMFLOAT3(parent->model.worldRot.x, parent->model.worldRot.y, parent->model.worldRot.z);
+		}
+	}
 }
 
 void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix)
@@ -119,16 +160,17 @@ void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const Dir
 	if (isDeleted)
 		return;
 
+	if (model.isAnimated && bRender && !isPlayer)
+	{
+		model.SetAnimIndex(0);
+		model.Update();
+	}
 	DirectX::XMMATRIX matrix_scale;
 	DirectX::XMMATRIX matrix_rotate;
 	DirectX::XMMATRIX matrix_translate;
 
 
-	//if (model.isAnimated && bRender)
-	//{
-	//	model.SetAnimIndex(0);
-	//	model.Update();
-	//}
+	
 	
 	if (physicsComponent.aActor || physicsComponent.aStaticActor)
 	{
@@ -146,11 +188,33 @@ void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const Dir
 	}
 	else
 	{
+		
 		matrix_scale = DirectX::XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z);
 		matrix_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
-		matrix_translate = DirectX::XMMatrixTranslation(pos.x + modelPos.x, pos.y + modelPos.y, pos.z + modelPos.z);
+		matrix_translate = DirectX::XMMatrixTranslation(modelPos.x, modelPos.y, modelPos.z);
 
 		worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
+		if (!model.isAttached)
+		{
+			matrix_scale = DirectX::XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z);
+			matrix_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
+			matrix_translate = DirectX::XMMatrixTranslation(pos.x + modelPos.x, pos.y + modelPos.y, pos.z + modelPos.z);
+
+
+
+			worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
+		}
+		else
+		{
+			matrix_scale = DirectX::XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z);
+			//matrix_scale = DirectX::XMMatrixScalingFromVector(_scale);
+			matrix_rotate = DirectX::XMMatrixRotationQuaternion(_rot);
+			matrix_translate = DirectX::XMMatrixTranslationFromVector(_pos);
+
+			worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
+		}
+		
+		//worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
 	}
 	if (bRender)
 	{
@@ -336,7 +400,6 @@ void Entity::DrawGui(physx::PxScene& scene)
 
 	if (showHidden)
 	{
-
 		ImGui::Checkbox("isCharacter", &physicsComponent.isCharacter);
 		ImGui::Checkbox("isPlayer", &isPlayer);
 		ImGui::Checkbox("isAI", &isAI);
@@ -357,6 +420,8 @@ void Entity::DrawGui(physx::PxScene& scene)
 		ImGui::DragFloat3("physics_scale", &physicsComponent.physics_scale.x, 0.01f);
 		ImGui::DragFloat3("frustumScale", &frustumScale.x, 0.01f);
 		ImGui::DragFloat3("emissiveColor", &emissiveColor.x, 0.01f);
+		ImGui::DragFloat3("BoneRot", &model.BoneRot.x, 0.01f);
+
 		ImGui::Checkbox("isTransparent", &model.isTransparent);
 		ImGui::Checkbox("Frustum", &isfrustumEnabled);
 

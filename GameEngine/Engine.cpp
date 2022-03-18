@@ -386,7 +386,8 @@ void Engine::ObjectsHandler(float& dt)
 		entities[i].physicsComponent.UpdatePhysics(*physicsHandler.mPhysics, *physicsHandler.aScene, physicsHandler.mCooking);
 
 		//entities[i].UpdatePhysics();
-		entities[i].Update();
+		
+		entities[i].Update(&entities[45]);
 		entities[i].MouseMove(mouse, keyboard,camera);
 	}
 

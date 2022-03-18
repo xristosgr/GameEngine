@@ -70,7 +70,7 @@ bool Animation::LoadBones(aiMesh* mesh, std::vector<VertexBoneData>& bones, std:
 
 		unsigned int BoneIndex = 0;
 		std::string BoneName(mesh->mBones[i]->mName.data);
-
+		boneNames.push_back(BoneName);
 		//boneNames.push_back(mesh->mBones[i]->mName.data);
 		//BoneRot.push_back(XMFLOAT3(0.f, 0.f, 0.f));
 		//BoneScale.push_back(XMFLOAT3(0.f, 0.f, 0.f));
@@ -86,8 +86,8 @@ bool Animation::LoadBones(aiMesh* mesh, std::vector<VertexBoneData>& bones, std:
 
 			aiMatrix4x4 offset = mesh->mBones[i]->mOffsetMatrix;
 
-			m_BoneInfo[BoneIndex].BoneOffset = DirectX::XMMatrixTranspose(DirectX::XMMATRIX(&offset.a1));
 
+			m_BoneInfo[BoneIndex].BoneOffset = DirectX::XMMatrixTranspose(DirectX::XMMATRIX(&offset.a1));
 			BoneMapping[BoneName] = BoneIndex;
 
 		}
@@ -160,8 +160,20 @@ void Animation::BoneTransform(std::vector<DirectX::XMMATRIX>& Transforms)
 	Transforms.resize(m_NumBones);
 
 	for (unsigned int i = 0; i < m_NumBones; i++) {
+		
+		
 		Transforms[i] = m_BoneInfo[i].FinalTransformation;
+	
+		if (boneNames[i] == "Bone.008.R")
+		{
+			DirectX::XMMATRIX _invMat = DirectX::XMMatrixInverse(nullptr, m_BoneInfo[i].BoneOffset);
+			boneTrans = _invMat*Transforms[i];
+		}
+		
 		Transforms[i] = DirectX::XMMatrixTranspose(Transforms[i]);
+	
+		
+
 	}
 }
 
@@ -193,7 +205,6 @@ void Animation::ReadNodeHierarchy(const aiScene* scene, float& AnimationTime, co
 		aiMatrix4x4 scale_mat;
 		aiMatrix4x4::Scaling(Scaling, scale_mat);
 
-		DirectX::XMFLOAT4X4 tempScale = DirectX::XMFLOAT4X4(&scale_mat.a1);
 		DirectX::XMMATRIX ScalingM = DirectX::XMMATRIX(&scale_mat.a1);
 
 		aiQuaternion RotationQ;
@@ -201,7 +212,9 @@ void Animation::ReadNodeHierarchy(const aiScene* scene, float& AnimationTime, co
 		RotationQ = CalcInterpolatedRotation(AnimationTime, pNodeAnim);
 
 		DirectX::XMMATRIX RotationM = DirectX::XMMatrixRotationQuaternion(DirectX::XMVectorSet(RotationQ.x, RotationQ.y, RotationQ.z, RotationQ.w));
-		//RotationM *= XMMatrixRotationRollPitchYaw(BoneRot[m_BoneIndex].x, BoneRot[m_BoneIndex].y, BoneRot[m_BoneIndex].z);
+
+		//if (NodeName == "mixamorig_LeftArm")
+		//	RotationM *= DirectX::XMMatrixRotationRollPitchYaw(BoneRot.x, BoneRot.y, BoneRot.z);
 		//RotationM *= XMMatrixRotationAxis(XMVECTOR{ BoneRot[m_BoneIndex].x, BoneRot[m_BoneIndex].y, BoneRot[m_BoneIndex].z }, BoneRot[m_BoneIndex].w);
 		RotationM = XMMatrixTranspose(RotationM);
 
@@ -228,11 +241,17 @@ void Animation::ReadNodeHierarchy(const aiScene* scene, float& AnimationTime, co
 	StopAnimLevel--;
 	DirectX::XMMATRIX GlobalTransformation = NodeTransformation * ParentTransform;
 
-
+	
 	if (BoneMapping.find(NodeName) != BoneMapping.end())
 	{
 		unsigned int BoneIndex = BoneMapping[NodeName];
+		
+
+	
+
 		m_BoneInfo[BoneIndex].FinalTransformation = m_BoneInfo[BoneIndex].BoneOffset * GlobalTransformation * m_GlobalInverseTransform;
+
+
 	}
 
 	for (unsigned int i = 0; i < pNode->mNumChildren; i++)
@@ -280,7 +299,11 @@ void Animation::ReadNodeHierarchy(const aiScene* scene1, const aiScene* scene2, 
 		aiQuaternion RotationQ;
 		aiQuaternion::Interpolate(RotationQ, RotationQ2, RotationQ1, _blendingTime);
 		DirectX::XMMATRIX RotationM = DirectX::XMMatrixRotationQuaternion(DirectX::XMVectorSet(RotationQ.x, RotationQ.y, RotationQ.z, RotationQ.w));
+		
+		if (NodeName1 == "mixamorig_LeftArm")
+			RotationM *= DirectX::XMMatrixRotationRollPitchYaw(BoneRot.x, BoneRot.y, BoneRot.z);
 		RotationM = XMMatrixTranspose(RotationM);
+		//mixamorig_Hips
 
 		aiVector3D Translation1;
 		{
@@ -312,8 +335,11 @@ void Animation::ReadNodeHierarchy(const aiScene* scene1, const aiScene* scene2, 
 	if (BoneMapping.find(NodeName1) != BoneMapping.end())
 	{
 		unsigned int BoneIndex = BoneMapping[NodeName1];
-		m_BoneInfo[BoneIndex].FinalTransformation = m_BoneInfo[BoneIndex].BoneOffset * GlobalTransformation * m_GlobalInverseTransform;
 
+		
+
+		m_BoneInfo[BoneIndex].FinalTransformation = m_BoneInfo[BoneIndex].BoneOffset * GlobalTransformation * m_GlobalInverseTransform;
+	
 	}
 
 	unsigned int n = std::min(pNode1->mNumChildren, pNode2->mNumChildren);

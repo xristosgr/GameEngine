@@ -18,7 +18,7 @@ public:
 	//void LoadAnimation();
 	void CreatePhysicsComponent(physx::PxPhysics& physics, physx::PxScene& scene, physx::PxCooking* cooking);
 	void UpdatePhysics();
-	void Update();
+	void Update(Entity* entity = nullptr);
 	void Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix);
 	void AttachController(physx::PxController& characterController,bool& runPhysics);
 	void MouseMove(Mouse& mouse, Keyboard& keyboard,Camera& camera);
@@ -33,6 +33,7 @@ public:
 public:
 	ModelLoader model;
 	Frustum frustum;
+	Entity* parent;
 public:
 	bool isDeleted;
 
@@ -85,6 +86,9 @@ private:
 	imgui_addons::ImGuiFileBrowser file_dialog;
 
 	std::string inName;
+
+
+	DirectX::XMVECTOR _pos, _scale, _rot;
 
 };
 
