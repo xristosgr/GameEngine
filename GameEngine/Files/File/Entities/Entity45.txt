@@ -1,7 +1,7 @@
 mass= 0
 posX= 5.03
 posY= 0
-posZ= -0.33
+posZ= -0.48
 rotX= 0
 rotY= 0
 rotZ= 0
@@ -34,7 +34,7 @@ isAnimated= 1
 ConvertCordinates= 0
 isAttached= 0
 Frustum= 1
-isDeleted= 0
+isDeleted= 1
 isEmissive= 0
 physicsShape= -1
 animFilesCount= 0

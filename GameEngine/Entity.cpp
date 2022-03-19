@@ -143,10 +143,10 @@ void Entity::Update(Entity* entity)
 			DirectX::XMStoreFloat3(&parent->model.worldScale, _scale);
 			DirectX::XMStoreFloat4(&parent->model.worldRot, _rot);
 			
-			OutputDebugStringA(("X= " + std::to_string(parent->model.worldPos.x)).c_str());
-			OutputDebugStringA((" Y= " + std::to_string(parent->model.worldPos.y)).c_str());
-			//OutputDebugStringA((" Z= " + std::to_string(parent->model.worldPos.z)).c_str());
-			OutputDebugStringA((" Z= " + std::to_string(parent->model.worldPos.z) + "\n").c_str());
+			//OutputDebugStringA(("X= " + std::to_string(parent->model.worldPos.x)).c_str());
+			//OutputDebugStringA((" Y= " + std::to_string(parent->model.worldPos.y)).c_str());
+			////OutputDebugStringA((" Z= " + std::to_string(parent->model.worldPos.z)).c_str());
+			//OutputDebugStringA((" Z= " + std::to_string(parent->model.worldPos.z) + "\n").c_str());
 
 			pos = XMFLOAT3(parent->model.worldPos.x, parent->model.worldPos.y, parent->model.worldPos.z);
 			//pos = XMFLOAT3(parent->pos.x + parent->model.worldPos.x + offsetPos.x, parent->pos.y + parent->model.worldPos.y+ offsetPos.y, parent->pos.z + parent->model.worldPos.z + offsetPos.z);
@@ -160,11 +160,11 @@ void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const Dir
 	if (isDeleted)
 		return;
 
-	if (model.isAnimated && bRender && !isPlayer)
-	{
-		model.SetAnimIndex(0);
-		model.Update();
-	}
+	//if (model.isAnimated && bRender && !isPlayer)
+	//{
+	//	model.SetAnimIndex(0);
+	//	model.Update();
+	//}
 	DirectX::XMMATRIX matrix_scale;
 	DirectX::XMMATRIX matrix_rotate;
 	DirectX::XMMATRIX matrix_translate;
