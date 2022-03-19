@@ -210,8 +210,8 @@ void Animation::ReadNodeHierarchy(const aiScene* scene, float& AnimationTime, co
 
 		DirectX::XMMATRIX RotationM = DirectX::XMMatrixRotationQuaternion(DirectX::XMVectorSet(RotationQ.x, RotationQ.y, RotationQ.z, RotationQ.w));
 
-		//if (NodeName == "mixamorig_LeftArm")
-		//	RotationM *= DirectX::XMMatrixRotationRollPitchYaw(BoneRot.x, BoneRot.y, BoneRot.z);
+		if (NodeName == "mixamorig_RightArm")
+			RotationM *= DirectX::XMMatrixRotationRollPitchYaw(BoneRot.x, BoneRot.y, BoneRot.z);
 		//RotationM *= XMMatrixRotationAxis(XMVECTOR{ BoneRot[m_BoneIndex].x, BoneRot[m_BoneIndex].y, BoneRot[m_BoneIndex].z }, BoneRot[m_BoneIndex].w);
 		RotationM = XMMatrixTranspose(RotationM);
 
@@ -297,10 +297,9 @@ void Animation::ReadNodeHierarchy(const aiScene* scene1, const aiScene* scene2, 
 		aiQuaternion::Interpolate(RotationQ, RotationQ2, RotationQ1, _blendingTime);
 		DirectX::XMMATRIX RotationM = DirectX::XMMatrixRotationQuaternion(DirectX::XMVectorSet(RotationQ.x, RotationQ.y, RotationQ.z, RotationQ.w));
 		
-		if (NodeName1 == "mixamorig_LeftArm")
+		if (NodeName1 == "mixamorig_RightArm")
 			RotationM *= DirectX::XMMatrixRotationRollPitchYaw(BoneRot.x, BoneRot.y, BoneRot.z);
 		RotationM = XMMatrixTranspose(RotationM);
-		//mixamorig_Hips
 
 		aiVector3D Translation1;
 		{
@@ -365,8 +364,6 @@ aiQuaternion Animation::CalcInterpolatedRotation(float AnimationTime, const aiNo
 	aiQuaternion::Interpolate(OutRotation, StartRotationQ, EndRotationQ, Factor);
 	OutRotation = OutRotation.Normalize();
 	return OutRotation;
-	//return  nlerp(StartRotationQ, EndRotationQ, Factor);
-
 }
 
 aiVector3D Animation::CalcInterpolatedScaling(float AnimationTime, const aiNodeAnim* pNodeAnim)
@@ -464,31 +461,4 @@ const aiNodeAnim* Animation::FindNodeAnim(const aiAnimation* p_animation, const 
 		std::cout << std::endl;
 	}
 	return nullptr;
-}
-
-aiQuaternion Animation::nlerp(aiQuaternion a, aiQuaternion b, float blend)
-{
-	a.Normalize();
-	b.Normalize();
-
-	aiQuaternion result;
-	float dot_product = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
-	float one_minus_blend = 1.0f - blend;
-
-	if (dot_product < 0.0f)
-	{
-		result.x = a.x * one_minus_blend + blend * -b.x;
-		result.y = a.y * one_minus_blend + blend * -b.y;
-		result.z = a.z * one_minus_blend + blend * -b.z;
-		result.w = a.w * one_minus_blend + blend * -b.w;
-	}
-	else
-	{
-		result.x = a.x * one_minus_blend + blend * b.x;
-		result.y = a.y * one_minus_blend + blend * b.y;
-		result.z = a.z * one_minus_blend + blend * b.z;
-		result.w = a.w * one_minus_blend + blend * b.w;
-	}
-
-	return result.Normalize();
 }

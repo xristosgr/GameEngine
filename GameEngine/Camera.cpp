@@ -151,7 +151,6 @@ void Camera::AdjustRotation(float x, float y, float z, bool constraint)
 
 void Camera::SetLookAtPos(XMFLOAT3 lookAtPos)
 {
-	//Verify that look at pos is not the same as cam pos. Theey cannot be the same as that wouldn't make sense and would result in undefiend behavior
 	if (lookAtPos.x == this->pos.x && lookAtPos.y == this->pos.y && lookAtPos.z == this->pos.z)
 	{
 		return;
@@ -164,7 +163,7 @@ void Camera::SetLookAtPos(XMFLOAT3 lookAtPos)
 	if (lookAtPos.y != 0.0f)
 	{
 		const float distance = sqrt(pow(lookAtPos.x, 2) + pow(lookAtPos.z, 2));
-		pitch = atan(lookAtPos.y / 2);
+		pitch = atan(lookAtPos.y / distance);
 	}
 
 	yaw = 0.0f;
@@ -202,15 +201,10 @@ const XMVECTOR& Camera::GetBackwardVector()
 
 void Camera::UpdateViewMatrix()
 {
-	//Calculate camera rotation matrix
 	XMMATRIX camRotationMatrix = XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z);
-	//Calculate unit vector of cam target based off camera forward value transformed by cam rotation
 	camTarget = XMVector3TransformCoord(this->DEFAULT_FORWARD_VECTOR, camRotationMatrix);
-	//Adjust cam target to be offset by camera's current position
 	camTarget += this->posVector;
-	//Calculate up direction based on current rotationX
 	XMVECTOR upDir = XMVector3TransformCoord(this->DEFAULT_UP_VECTOR, camRotationMatrix);
-	//Rebuild view matrix
 	this->viewMatrix = XMMatrixLookAtLH(this->posVector, camTarget, upDir);
 
 	XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, 0.0f);

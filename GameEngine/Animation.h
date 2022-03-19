@@ -33,7 +33,6 @@ protected:
 	unsigned int FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
 
 	const aiNodeAnim* FindNodeAnim(const aiAnimation* p_animation, const std::string pNodeName);
-	aiQuaternion nlerp(aiQuaternion a, aiQuaternion b, float blend);
 
 public:
 	DirectX::XMMATRIX m_GlobalInverseTransform;

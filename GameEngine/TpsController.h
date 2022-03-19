@@ -51,11 +51,13 @@ private:
 	bool isFalling = false;
 	XMFLOAT3 cameraPrevPos;
 	XMFLOAT2 prevPos;
-	XMVECTOR vPrev;
+	XMVECTOR vPrevLookAt;
 	XMVECTOR vPrevPos;
-	XMVECTOR vLerp;
+	XMVECTOR vLerpLookAt;
 	XMVECTOR vLerpPos;
 
+	XMVECTOR vLerpPrevPos;
+	XMVECTOR vLerpCamPos;
 	SoundComponent sound;
 
 };

@@ -184,7 +184,7 @@ void PhysicsHandler::FallCheck(std::vector<Entity>& entities, Entity* character)
 	unitDir = physx::PxVec3(0, -1, 0);
 
 	unitDir.normalize();
-	physx::PxReal maxDistance = 0.4f;
+	physx::PxReal maxDistance = 0.45f;
 	physx::PxRaycastBuffer hit;
 
 	physx::PxQueryFilterData filterData(physx::PxQueryFlag::eSTATIC);
