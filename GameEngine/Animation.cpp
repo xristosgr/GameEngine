@@ -164,7 +164,7 @@ void Animation::BoneTransform(std::vector<DirectX::XMMATRIX>& Transforms)
 		
 		Transforms[i] = m_BoneInfo[i].FinalTransformation;
 	
-		if (boneNames[i] == "mixamorig_RightHand")
+		if (boneNames[i] == "mixamorig_RightHandMiddle1")
 		{
 			DirectX::XMMATRIX _invMat = DirectX::XMMatrixInverse(nullptr, m_BoneInfo[i].BoneOffset);
 			boneTrans = _invMat * Transforms[i];

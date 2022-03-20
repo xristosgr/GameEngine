@@ -49,16 +49,16 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 
 
 		float coeff = std::pow(0.0001f, dt);
-		XMVECTOR vCurrLookAt = XMVECTOR{ entity.pos.x, entity.pos.y + 0.5f, entity.pos.z };
+		XMVECTOR vCurrLookAt = XMVECTOR{ entity.pos.x, entity.pos.y + 0.7f, entity.pos.z };
 		vLerpLookAt = XMVectorLerp(vPrevLookAt, vCurrLookAt, coeff);
 		XMFLOAT3 _finalLookAt;
 		XMStoreFloat3(&_finalLookAt, vLerpLookAt);
 		camera.SetLookAtPos(XMFLOAT3(_finalLookAt.x, _finalLookAt.y, _finalLookAt.z));
-		vPrevLookAt = XMVECTOR{ entity.pos.x, entity.pos.y + 0.5f, entity.pos.z };
+		vPrevLookAt = XMVECTOR{ entity.pos.x, entity.pos.y + 0.7f, entity.pos.z };
 
 		//OutputDebugStringA(("Y= " + std::to_string(camera.pitch) + "\n").c_str());
 
-		camera.SetPosition(entity.pos.x + (-2.4f * std::sin(camera.yaw)), entity.pos.y + CharacterRotY, entity.pos.z + (-2.4f * std::cos(camera.yaw)));
+		camera.SetPosition(entity.pos.x + (-3.4f * std::sin(camera.yaw)), entity.pos.y + CharacterRotY, entity.pos.z + (-3.4f * std::cos(camera.yaw)));
 	
 		//while (!mouse.EventBufferIsEmpty())
 		//{

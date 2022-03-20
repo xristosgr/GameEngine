@@ -143,14 +143,8 @@ void Entity::Update(Entity* entity)
 			DirectX::XMStoreFloat3(&parent->model.worldScale, _scale);
 			DirectX::XMStoreFloat4(&parent->model.worldRot, _rot);
 			
-			//OutputDebugStringA(("X= " + std::to_string(parent->model.worldPos.x)).c_str());
-			//OutputDebugStringA((" Y= " + std::to_string(parent->model.worldPos.y)).c_str());
-			////OutputDebugStringA((" Z= " + std::to_string(parent->model.worldPos.z)).c_str());
-			//OutputDebugStringA((" Z= " + std::to_string(parent->model.worldPos.z) + "\n").c_str());
 
 			pos = XMFLOAT3(parent->model.worldPos.x, parent->model.worldPos.y, parent->model.worldPos.z);
-			//pos = XMFLOAT3(parent->pos.x + parent->model.worldPos.x + offsetPos.x, parent->pos.y + parent->model.worldPos.y+ offsetPos.y, parent->pos.z + parent->model.worldPos.z + offsetPos.z);
-			//rot = XMFLOAT3(parent->model.worldRot.x, parent->model.worldRot.y, parent->model.worldRot.z);
 		}
 	}
 }
@@ -162,7 +156,7 @@ void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const Dir
 
 	//if (model.isAnimated && bRender && !isPlayer)
 	//{
-	//	model.SetAnimIndex(0);
+	//	model.SetAnimIndex(1);
 	//	model.Update();
 	//}
 	DirectX::XMMATRIX matrix_scale;
@@ -208,9 +202,11 @@ void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const Dir
 		{
 			matrix_scale = DirectX::XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z);
 			//matrix_scale = DirectX::XMMatrixScalingFromVector(_scale);
-			matrix_rotate = DirectX::XMMatrixRotationQuaternion(_rot);
+			matrix_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
+			matrix_rotate *= DirectX::XMMatrixRotationQuaternion(_rot);
+			//matrix_translate = DirectX::XMMatrixTranslation(modelPos.x, modelPos.y, modelPos.z);
 			matrix_translate = DirectX::XMMatrixTranslationFromVector(_pos);
-
+			//matrix_translate *= DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
 			worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
 		}
 		
