@@ -50,7 +50,6 @@ private:
 	bool isMoving = false;
 	bool isFalling = false;
 	XMFLOAT3 cameraPrevPos;
-	XMFLOAT2 prevPos;
 	XMVECTOR vPrevLookAt;
 	XMVECTOR vPrevPos;
 	XMVECTOR vLerpLookAt;
