@@ -45,18 +45,16 @@ private:
 private:
 	bool canPressSpace = true;
 	float CharacterRotY = 0.0f;
+	float CharacterRotX = 0.0f;
 
 	float lastCamRot = 0.0f;
 	bool isMoving = false;
 	bool isFalling = false;
 	XMFLOAT3 cameraPrevPos;
 	XMVECTOR vPrevLookAt;
-	XMVECTOR vPrevPos;
 	XMVECTOR vLerpLookAt;
-	XMVECTOR vLerpPos;
 
-	XMVECTOR vLerpPrevPos;
-	XMVECTOR vLerpCamPos;
+
 	SoundComponent sound;
 
 };

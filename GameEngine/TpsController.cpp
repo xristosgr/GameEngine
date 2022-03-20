@@ -6,7 +6,6 @@ TpsController::TpsController()
 	isJumping = false;
 	timer.Start();
 	currRotation = RotationEnum::UP;
-	vLerpPos = XMVECTOR{ 0,0,0 };
 	vPrevLookAt = XMVECTOR{ 0,0,0 };
 	CharacterRotY = 0.0f;
 }
@@ -18,7 +17,7 @@ void TpsController::Intitialize()
 
 void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard, Mouse& mouse, Camera& camera)
 {
-	const float cameraSpeed = 0.035f;
+	const float cameraSpeed = 0.05f;
 
 	XMFLOAT4 rightFloat4;
 	XMStoreFloat4(&rightFloat4, camera.GetRightVector());
@@ -30,6 +29,25 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 		entity.physicsComponent.trans = entity.physicsComponent.aActor->getGlobalPose();
 		entity.pos = XMFLOAT3(entity.physicsComponent.trans.p.x, entity.physicsComponent.trans.p.y, entity.physicsComponent.trans.p.z);
 
+
+
+		while (!mouse.EventBufferIsEmpty())
+		{
+			MouseEvent me = mouse.ReadEvent();
+	
+			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
+			{
+				//OutputDebugStringA(("Y= " + std::to_string(me.GetPosX()) + "\n").c_str());
+				CharacterRotY += static_cast<float>(me.GetPosY()) * cameraSpeed * 0.15f;
+				CharacterRotY = std::clamp(CharacterRotY, -2.0f, 2.0f);
+
+				CharacterRotX = me.GetPosX();
+				camera.AdjustPosition(rightFloat4.x * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f), 0, rightFloat4.z * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f));
+			}
+
+		}
+
+
 		float coeff = std::pow(0.0001f, dt);
 		XMVECTOR vCurrLookAt = XMVECTOR{ entity.pos.x, entity.pos.y + 0.5f, entity.pos.z };
 		vLerpLookAt = XMVectorLerp(vPrevLookAt, vCurrLookAt, coeff);
@@ -40,33 +58,21 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 
 		//OutputDebugStringA(("Y= " + std::to_string(camera.pitch) + "\n").c_str());
 
-		XMVECTOR vCurrPos = XMVECTOR{ entity.pos.x + (-2.4f * std::sin(camera.yaw)),entity.pos.y + CharacterRotY ,entity.pos.z + (-2.4f * std::cos(camera.yaw)) };
-		vLerpPos = XMVectorLerp(vCurrPos, vPrevPos, coeff);
-		camera.SetPosition(vLerpPos);
-		vPrevPos = XMVECTOR{ entity.pos.x + (-2.4f * std::sin(camera.yaw)),entity.pos.y + CharacterRotY ,entity.pos.z + (-2.4f * std::cos(camera.yaw))};
+		camera.SetPosition(entity.pos.x + (-2.4f * std::sin(camera.yaw)), entity.pos.y + CharacterRotY, entity.pos.z + (-2.4f * std::cos(camera.yaw)));
 	
-		while (!mouse.EventBufferIsEmpty())
-		{
-			MouseEvent me = mouse.ReadEvent();
-
-			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
-			{
-				
-				CharacterRotY += static_cast<float>(me.GetPosY()) * cameraSpeed * 0.15f;
-				CharacterRotY = std::clamp(CharacterRotY, -2.0f, 2.0f);
-				
-				XMVECTOR vCurCamPos = XMVECTOR{ rightFloat4.x * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f), 0, rightFloat4.z * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f) };
-				//vLerpPos = XMVectorLerp(vCurCamPos, vLerpPrevPos, coeff);
-				vLerpPos = XMVectorLerp(vLerpPrevPos, vCurCamPos, coeff);
-				XMFLOAT3 _finalCamPos;
-				XMStoreFloat3(&_finalCamPos, vLerpPos);
-				camera.AdjustPosition(_finalCamPos.x, 0, _finalCamPos.z);
-
-				vLerpPrevPos = XMVECTOR{ rightFloat4.x * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f), 0, rightFloat4.z * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f) };
-
-			}
-
-		}
+		//while (!mouse.EventBufferIsEmpty())
+		//{
+		//	MouseEvent me = mouse.ReadEvent();
+		//
+		//	if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
+		//	{
+		//		
+		//		CharacterRotY += static_cast<float>(me.GetPosY()) * cameraSpeed * 0.15f;
+		//		CharacterRotY = std::clamp(CharacterRotY, -2.0f, 2.0f);
+		//		camera.AdjustPosition(rightFloat4.x * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f), 0, rightFloat4.z * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f));
+		//	}
+		//
+		//}
 	}
 }
 

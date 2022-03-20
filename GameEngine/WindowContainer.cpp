@@ -32,6 +32,14 @@ LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		return true;
 	}
 
+
+	RAWINPUTDEVICE Rid[1];
+	Rid[0].usUsagePage = ((USHORT)0x01);
+	Rid[0].usUsage = ((USHORT)0x02);
+	Rid[0].dwFlags = RIDEV_INPUTSINK;
+	Rid[0].hwndTarget = render_window.GetHWND();
+	RegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
+
 	switch (uMsg)
 	{
 		//Keyboard Messages
@@ -141,23 +149,35 @@ LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	}
 	case WM_INPUT:
 	{
-		UINT dataSize;
-		GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &dataSize, sizeof(RAWINPUTHEADER)); //Need to populate data size first
+		UINT dwSize = sizeof(RAWINPUT);
+		static BYTE lpb[sizeof(RAWINPUT)];
 
-		if (dataSize > 0)
+		//UINT dataSize;
+		GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)); //Need to populate data size first
+		RAWINPUT* raw = (RAWINPUT*)lpb;
+
+		if (raw->header.dwType == RIM_TYPEMOUSE)
 		{
-			std::unique_ptr<BYTE[]> rawdata = std::make_unique<BYTE[]>(dataSize);
-			if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, rawdata.get(), &dataSize, sizeof(RAWINPUTHEADER)) == dataSize)
-			{
-				RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(rawdata.get());
-				if (raw->header.dwType == RIM_TYPEMOUSE)
-				{
-					mouse.OnMouseMoveRaw(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
-				}
-			}
+			int xPosRelative = raw->data.mouse.lLastX;
+			int yPosRelative = raw->data.mouse.lLastY;
+			mouse.OnMouseMoveRaw(xPosRelative, yPosRelative);
 		}
+		break;
 
-		return DefWindowProc(hwnd, uMsg, wParam, lParam); //Need to call DefWindowProc for WM_INPUT messages
+		//if (dataSize > 0)
+		//{
+		//	std::unique_ptr<BYTE[]> rawdata = std::make_unique<BYTE[]>(dataSize);
+		//	if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, rawdata.get(), &dataSize, sizeof(RAWINPUTHEADER)) == dataSize)
+		//	{
+		//		RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(rawdata.get());
+		//		if (raw->header.dwType == RIM_TYPEMOUSE)
+		//		{
+		//			mouse.OnMouseMoveRaw(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+		//		}
+		//	}
+		//}
+
+		//return DefWindowProc(hwnd, uMsg, wParam, lParam); //Need to call DefWindowProc for WM_INPUT messages
 	}
 	default:
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
