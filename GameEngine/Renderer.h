@@ -77,7 +77,7 @@ public:
 	bool bEnableShadows;
 	bool bModelsLoaded;
 	bool save;
-
+	bool bGuiEnabled;
 	int switchCameraMode;
 	bool copyLight;
 	bool copyPointLight;

@@ -38,6 +38,7 @@ Renderer::Renderer()
 	copyLight = false;
 	copyPointLight = false;
 	bEnableShadows = true;
+	bGuiEnabled = true;
 	switchCameraMode = 0;
 	vSync = 0;
 
@@ -741,7 +742,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	static bool show_objects = true;
 	static bool show_particles = false;
 	static bool show_general = false;
-	static bool bGuiEnabled = true;
+	
 
 	if (show_app_metrics) { ImGui::ShowMetricsWindow(&show_app_metrics); }
 

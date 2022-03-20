@@ -57,5 +57,6 @@ private:
 
 	SoundComponent sound;
 
+	float zoom = 3.4f;
 };
 

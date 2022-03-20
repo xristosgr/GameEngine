@@ -27,7 +27,7 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 	if (camera.PossessCharacter)
 	{
 		entity.physicsComponent.trans = entity.physicsComponent.aActor->getGlobalPose();
-		entity.pos = XMFLOAT3(entity.physicsComponent.trans.p.x, entity.physicsComponent.trans.p.y, entity.physicsComponent.trans.p.z);
+		entity.pos = XMFLOAT3(entity.physicsComponent.trans.p.x+(0.4f* rightFloat4.x), entity.physicsComponent.trans.p.y, entity.physicsComponent.trans.p.z + (0.4f * rightFloat4.z));
 
 
 
@@ -42,6 +42,8 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 				CharacterRotY = std::clamp(CharacterRotY, -2.0f, 2.0f);
 
 				CharacterRotX = me.GetPosX();
+				//camera.AdjustPosition(rightFloat4.x * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f), 0, rightFloat4.z * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f));
+
 				camera.AdjustPosition(rightFloat4.x * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f), 0, rightFloat4.z * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f));
 			}
 
@@ -56,9 +58,19 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 		camera.SetLookAtPos(XMFLOAT3(_finalLookAt.x, _finalLookAt.y, _finalLookAt.z));
 		vPrevLookAt = XMVECTOR{ entity.pos.x, entity.pos.y + 0.7f, entity.pos.z };
 
-		//OutputDebugStringA(("Y= " + std::to_string(camera.pitch) + "\n").c_str());
-
-		camera.SetPosition(entity.pos.x + (-3.4f * std::sin(camera.yaw)), entity.pos.y + CharacterRotY, entity.pos.z + (-3.4f * std::cos(camera.yaw)));
+		if (mouse.IsRightDown())
+		{
+			if (zoom > 2.0f)
+				zoom -= 0.2f;
+		}
+		else
+		{
+			if (zoom < 3.4f)
+				zoom += 0.2f;
+		}
+		
+	
+		camera.SetPosition(entity.pos.x + (-zoom * std::sin(camera.yaw)), entity.pos.y + CharacterRotY, entity.pos.z + (-zoom * std::cos(camera.yaw)));
 	
 		//while (!mouse.EventBufferIsEmpty())
 		//{
@@ -93,22 +105,29 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 	float moveX = 0.0f;
 	float moveZ = 0.0f;
 
-	//entity.physicsComponent.trans.q = physx::PxQuat((float4_forward.z), physx::PxVec3(0, 1, 0));
 
 	entity.physicsComponent.trans = entity.physicsComponent.aActor->getGlobalPose();
-	//Rotate with camera
-	//entity.physicsComponent.trans.q = physx::PxQuat((camera.rot.y), physx::PxVec3(0, 1, 0));
-	SetCharacterRotation(entity, camera);
 
-	if (entity.isMovingFront || entity.isMovingLeft || entity.isMovingRight)
+	if (mouse.IsRightDown())
 	{
-		entity.physicsComponent.trans.q = physx::PxQuat((camera.rot.y + entity.rotationDir), physx::PxVec3(0, 1, 0));
-		lastCamRot = camera.rot.y;
+		//Rotate with camera
+		entity.physicsComponent.trans.q = physx::PxQuat((camera.rot.y), physx::PxVec3(0, 1, 0));
+		currRotation = RotationEnum::UP;
 	}
-		
 	else
-		entity.physicsComponent.trans.q = physx::PxQuat((lastCamRot + entity.rotationDir), physx::PxVec3(0, 1, 0));
-	
+	{
+		SetCharacterRotation(entity, camera);
+		if (entity.isMovingFront || entity.isMovingLeft || entity.isMovingRight)
+		{
+			entity.physicsComponent.trans.q = physx::PxQuat((camera.rot.y + entity.rotationDir), physx::PxVec3(0, 1, 0));
+			lastCamRot = camera.rot.y;
+		}
+		else
+			entity.physicsComponent.trans.q = physx::PxQuat((lastCamRot + entity.rotationDir), physx::PxVec3(0, 1, 0));
+	}
+	//entity.physicsComponent.trans.q = physx::PxQuat((camera.rot.y + entity.rotationDir), physx::PxVec3(0, 1, 0));
+
+
 
 	entity.physicsComponent.aActor->setGlobalPose(entity.physicsComponent.trans);
 
@@ -329,28 +348,28 @@ void TpsController::SetCharacterRotation(Entity& entity, Camera& camera)
 	switch (currRotation)
 	{
 		case UP:
-			entity.rotationDir = 3.13f;
+			entity.rotationDir = 0.0f;
 			break;
 		case DOWN:
-			entity.rotationDir = 6.28f;
-			break;
-		case LEFT:
-			entity.rotationDir = 1.59f;
+			entity.rotationDir = 3.14f;
 			break;
 		case RIGHT:
-			entity.rotationDir = 4.87f;
+			entity.rotationDir = 1.57f;
+			break;
+		case LEFT:
+			entity.rotationDir = -1.57f;
 			break;
 		case RIGHT_UP:
-			entity.rotationDir = 3.73f;
+			entity.rotationDir = 0.79f;
 			break;
 		case RIGHT_DOWN:
-			entity.rotationDir = 5.47f;
+			entity.rotationDir = 2.42f;
 			break;
 		case LEFT_UP:
-			entity.rotationDir = 2.3f;
+			entity.rotationDir = -0.62f;
 			break;
 		case LEFT_DOWN:
-			entity.rotationDir = 0.68f;
+			entity.rotationDir = -2.5f;
 			break;
 
 

@@ -138,10 +138,11 @@ void Engine::Update(int width, int height)
 		{
 			camera.AdjustPosition(0.0f, -cameraSpeed * dt, 0.0f);
 		}
-
+		ClipCursor(NULL);
 	}
 	else
 	{
+		renderer.bGuiEnabled = false;
 		RECT rect;
 		GetClientRect(this->render_window.GetHWND(), &rect);
 		MapWindowPoints(this->render_window.GetHWND(), nullptr, reinterpret_cast<POINT*>(&rect), 2);
