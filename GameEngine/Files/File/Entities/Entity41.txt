@@ -1,7 +1,7 @@
 mass= 0
-posX= -5.00859
-posY= 0.377192
-posZ= 1.89892
+posX= -6.8885
+posY= 1.04767
+posZ= 2.192
 rotX= 0
 rotY= 0
 rotZ= 0
@@ -38,4 +38,6 @@ isDeleted= 0
 isEmissive= 1
 physicsShape= -1
 animFilesCount= 0
+attachedEntityName= Entity39
+attachedBone= mixamorig_RightHand
 filePath= .//Data/Objects/cube1.glb

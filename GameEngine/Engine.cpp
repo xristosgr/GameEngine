@@ -27,6 +27,20 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	saveSystem.LoadLightData(lights, pointlights);
 	saveSystem.LoadCollisionObjectData(collisionObjects);
 
+	for (int i = 0; i < entities.size(); ++i)
+	{
+		if (entities[i].model.isAttached)
+		{
+			for (int j = 0; j < entities.size(); ++j)
+			{
+				if (entities[i].parentName == entities[j].entityName)
+				{
+					entities[i].parent = &entities[j];
+				}
+			}
+			
+		}
+	}
 	if (!renderer.Initialize(this->render_window.GetHWND(), camera, width, height, entities, lights, pointlights))
 		return false;
 
@@ -392,7 +406,17 @@ void Engine::ObjectsHandler(float& dt)
 		if (entities[i].model.isAttached)
 		{
 			//entities[i].SetupAttachment(player, "mixamorig_RightHandMiddle1");
-			entities[i].SetupAttachment(player);
+
+			if(entities[i].parent->entityName == entities[i].parentName)
+				entities[i].SetupAttachment(player);
+			else
+			{
+				for (int j = 0; j < entities.size(); ++j)
+				{
+					if(entities[j].entityName == entities[i].parentName)
+						entities[i].SetupAttachment(&entities[j],true);
+				}
+			}
 		}
 	}
 

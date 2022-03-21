@@ -329,9 +329,10 @@ void Entity::SetupAttachment(Entity* entity, std::string boneName)
 	//	}
 	//}
 }
-void Entity::SetupAttachment(Entity* entity)
+void Entity::SetupAttachment(Entity* entity, bool bSetParent)
 {
-	parent = entity;
+	if(bSetParent)
+		parent = entity;
 	if (model.isAttached)
 	{
 		if (parent)
@@ -355,7 +356,7 @@ void Entity::SetupAttachment(Entity* entity)
 		}
 	}
 }
-void Entity::DrawGui(physx::PxScene& scene)
+void Entity::DrawGui(physx::PxScene& scene,std::vector<Entity>& entities)
 {
 	if (isDeleted)
 		return;
@@ -465,6 +466,24 @@ void Entity::DrawGui(physx::PxScene& scene)
 
 		if (model.isAttached)
 		{
+			if (ImGui::CollapsingHeader("Show entities"))
+			{
+				if (parent)
+				{
+					std::vector<const char*> _entitiesData;
+					for (int i = 0; i < entities.size(); ++i)
+					{
+						if(entities[i].isAnimated)
+							_entitiesData.push_back(entities[i].entityName.c_str());
+					}
+					static int listbox_current = -1;
+					ImGui::ListBox("Entities", &listbox_current, _entitiesData.data(), _entitiesData.size());
+			
+					if(listbox_current > -1)
+						parentName = _entitiesData[listbox_current];
+				}
+			}
+
 			if (ImGui::CollapsingHeader("Show skeleton"))
 			{
 				if (parent)
@@ -474,13 +493,26 @@ void Entity::DrawGui(physx::PxScene& scene)
 					{
 						_bonesData.push_back(parent->model.boneNames[i].c_str());
 					}
-					static int listbox_current = 0;
+					static int listbox_current = -1;
 					ImGui::ListBox("Skeleton", &listbox_current, _bonesData.data(), _bonesData.size());
 
-
-					attachedBone = _bonesData[listbox_current];
+					if(listbox_current > -1)
+						attachedBone = _bonesData[listbox_current];
 				}
-				
+			}
+		}
+
+		if (isAnimated)
+		{
+			if (ImGui::CollapsingHeader("Show skeleton"))
+			{
+				std::vector<const char*> _bonesData;
+				for (int i = 0; i < model.boneNames.size(); ++i)
+				{
+					_bonesData.push_back(model.boneNames[i].c_str());
+				}
+				static int listbox_current = 0;
+				ImGui::ListBox("Skeleton", &listbox_current, _bonesData.data(), _bonesData.size());
 			}
 		}
 

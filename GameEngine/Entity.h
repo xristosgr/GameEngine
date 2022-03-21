@@ -23,8 +23,8 @@ public:
 	void AttachController(physx::PxController& characterController,bool& runPhysics);
 	void MouseMove(Mouse& mouse, Keyboard& keyboard,Camera& camera);
 	void SetupAttachment(Entity* entity, std::string boneName);
-	void SetupAttachment(Entity* entity);
-	void DrawGui(physx::PxScene& scene);
+	void SetupAttachment(Entity* entity, bool bSetParent = false);
+	void DrawGui(physx::PxScene& scene, std::vector<Entity>& entities);
 	void Clear(physx::PxScene& scene);
 public:
 	std::string entityName = " ";
@@ -83,6 +83,8 @@ public:
 	bool isSelected = false;
 	float rotationDir;
 
+	std::string attachedBone;
+	std::string parentName;
 private:
 
 	imgui_addons::ImGuiFileBrowser file_dialog;
@@ -92,6 +94,5 @@ private:
 
 	DirectX::XMVECTOR _pos, _scale, _rot;
 
-	std::string attachedBone;
 };
 

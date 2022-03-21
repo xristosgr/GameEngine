@@ -19,6 +19,8 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 
 	for (int i = 0; i < entities.size(); ++i)
 	{
+		if (entities[i].isDeleted)
+			continue;
 		outfile = std::ofstream("Files/File/Entities/Entity" + std::to_string(i) + ".txt");
 
 		if (outfile.is_open())
@@ -83,8 +85,14 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 			outfile << "isEmissive= " << entities[i].isEmissive << "\n";
 			outfile << "physicsShape= " << entities[i].physicsComponent.physicsShapeEnum << "\n";
 			outfile << "animFilesCount= " << entities[i].model.animFiles.size() << "\n";
-			
+			if (entities[i].model.isAttached)
+			{
+				if(entities[i].parent && !entities[i].parent->entityName.empty())
+					outfile << "attachedEntityName= " << entities[i].parent->entityName << "\n";
 
+				if(!entities[i].attachedBone.empty())
+					outfile << "attachedBone= " << entities[i].attachedBone << "\n";
+			}
 			std::string _path;
 
 			size_t npos = entities[i].filePath.find("Data");
@@ -444,6 +452,7 @@ void SaveSystem::LoadEntityData(std::vector<Entity>& entities)
 					{
 						entities[i].physicsComponent.physicsShapeEnum = (PhysicsShapeEnum)val;
 					}
+					
 					if (path == "animFilesCount=")
 					{
 						entities[i].model.animFiles.resize((int)val);
@@ -462,6 +471,14 @@ void SaveSystem::LoadEntityData(std::vector<Entity>& entities)
 			{
 				while (f >> path >> str)
 				{
+					if (path == "attachedEntityName=")
+					{
+						entities[i].parentName = str;
+					}
+					if (path == "attachedBone=")
+					{
+						entities[i].attachedBone = str;
+					}
 					if (path == "filePath=")
 					{
 						entities[i].filePath = str;

@@ -954,7 +954,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 					{
 						if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
 						{
-							entities[i].DrawGui(scene);
+							entities[i].DrawGui(scene,entities);
 							listbox_item_current = i;
 						}
 					}
@@ -967,7 +967,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 
 					if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
 					{
-						entities[i].DrawGui(scene);
+						entities[i].DrawGui(scene, entities);
 						listbox_item_current = i;
 					}
 				}
@@ -988,7 +988,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 								if (objNames[j] == entities[i].entityName)
 								{
 									entities[i].isSelected = true;
-									entities[i].DrawGui(scene);
+									entities[i].DrawGui(scene, entities);
 								}
 								else
 									entities[i].isSelected = false;
