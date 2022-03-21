@@ -940,65 +940,107 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			}
 			ImGui::ListBox("Objects", &listbox_item_current, objNames.data(), objNames.size());
 
-			for (int i = 0; i < entities.size(); ++i)
-			{
-				if (entities[i].isDeleted)
-					continue;
-
-				if (entities[i].physicsComponent.aActor)
-				{
-					physx::PxShape* _shape = nullptr;
-					entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
-
-					if (_shape)
-					{
-						if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
-						{
-							entities[i].DrawGui(scene,entities);
-							listbox_item_current = i;
-						}
-					}
-
-				}
-				else if (entities[i].physicsComponent.aStaticActor)
-				{
-					physx::PxShape* _shape = nullptr;
-					entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
-
-					if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
-					{
-						entities[i].DrawGui(scene, entities);
-						listbox_item_current = i;
-					}
-				}
-				
-
-			}
-			for (int j = 0; j < objNames.size(); ++j)
+			if (listbox_item_current > -1)
 			{
 				for (int i = 0; i < entities.size(); ++i)
 				{
-					if (!entities[i].isDeleted)
+					if (entities[i].entityName == objNames[listbox_item_current])
 					{
-						if (!entities[i].physicsComponent.aActor && !entities[i].physicsComponent.aStaticActor)
+						if (entities[i].physicsComponent.aActor)
 						{
-
-							if (j == listbox_item_current)
-							{
-								if (objNames[j] == entities[i].entityName)
-								{
-									entities[i].isSelected = true;
-									entities[i].DrawGui(scene, entities);
-								}
-								else
-									entities[i].isSelected = false;
-							}
+							physx::PxShape* _shape = nullptr;
+							entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
+							_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
 						}
-						
+						else if (entities[i].physicsComponent.aStaticActor)
+						{
+							physx::PxShape* _shape = nullptr;
+							entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
+							_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
+						}
+						entities[i].DrawGui(scene, entities);
+					}
+					else
+					{
+						if (entities[i].physicsComponent.aActor)
+						{
+							physx::PxShape* _shape = nullptr;
+							entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
+							_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+						}
+						else if (entities[i].physicsComponent.aStaticActor)
+						{
+							physx::PxShape* _shape = nullptr;
+							entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
+							_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+						}
 					}
 				}
-				
 			}
+
+
+
+
+
+			//for (int i = 0; i < entities.size(); ++i)
+			//{
+			//	if (entities[i].isDeleted)
+			//		continue;
+			//
+			//	if (entities[i].physicsComponent.aActor)
+			//	{
+			//		physx::PxShape* _shape = nullptr;
+			//		entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
+			//
+			//		if (_shape)
+			//		{
+			//			if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
+			//			{
+			//				entities[i].DrawGui(scene,entities);
+			//				listbox_item_current = i;
+			//			}
+			//		}
+			//
+			//	}
+			//	else if (entities[i].physicsComponent.aStaticActor)
+			//	{
+			//		physx::PxShape* _shape = nullptr;
+			//		entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
+			//
+			//		if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
+			//		{
+			//			entities[i].DrawGui(scene, entities);
+			//			listbox_item_current = i;
+			//		}
+			//	}
+			//	
+			//
+			//}
+			//for (int j = 0; j < objNames.size(); ++j)
+			//{
+			//	for (int i = 0; i < entities.size(); ++i)
+			//	{
+			//		if (!entities[i].isDeleted)
+			//		{
+			//			if (!entities[i].physicsComponent.aActor && !entities[i].physicsComponent.aStaticActor)
+			//			{
+			//
+			//				if (j == listbox_item_current)
+			//				{
+			//					if (objNames[j] == entities[i].entityName)
+			//					{
+			//						entities[i].isSelected = true;
+			//						entities[i].DrawGui(scene, entities);
+			//					}
+			//					else
+			//						entities[i].isSelected = false;
+			//				}
+			//			}
+			//			
+			//		}
+			//	}
+			//	
+			//}
 
 		}
 

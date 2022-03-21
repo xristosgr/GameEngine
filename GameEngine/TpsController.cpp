@@ -27,14 +27,14 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 	if (camera.PossessCharacter)
 	{
 		entity.physicsComponent.trans = entity.physicsComponent.aActor->getGlobalPose();
-		entity.pos = XMFLOAT3(entity.physicsComponent.trans.p.x+(0.4f* rightFloat4.x), entity.physicsComponent.trans.p.y, entity.physicsComponent.trans.p.z + (0.4f * rightFloat4.z));
+		entity.pos = XMFLOAT3(entity.physicsComponent.trans.p.x + (0.4f * rightFloat4.x), entity.physicsComponent.trans.p.y, entity.physicsComponent.trans.p.z + (0.4f * rightFloat4.z));
 
 
 
 		while (!mouse.EventBufferIsEmpty())
 		{
 			MouseEvent me = mouse.ReadEvent();
-	
+
 			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
 			{
 				//OutputDebugStringA(("Y= " + std::to_string(me.GetPosX()) + "\n").c_str());
@@ -68,10 +68,10 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 			if (zoom < 3.4f)
 				zoom += 0.2f;
 		}
-		
-	
+
+
 		camera.SetPosition(entity.pos.x + (-zoom * std::sin(camera.yaw)), entity.pos.y + CharacterRotY, entity.pos.z + (-zoom * std::cos(camera.yaw)));
-	
+
 		//while (!mouse.EventBufferIsEmpty())
 		//{
 		//	MouseEvent me = mouse.ReadEvent();
@@ -311,7 +311,7 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 
 		if (entity.isFalling)
 		{
-			entity.physicsComponent.aActor->addForce(physx::PxVec3(moveX*30, 0, moveZ*30), physx::PxForceMode::eFORCE);
+			entity.physicsComponent.aActor->addForce(physx::PxVec3(moveX * 30, 0, moveZ * 30), physx::PxForceMode::eFORCE);
 		}
 		//OutputDebugStringA(("X = " + std::to_string(moveX)+ " |Y = " + std::to_string(moveZ) + "\n").c_str());
 
@@ -329,7 +329,7 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 			else
 			{
 				isMoving = false;
-				entity.model.SetAnimIndex(0,true,5.0f);
+				entity.model.SetAnimIndex(0, true, 5.0f);
 			}
 		}
 		isFalling = entity.isFalling;
@@ -347,30 +347,30 @@ void TpsController::SetCharacterRotation(Entity& entity, Camera& camera)
 	float rotSpeed = 0.15f;
 	switch (currRotation)
 	{
-		case UP:
-			entity.rotationDir = 0.0f;
-			break;
-		case DOWN:
-			entity.rotationDir = 3.14f;
-			break;
-		case RIGHT:
-			entity.rotationDir = 1.57f;
-			break;
-		case LEFT:
-			entity.rotationDir = -1.57f;
-			break;
-		case RIGHT_UP:
-			entity.rotationDir = 0.79f;
-			break;
-		case RIGHT_DOWN:
-			entity.rotationDir = 2.42f;
-			break;
-		case LEFT_UP:
-			entity.rotationDir = -0.62f;
-			break;
-		case LEFT_DOWN:
-			entity.rotationDir = -2.5f;
-			break;
+	case UP:
+		entity.rotationDir = 0.0f;
+		break;
+	case DOWN:
+		entity.rotationDir = 3.14f;
+		break;
+	case RIGHT:
+		entity.rotationDir = 1.57f;
+		break;
+	case LEFT:
+		entity.rotationDir = -1.57f;
+		break;
+	case RIGHT_UP:
+		entity.rotationDir = 0.79f;
+		break;
+	case RIGHT_DOWN:
+		entity.rotationDir = 2.42f;
+		break;
+	case LEFT_UP:
+		entity.rotationDir = -0.62f;
+		break;
+	case LEFT_DOWN:
+		entity.rotationDir = -2.5f;
+		break;
 
 
 	}
