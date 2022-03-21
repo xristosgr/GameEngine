@@ -49,8 +49,6 @@ bool ModelLoader::Initialize(const std::string filePath, ID3D11Device* device, I
 			}
 		}
 	}
-	
-	
 	return true;
 }
 

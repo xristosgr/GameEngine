@@ -18,11 +18,12 @@ public:
 	//void LoadAnimation();
 	void CreatePhysicsComponent(physx::PxPhysics& physics, physx::PxScene& scene, physx::PxCooking* cooking);
 	void UpdatePhysics();
-	void Update(Entity* entity = nullptr);
+	void Update();
 	void Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix);
 	void AttachController(physx::PxController& characterController,bool& runPhysics);
 	void MouseMove(Mouse& mouse, Keyboard& keyboard,Camera& camera);
-
+	void SetupAttachment(Entity* entity, std::string boneName);
+	void SetupAttachment(Entity* entity);
 	void DrawGui(physx::PxScene& scene);
 	void Clear(physx::PxScene& scene);
 public:
@@ -81,6 +82,7 @@ public:
 
 	bool isSelected = false;
 	float rotationDir;
+
 private:
 
 	imgui_addons::ImGuiFileBrowser file_dialog;
@@ -90,5 +92,6 @@ private:
 
 	DirectX::XMVECTOR _pos, _scale, _rot;
 
+	std::string attachedBone;
 };
 

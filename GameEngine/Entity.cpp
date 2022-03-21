@@ -106,9 +106,8 @@ void Entity::UpdatePhysics()
 
 }
 
-void Entity::Update(Entity* entity)
+void Entity::Update()
 {
-	parent = entity;
 	UpdatePhysics();
 	
 	if (isPlayer)
@@ -128,25 +127,6 @@ void Entity::Update(Entity* entity)
 		//OutputDebugStringA((" W= " + std::to_string(model.worldRot.w) + "\n").c_str());
 	}
 
-	if (model.isAttached)
-	{
-		if (parent)
-		{
-			//DirectX::XMMATRIX _invMat = DirectX::XMMatrixInverse(nullptr, parent->model.boneTrans);
-			
-			parent->model.FinalBoneTrans = parent->model.boneTrans * parent->model._worldMatrix;
-		
-
-			DirectX::XMMatrixDecompose(&_scale, &_rot, &_pos, parent->model.FinalBoneTrans);
-			
-			DirectX::XMStoreFloat3(&parent->model.worldPos, _pos);
-			DirectX::XMStoreFloat3(&parent->model.worldScale, _scale);
-			DirectX::XMStoreFloat4(&parent->model.worldRot, _rot);
-			
-
-			pos = XMFLOAT3(parent->model.worldPos.x, parent->model.worldPos.y, parent->model.worldPos.z);
-		}
-	}
 }
 
 void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix)
@@ -163,8 +143,6 @@ void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const Dir
 	DirectX::XMMATRIX matrix_rotate;
 	DirectX::XMMATRIX matrix_translate;
 
-
-	
 	
 	if (physicsComponent.aActor || physicsComponent.aStaticActor)
 	{
@@ -328,6 +306,55 @@ void Entity::MouseMove(Mouse& mouse, Keyboard& keyboard, Camera& camera)
 	}
 }
 
+void Entity::SetupAttachment(Entity* entity, std::string boneName)
+{
+	//parent = entity;
+	//if (model.isAttached)
+	//{
+	//	if (parent)
+	//	{
+	//		parent->model.attachedBone = boneName;
+	//
+	//		parent->model.FinalBoneTrans = parent->model.boneTrans * parent->model._worldMatrix;
+	//
+	//
+	//		DirectX::XMMatrixDecompose(&_scale, &_rot, &_pos, parent->model.FinalBoneTrans);
+	//
+	//		DirectX::XMStoreFloat3(&parent->model.worldPos, _pos);
+	//		DirectX::XMStoreFloat3(&parent->model.worldScale, _scale);
+	//		DirectX::XMStoreFloat4(&parent->model.worldRot, _rot);
+	//
+	//
+	//		pos = XMFLOAT3(parent->model.worldPos.x, parent->model.worldPos.y, parent->model.worldPos.z);
+	//	}
+	//}
+}
+void Entity::SetupAttachment(Entity* entity)
+{
+	parent = entity;
+	if (model.isAttached)
+	{
+		if (parent)
+		{
+			//parent->model.attachedBone = attachedBone;
+			DirectX::XMMATRIX boneTrans;
+			parent->model.AttachTo(attachedBone, boneTrans);
+			//OutputDebugStringA(parent->model.attachedBone.c_str());
+			//OutputDebugStringA("\n");
+			boneTrans = boneTrans * parent->model._worldMatrix;
+
+
+			DirectX::XMMatrixDecompose(&_scale, &_rot, &_pos, boneTrans);
+
+			DirectX::XMStoreFloat3(&parent->model.worldPos, _pos);
+			DirectX::XMStoreFloat3(&parent->model.worldScale, _scale);
+			DirectX::XMStoreFloat4(&parent->model.worldRot, _rot);
+
+
+			pos = XMFLOAT3(parent->model.worldPos.x, parent->model.worldPos.y, parent->model.worldPos.z);
+		}
+	}
+}
 void Entity::DrawGui(physx::PxScene& scene)
 {
 	if (isDeleted)
@@ -428,13 +455,35 @@ void Entity::DrawGui(physx::PxScene& scene)
 		ImGui::InputInt("Physics Shape", &physicsComponent.selectedShape);
 
 
-
 		if (ImGui::Button("Apply"))
 		{
 			physicsComponent.physicsShapeEnum = static_cast<PhysicsShapeEnum>(physicsComponent.selectedShape);
 			physicsComponent.bCreatePhysicsComp = true;
 		}
 		
+
+
+		if (model.isAttached)
+		{
+			if (ImGui::CollapsingHeader("Show skeleton"))
+			{
+				if (parent)
+				{
+					std::vector<const char*> _bonesData;
+					for (int i = 0; i < parent->model.boneNames.size(); ++i)
+					{
+						_bonesData.push_back(parent->model.boneNames[i].c_str());
+					}
+					static int listbox_current = 0;
+					ImGui::ListBox("Skeleton", &listbox_current, _bonesData.data(), _bonesData.size());
+
+
+					attachedBone = _bonesData[listbox_current];
+				}
+				
+			}
+		}
+
 		if (ImGui::Button("Delete"))
 		{
 			Clear(scene);

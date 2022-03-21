@@ -61,6 +61,31 @@ bool Animation::SetAnimIndex(unsigned int index, bool updateBoth, float blendDur
 	return true;
 }
 
+void Animation::AttachTo(std::string& boneName, DirectX::XMMATRIX& trans)
+{
+	//attachedBone = boneName;
+	
+	std::vector<DirectX::XMMATRIX>Transforms;
+	Transforms.resize(m_NumBones);
+
+	for (unsigned int i = 0; i < m_NumBones; i++) {
+
+
+		Transforms[i] = m_BoneInfo[i].FinalTransformation;
+		//"mixamorig_RightHandMiddle1"
+		if (!boneNames.empty())
+		{
+			if (boneNames[i] == boneName)
+			{
+				DirectX::XMMATRIX _invMat = DirectX::XMMatrixInverse(nullptr, m_BoneInfo[i].BoneOffset);
+				trans = _invMat * Transforms[i];
+				return;
+			}
+		}
+		
+	}
+}
+
 bool Animation::LoadBones(aiMesh* mesh, std::vector<VertexBoneData>& bones, std::vector<Vertex>& vertices)
 {
 	//OutputDebugStringA("BONE START...\n");
@@ -70,12 +95,9 @@ bool Animation::LoadBones(aiMesh* mesh, std::vector<VertexBoneData>& bones, std:
 
 		unsigned int BoneIndex = 0;
 		std::string BoneName(mesh->mBones[i]->mName.data);
-		boneNames.push_back(BoneName);
-		//boneNames.push_back(mesh->mBones[i]->mName.data);
-		//BoneRot.push_back(XMFLOAT3(0.f, 0.f, 0.f));
-		//BoneScale.push_back(XMFLOAT3(0.f, 0.f, 0.f));
-		//BoneTrans.push_back(XMFLOAT3(0.f, 0.f, 0.f));
 
+		if(!bonesLoaded)
+			boneNames.push_back(BoneName);
 
 		if (BoneMapping.find(BoneName) == BoneMapping.end())
 		{
@@ -163,12 +185,12 @@ void Animation::BoneTransform(std::vector<DirectX::XMMATRIX>& Transforms)
 		
 		
 		Transforms[i] = m_BoneInfo[i].FinalTransformation;
-	
-		if (boneNames[i] == "mixamorig_RightHandMiddle1")
-		{
-			DirectX::XMMATRIX _invMat = DirectX::XMMatrixInverse(nullptr, m_BoneInfo[i].BoneOffset);
-			boneTrans = _invMat * Transforms[i];
-		}
+		//"mixamorig_RightHandMiddle1"
+		//if (boneNames[i] == attachedBone)
+		//{
+		//	DirectX::XMMATRIX _invMat = DirectX::XMMatrixInverse(nullptr, m_BoneInfo[i].BoneOffset);
+		//	boneTrans = _invMat * Transforms[i];
+		//}
 		
 		Transforms[i] = DirectX::XMMatrixTranspose(Transforms[i]);
 	}

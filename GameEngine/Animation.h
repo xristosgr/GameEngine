@@ -18,7 +18,7 @@ class Animation
 public:
 	void Update();
 	bool SetAnimIndex(unsigned int index, bool updateBoth = true, float blendDuration = 0.5f, bool temporary = false, float time = 0.f);
-
+	void AttachTo(std::string& boneName, DirectX::XMMATRIX& trans);
 protected:
 	bool LoadBones(aiMesh* mesh, std::vector<VertexBoneData>& bones, std::vector<Vertex>& vertices);
 	void BoneTransform(std::vector<DirectX::XMMATRIX>& Transforms);
@@ -80,7 +80,7 @@ public:
 
 	DirectX::XMFLOAT3 worldPos, worldScale;
 	DirectX::XMFLOAT4 worldRot;
-	DirectX::XMMATRIX boneTrans;
+	//DirectX::XMMATRIX boneTrans;
 	DirectX::XMMATRIX FinalBoneTrans;
 	DirectX::XMMATRIX _worldMatrix;
 
@@ -88,7 +88,7 @@ public:
 
 
 	DirectX::XMFLOAT3 BoneRot;
-
+	//std::string attachedBone;
 
 };
 

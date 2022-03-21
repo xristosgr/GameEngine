@@ -388,8 +388,12 @@ void Engine::ObjectsHandler(float& dt)
 
 		//entities[i].UpdatePhysics();
 		
-		entities[i].Update(player);
-		entities[i].MouseMove(mouse, keyboard,camera);
+		entities[i].Update();
+		if (entities[i].model.isAttached)
+		{
+			//entities[i].SetupAttachment(player, "mixamorig_RightHandMiddle1");
+			entities[i].SetupAttachment(player);
+		}
 	}
 
 	for (int i = 0; i < collisionObjects.size(); ++i)
