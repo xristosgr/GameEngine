@@ -926,7 +926,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 
 		if (ImGui::CollapsingHeader("Entities"))
 		{
-			static int listbox_item_current = -1;
+			//static int listbox_item_current = -1;
 			std::vector<const char*> objNames;
 			for (int i = 0; i < entities.size(); ++i)
 			{
@@ -951,6 +951,8 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 							physx::PxShape* _shape = nullptr;
 							entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
 							_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
+							
+						
 						}
 						else if (entities[i].physicsComponent.aStaticActor)
 						{
@@ -977,7 +979,24 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 					}
 				}
 			}
-
+			else
+			{
+				for (int i = 0; i < entities.size(); ++i)
+				{
+					if (entities[i].isSelected)
+					{
+						for (int j = 0; j < objNames.size(); ++j)
+						{
+							if (objNames[j] == entities[i].entityName)
+							{
+								listbox_item_current = j;
+								entities[i].DrawGui(scene, entities);
+							}
+						}
+					}
+					
+				}
+			}
 
 
 

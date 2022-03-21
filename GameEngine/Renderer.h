@@ -88,6 +88,8 @@ public:
 	float renderShadowDistance;
 	float shadowDist;
 	float acceptedDist;
+
+	int listbox_item_current = -1;
 private:
 	int windowWidth, windowHeight;
 	EnvironmentProbe environmentProbe;
@@ -115,5 +117,7 @@ private:
 	RenderTexture volumetricLightTexture, cameraDepthTexture;
 
 	AppTimer timer;
+
+
 };
 

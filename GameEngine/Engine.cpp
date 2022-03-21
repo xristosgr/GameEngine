@@ -204,7 +204,33 @@ void Engine::Update(int width, int height)
 		bCanPaste = true;
 	}
 
+
 	RenderFrame(dt, fps);
+
+
+	if (keyboard.KeyIsPressed(VK_RETURN))
+	{
+		renderer.listbox_item_current = -1;
+		for (int i = 0; i < entities.size(); ++i)
+		{
+			entities[i].isSelected = false;
+			if (entities[i].physicsComponent.aActor)
+			{
+				physx::PxShape* _shape = nullptr;
+				entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
+				_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+
+
+			}
+			else if (entities[i].physicsComponent.aStaticActor)
+			{
+				physx::PxShape* _shape = nullptr;
+				entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
+				_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+			}
+		}
+
+	}
 }
 
 void Engine::RenderFrame(float& dt,float& fps)
@@ -276,8 +302,8 @@ void Engine::RenderFrame(float& dt,float& fps)
 
 		}
 
-		if (!physicsHandler.isMouseHover)
-			physicsHandler.MouseRayCast(camera, mouse, keyboard, this->width, this->height);
+		if (!physicsHandler.isMouseHover && !renderer.runPhysics)
+			physicsHandler.MouseRayCast(entities, camera, mouse, keyboard, this->width, this->height,renderer.listbox_item_current);
 		physicsHandler.FallCheck(entities, player);
 	}
 

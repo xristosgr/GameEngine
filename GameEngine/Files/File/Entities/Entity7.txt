@@ -1,5 +1,5 @@
 mass= 0
-posX= 0
+posX= -0.240001
 posY= 1.85
 posZ= 4.04
 rotX= 0

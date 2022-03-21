@@ -103,7 +103,7 @@ void PhysicsHandler::CreatePhysicsComponents(std::vector<Entity>& entities, std:
 	}
 }
 
-void PhysicsHandler::MouseRayCast(Camera& camera, Mouse& mouse, Keyboard& keyboard, int& width, int& height)
+void PhysicsHandler::MouseRayCast(std::vector<Entity>& entities, Camera& camera, Mouse& mouse, Keyboard& keyboard, int& width, int& height, int& selected_list_object)
 {
 	float pointX, pointY;
 	DirectX::XMMATRIX viewMatrix, inverseViewMatrix;
@@ -147,6 +147,7 @@ void PhysicsHandler::MouseRayCast(Camera& camera, Mouse& mouse, Keyboard& keyboa
 	{
 		if (status)
 		{
+			selected_list_object = -1;
 			//std::string s = "X = " + std::to_string(hit.block.position.x) + " |Y = " + std::to_string(hit.block.position.y) + " |Z = " + std::to_string(hit.block.position.z) + "\n";
 			//OutputDebugStringA(s.c_str());
 
@@ -154,15 +155,55 @@ void PhysicsHandler::MouseRayCast(Camera& camera, Mouse& mouse, Keyboard& keyboa
 			hit.block.actor->getShapes(&_shape, hit.block.actor->getNbShapes());
 
 			_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
+
+			for (int i = 0; i < entities.size(); ++i)
+			{
+				if (entities[i].physicsComponent.aActor)
+				{
+					if (entities[i].physicsComponent.aActor->getName() == hit.block.actor->getName())
+					{
+						entities[i].isSelected = true;
+					}
+				}
+				else if (entities[i].physicsComponent.aStaticActor)
+				{
+					if (entities[i].physicsComponent.aStaticActor->getName() == hit.block.actor->getName())
+					{
+						entities[i].isSelected = true;
+					}
+				}
+			}
 		}
 	}
 	if (mouse.IsRightDown())
 	{
 		if (status)
 		{
+			selected_list_object = -1;
+
 			physx::PxShape* _shape = nullptr;
 			hit.block.actor->getShapes(&_shape, hit.block.actor->getNbShapes());
 		    _shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+
+			for (int i = 0; i < entities.size(); ++i)
+			{
+				if (entities[i].physicsComponent.aActor)
+				{
+					if (entities[i].physicsComponent.aActor->getName() == hit.block.actor->getName())
+					{
+						entities[i].isSelected = false;
+						//bMousePicked = false;
+					}
+				}
+				else if (entities[i].physicsComponent.aStaticActor)
+				{
+					if (entities[i].physicsComponent.aStaticActor->getName() == hit.block.actor->getName())
+					{
+						entities[i].isSelected = false;
+						//bMousePicked = false;
+					}
+				}
+			}
 		}
 	}
 }
