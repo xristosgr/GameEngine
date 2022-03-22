@@ -104,11 +104,11 @@ bool DX11::InitializeDirectX(HWND hwnd)
 			COM_ERROR_IF_FAILED(hr, "Failed to create swapchain.");
 		}
 
-		if (swapchain != nullptr)
-		{
-			hr = swapchain->ResizeBuffers(scd1.BufferCount, this->windowWidth, this->windowHeight, scd1.Format, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
-			COM_ERROR_IF_FAILED(hr, "Failed to create swapchain.");
-		}
+		//if (swapchain != nullptr)
+		//{
+		//	hr = swapchain->ResizeBuffers(scd1.BufferCount, this->windowWidth, this->windowHeight, scd1.Format, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+		//	COM_ERROR_IF_FAILED(hr, "Failed to create swapchain.");
+		//}
 
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
 		hr = this->swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));

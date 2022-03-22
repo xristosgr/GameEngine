@@ -50,9 +50,9 @@ private:
 	float lastCamRot = 0.0f;
 	bool isMoving = false;
 	bool isFalling = false;
-	XMFLOAT3 cameraPrevPos;
-	XMVECTOR vPrevLookAt;
-	XMVECTOR vLerpLookAt;
+	DirectX::XMFLOAT3 cameraPrevPos;
+	DirectX::XMVECTOR vPrevLookAt;
+	DirectX::XMVECTOR vLerpLookAt;
 
 
 	SoundComponent sound;

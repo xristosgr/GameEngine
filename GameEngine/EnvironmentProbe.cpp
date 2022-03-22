@@ -42,7 +42,7 @@ void EnvironmentProbe::UpdateCamera()
 {
 		for (int i = 0; i < 6; i++)
 		{
-			camera[i].SetLookAtPos(XMFLOAT3(direction[i].x + pos.x, direction[i].y + pos.y, direction[i].z + pos.z));
+			camera[i].SetLookAtPos(DirectX::XMFLOAT3(direction[i].x + pos.x, direction[i].y + pos.y, direction[i].z + pos.z));
 
 			camera[i].SetPosition(pos.x, pos.y, pos.z);
 
@@ -56,9 +56,9 @@ void EnvironmentProbe::UpdateCamera()
 
 void EnvironmentProbe::Draw(Camera& camera)
 {
-	XMMATRIX m_scale = XMMatrixScaling(scale.x, scale.y, scale.z);
-	XMMATRIX m_rotate = XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
-	XMMATRIX m_translate = XMMatrixTranslation(pos.x, pos.y, pos.z);
+	DirectX::XMMATRIX m_scale = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
+	DirectX::XMMATRIX m_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
+	DirectX::XMMATRIX m_translate = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
 
 	const DirectX::XMMATRIX worldMatrix = m_scale * m_rotate * m_translate;
 

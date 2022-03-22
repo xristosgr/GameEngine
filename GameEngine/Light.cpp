@@ -2,6 +2,8 @@
 
 Light::Light()
 {
+	camera = std::make_unique<Camera>();
+
 	pos = DirectX::XMFLOAT3(4.925, 2.4, 1.6);
 	scale = DirectX::XMFLOAT3(0.05, 0.05, 0.05);
 	rot = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
@@ -40,24 +42,29 @@ void Light::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext,
 
 void Light::SetupCamera(int windowWidth, int windowHeight)
 {
-	camera.SetPosition(pos.x, pos.y, pos.z);
-	camera.SetLookAtPos(direction);
-	camera.PerspectiveFov(90.0f, 1, 0.1f, 60.0f);
+	camera->SetPosition(pos.x, pos.y, pos.z);
+	camera->SetLookAtPos(direction);
+	camera->PerspectiveFov(90.0f, 1, 0.1f, 60.0f);
 
-	lightViewMatrix = camera.GetViewMatrix();
-	lightProjectionMatrix = camera.GetProjectionMatrix();
+	lightViewMatrix = camera->GetViewMatrix();
+	lightProjectionMatrix = camera->GetProjectionMatrix();
 }
 
 void Light::UpdateCamera()
 {
-	camera.SetPosition(pos);
+	camera->SetPosition(pos);
 	//camera[i].pos = pos;
-	camera.PerspectiveFov(fov, dimensions, nearZ, farZ);
+	camera->PerspectiveFov(fov, dimensions, nearZ, farZ);
 	//camera.SetLookAtPos(XMFLOAT3(direction.x + pos.x, direction.y + pos.y, direction.z + pos.z));
-	camera.SetLookAtPos(direction);
+	camera->SetLookAtPos(direction);
 	//camera[i].SetPosition(pos.x, pos.y, pos.z);
-	lightViewMatrix = camera.GetViewMatrix();
-	lightProjectionMatrix = camera.GetProjectionMatrix();
+	lightViewMatrix = camera->GetViewMatrix();
+	lightProjectionMatrix = camera->GetProjectionMatrix();
+}
+
+Camera* Light::GetCamera()
+{
+	return camera.get();
 }
 
 void Light::DrawGui(std::string name)

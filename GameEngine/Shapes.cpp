@@ -12,9 +12,9 @@ void Shapes::SetRenderTexture(ID3D11DeviceContext* deviceContext, RenderTexture&
 
 void Shapes::Draw(ID3D11DeviceContext* deviceContext,Camera& camera, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
 {
-	XMMATRIX m_scale = XMMatrixScaling(scale.x, scale.y, scale.z);
-	XMMATRIX m_rotate = XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
-	XMMATRIX m_translate = XMMatrixTranslation(pos.x, pos.y, pos.z);
+	DirectX::XMMATRIX m_scale = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
+	DirectX::XMMATRIX m_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
+	DirectX::XMMATRIX m_translate = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
 
 	//deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	UINT stride = sizeof(Vertex);
@@ -43,11 +43,11 @@ void Shapes::Draw(ID3D11DeviceContext* deviceContext,Camera& camera, ConstantBuf
 	
 }
 
-void Shapes::Draw(ID3D11DeviceContext* deviceContext, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
+void Shapes::Draw(ID3D11DeviceContext* deviceContext, DirectX::XMMATRIX& viewMatrix, DirectX::XMMATRIX& projectionMatrix, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
 {
-	XMMATRIX m_scale = XMMatrixScaling(scale.x, scale.y, scale.z);
-	XMMATRIX m_rotate = XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
-	XMMATRIX m_translate = XMMatrixTranslation(pos.x, pos.y, pos.z);
+	DirectX::XMMATRIX m_scale = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
+	DirectX::XMMATRIX m_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
+	DirectX::XMMATRIX m_translate = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
 
 	//deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	UINT stride = sizeof(Vertex);

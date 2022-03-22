@@ -13,10 +13,10 @@ void FpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 	const float cameraSpeed = 0.015f;
 	const float cameraRotSpeed = 0.002f;
 
-	XMFLOAT4 rightFloat4;
-	XMStoreFloat4(&rightFloat4, camera.GetRightVector());
-	XMFLOAT4 forwardFloat4;
-	XMStoreFloat4(&forwardFloat4, camera.GetForwardVector());
+	DirectX::XMFLOAT4 rightFloat4;
+	DirectX::XMStoreFloat4(&rightFloat4, camera.GetRightVector());
+	DirectX::XMFLOAT4 forwardFloat4;
+	DirectX::XMStoreFloat4(&forwardFloat4, camera.GetForwardVector());
 
 	while (!mouse.EventBufferIsEmpty())
 	{
@@ -45,10 +45,10 @@ void FpsController::Movement(float& dt, float gravity, Entity* entity, Keyboard&
 	
 	entity->isMovingLeft = false;
 
-	XMFLOAT4 forwardDir;
-	XMStoreFloat4(&forwardDir, camera.vec_forward);
-	XMFLOAT4 rightDir;
-	XMStoreFloat4(&rightDir, camera.vec_right);
+	DirectX::XMFLOAT4 forwardDir;
+	DirectX::XMStoreFloat4(&forwardDir, camera.vec_forward);
+	DirectX::XMFLOAT4 rightDir;
+	DirectX::XMStoreFloat4(&rightDir, camera.vec_right);
 
 
 	float velocity = 5.0;
@@ -62,9 +62,9 @@ void FpsController::Movement(float& dt, float gravity, Entity* entity, Keyboard&
 
 
 
-	entity->matrix_rotate = XMMatrixRotationRollPitchYaw(entity->rot.x, entity->rot.y, entity->rot.z);
+	entity->matrix_rotate = DirectX::XMMatrixRotationRollPitchYaw(entity->rot.x, entity->rot.y, entity->rot.z);
 
-	entity->matrix_rotate *= XMMatrixRotationAxis(XMVECTOR{ 0, 1, 0 }, camera.rot.y);
+	entity->matrix_rotate *= DirectX::XMMatrixRotationAxis(DirectX::XMVECTOR{ 0, 1, 0 }, camera.rot.y);
 
 	if (keyboard.KeyIsPressed(VK_F8))
 	{
@@ -76,11 +76,11 @@ void FpsController::Movement(float& dt, float gravity, Entity* entity, Keyboard&
 	}
 
 
-	entity->pos = XMFLOAT3(entity->physicsComponent.trans.p.x, entity->physicsComponent.trans.p.y, entity->physicsComponent.trans.p.z);
+	entity->pos = DirectX::XMFLOAT3(entity->physicsComponent.trans.p.x, entity->physicsComponent.trans.p.y, entity->physicsComponent.trans.p.z);
 	if (camera.PossessCharacter)
 	{
 
-		camera.SetPosition(XMVECTOR{ entity->physicsComponent.trans.p.x, entity->physicsComponent.trans.p.y + 0.4f ,entity->physicsComponent.trans.p.z });
+		camera.SetPosition(DirectX::XMVECTOR{ entity->physicsComponent.trans.p.x, entity->physicsComponent.trans.p.y + 0.4f ,entity->physicsComponent.trans.p.z });
 
 
 

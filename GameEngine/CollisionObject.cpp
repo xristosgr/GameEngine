@@ -57,9 +57,9 @@ void CollisionObject::Draw(ID3D11DeviceContext* deviceContext, Camera& camera, C
 			{
 				if (bRender)
 				{
-					matrix_scale = XMMatrixScaling(cube.scale.x, cube.scale.y, cube.scale.z);
-					matrix_rotate = XMMatrixRotationRollPitchYaw(cube.rot.x, cube.rot.y, cube.rot.z);
-					matrix_translate = XMMatrixTranslation(cube.pos.x, cube.pos.y, cube.pos.z);
+					matrix_scale = DirectX::XMMatrixScaling(cube.scale.x, cube.scale.y, cube.scale.z);
+					matrix_rotate = DirectX::XMMatrixRotationRollPitchYaw(cube.rot.x, cube.rot.y, cube.rot.z);
+					matrix_translate = DirectX::XMMatrixTranslation(cube.pos.x, cube.pos.y, cube.pos.z);
 
 					worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
 				}

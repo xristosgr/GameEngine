@@ -90,7 +90,7 @@ void InstancedShape::Initialize(ID3D11Device* device)
 		float r1 = random_between_two_float(-10000.0f, 10000.0f);
 		float r2 = random_between_two_float(-10000.0f, 10000.0f);
 		float r3 = random_between_two_float(-10000.0f, 10000.0f);
-		instances[i].position = XMFLOAT3(r1, r2, r3);
+		instances[i].position = DirectX::XMFLOAT3(r1, r2, r3);
 	}
 
 	instanceBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -124,9 +124,9 @@ void InstancedShape::CreateTexture(ID3D11Device* device, ID3D11DeviceContext* de
 
 void InstancedShape::Draw(ID3D11DeviceContext* deviceContext, Camera& camera, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
 {
-	XMMATRIX m_scale = XMMatrixScaling(scale.x, scale.y, scale.z);
-	XMMATRIX m_rotate = XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
-	XMMATRIX m_translate = XMMatrixTranslation(pos.x, pos.y, pos.z);
+	DirectX::XMMATRIX m_scale = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
+	DirectX::XMMATRIX m_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
+	DirectX::XMMATRIX m_translate = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
 
 	unsigned int strides[2];
 	unsigned int offsets[2];

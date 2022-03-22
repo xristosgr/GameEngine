@@ -60,7 +60,7 @@ void RectShape::Draw(ID3D11DeviceContext* deviceContext, Camera& camera, Constan
 	__super::Draw(deviceContext, camera, cb_vs_vertexshader);
 }
 
-void RectShape::Draw(ID3D11DeviceContext* deviceContext, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
+void RectShape::Draw(ID3D11DeviceContext* deviceContext, DirectX::XMMATRIX& viewMatrix, DirectX::XMMATRIX& projectionMatrix, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
 {
 	__super::Draw(deviceContext, viewMatrix, projectionMatrix, cb_vs_vertexshader);
 }

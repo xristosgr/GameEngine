@@ -1,5 +1,8 @@
 #include "Engine.h"
 
+using namespace DirectX;
+
+
 Engine::Engine()
 {
 	player = nullptr;
@@ -8,6 +11,14 @@ template<class T>
 inline Engine::Engine(T& lhs, T& rhs)
 {
 	std::swap(lhs, rhs);
+}
+
+template<class T>
+inline void Engine::SwapElements(T& lhs, T& rhs)
+{
+	T temp = lhs;
+	lhs = rhs;
+	rhs = temp;
 }
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height)
@@ -70,7 +81,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 
 	tpsPlayerController.Intitialize();
 	backGroundSound.Initialize("./Data/Sounds/through space.ogg",true, renderer.gfx11.device.Get());
-	backGroundSound.cube.pos = XMFLOAT3(6.39f, 2.0f, 4.34f);
+	backGroundSound.cube.pos = DirectX::XMFLOAT3(6.39f, 2.0f, 4.34f);
 	sounds.push_back(&backGroundSound);
 
 	return true;
@@ -137,7 +148,6 @@ void Engine::Update(int width, int height)
 		{
 			cameraSpeed = 0.01;
 		}
-
 		if (keyboard.KeyIsPressed('W'))
 		{
 			camera.AdjustPosition(camera.GetForwardVector() * cameraSpeed * dt);
@@ -342,8 +352,9 @@ void Engine::RenderFrame(float& dt,float& fps)
 	{
 		if (entities[i].bFlagForDeletion)
 		{
+			std::swap(lights[0], lights.back());
 
-			if(i < entities.size() - 1)
+			if (i < entities.size() - 1)
 				std::swap(entities[i], entities.back());
 			entities.pop_back();
 			entities[i].bFlagForDeletion = false;

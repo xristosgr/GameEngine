@@ -17,9 +17,9 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> mDeviceContext;
 	std::vector<Vertex> vertices;
 	Mesh* mesh;
-	XMMATRIX worldMatrix;
-	XMMATRIX viewMatrix;
-	XMMATRIX projectionMatrix;
+	DirectX::XMMATRIX worldMatrix;
+	DirectX::XMMATRIX viewMatrix;
+	DirectX::XMMATRIX projectionMatrix;
 	ConstantBuffer<CB_VS_vertexshader>* m_cb_vs_vertexshader;
 };
 

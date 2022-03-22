@@ -102,7 +102,7 @@ private:
 	//float rgb[4];
 	//PBR
 	RenderTexture brdfTexture, prefilterCubeMap, irradianceCubeMap, IrradianceConvCubeTextures[6];
-	XMMATRIX ViewMatrix2D;
+	DirectX::XMMATRIX ViewMatrix2D;
 
 	Texture  envTextures[6], irradianceTextures[6], brdfText;
 

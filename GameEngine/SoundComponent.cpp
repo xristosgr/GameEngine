@@ -87,7 +87,7 @@ void SoundComponent::UpdatePos(const DirectX::XMFLOAT3& destPos, const DirectX::
 
 void SoundComponent::Draw(ID3D11DeviceContext* deviceContext, Camera& camera, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexShader)
 {
-    cube.scale = XMFLOAT3(0.2f, 0.2f, 0.2f);
+    cube.scale = DirectX::XMFLOAT3(0.2f, 0.2f, 0.2f);
     cube.Draw(deviceContext, camera, cb_vs_vertexShader);
 }
 

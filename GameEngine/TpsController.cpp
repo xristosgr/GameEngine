@@ -6,7 +6,7 @@ TpsController::TpsController()
 	isJumping = false;
 	timer.Start();
 	currRotation = RotationEnum::UP;
-	vPrevLookAt = XMVECTOR{ 0,0,0 };
+	vPrevLookAt = DirectX::XMVECTOR{ 0,0,0 };
 	CharacterRotY = 0.0f;
 }
 
@@ -19,15 +19,15 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 {
 	const float cameraSpeed = 0.05f;
 
-	XMFLOAT4 rightFloat4;
-	XMStoreFloat4(&rightFloat4, camera.GetRightVector());
-	XMFLOAT4 forwardFloat4;
-	XMStoreFloat4(&forwardFloat4, camera.GetForwardVector());
+	DirectX::XMFLOAT4 rightFloat4;
+	DirectX::XMStoreFloat4(&rightFloat4, camera.GetRightVector());
+	DirectX::XMFLOAT4 forwardFloat4;
+	DirectX::XMStoreFloat4(&forwardFloat4, camera.GetForwardVector());
 
 	if (camera.PossessCharacter)
 	{
 		entity.physicsComponent.trans = entity.physicsComponent.aActor->getGlobalPose();
-		entity.pos = XMFLOAT3(entity.physicsComponent.trans.p.x + (0.4f * rightFloat4.x), entity.physicsComponent.trans.p.y, entity.physicsComponent.trans.p.z + (0.4f * rightFloat4.z));
+		entity.pos = DirectX::XMFLOAT3(entity.physicsComponent.trans.p.x + (0.4f * rightFloat4.x), entity.physicsComponent.trans.p.y, entity.physicsComponent.trans.p.z + (0.4f * rightFloat4.z));
 
 
 
@@ -51,12 +51,12 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 
 
 		float coeff = std::pow(0.0001f, dt);
-		XMVECTOR vCurrLookAt = XMVECTOR{ entity.pos.x, entity.pos.y + 0.7f, entity.pos.z };
-		vLerpLookAt = XMVectorLerp(vPrevLookAt, vCurrLookAt, coeff);
-		XMFLOAT3 _finalLookAt;
-		XMStoreFloat3(&_finalLookAt, vLerpLookAt);
-		camera.SetLookAtPos(XMFLOAT3(_finalLookAt.x, _finalLookAt.y, _finalLookAt.z));
-		vPrevLookAt = XMVECTOR{ entity.pos.x, entity.pos.y + 0.7f, entity.pos.z };
+		DirectX::XMVECTOR vCurrLookAt = DirectX::XMVECTOR{ entity.pos.x, entity.pos.y + 0.7f, entity.pos.z };
+		vLerpLookAt = DirectX::XMVectorLerp(vPrevLookAt, vCurrLookAt, coeff);
+		DirectX::XMFLOAT3 _finalLookAt;
+		DirectX::XMStoreFloat3(&_finalLookAt, vLerpLookAt);
+		camera.SetLookAtPos(DirectX::XMFLOAT3(_finalLookAt.x, _finalLookAt.y, _finalLookAt.z));
+		vPrevLookAt = DirectX::XMVECTOR{ entity.pos.x, entity.pos.y + 0.7f, entity.pos.z };
 
 		if (mouse.IsRightDown())
 		{
@@ -98,10 +98,10 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 
 	entity.isMovingLeft = false;
 
-	XMFLOAT4 forwardDir;
-	XMStoreFloat4(&forwardDir, camera.vec_forward);
-	XMFLOAT4 rightDir;
-	XMStoreFloat4(&rightDir, camera.vec_right);
+	DirectX::XMFLOAT4 forwardDir;
+	DirectX::XMStoreFloat4(&forwardDir, camera.vec_forward);
+	DirectX::XMFLOAT4 rightDir;
+	DirectX::XMStoreFloat4(&rightDir, camera.vec_right);
 
 
 	float velocity = 5.0;
@@ -133,7 +133,7 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 
 	entity.physicsComponent.aActor->setGlobalPose(entity.physicsComponent.trans);
 
-	entity.matrix_rotate = XMMatrixRotationRollPitchYaw(entity.rot.x, entity.rot.y, entity.rot.z);
+	entity.matrix_rotate = DirectX::XMMatrixRotationRollPitchYaw(entity.rot.x, entity.rot.y, entity.rot.z);
 
 	//entity.matrix_rotate *= XMMatrixRotationAxis(XMVECTOR{ 0, 1, 0 }, camera.rot.y);
 	//entity.matrix_rotate *= XMMatrixRotationAxis(XMVECTOR{ 0, entity.physicsComponent.trans.q.y, 0 }, entity.physicsComponent.trans.q.w);
@@ -148,7 +148,7 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 	}
 
 
-	entity.pos = XMFLOAT3(entity.physicsComponent.trans.p.x, entity.physicsComponent.trans.p.y, entity.physicsComponent.trans.p.z);
+	entity.pos = DirectX::XMFLOAT3(entity.physicsComponent.trans.p.x, entity.physicsComponent.trans.p.y, entity.physicsComponent.trans.p.z);
 	if (camera.PossessCharacter)
 	{
 

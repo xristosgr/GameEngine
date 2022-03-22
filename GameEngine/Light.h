@@ -4,6 +4,7 @@
 #include "ConstantBuffer.h"
 #include "CubeShape.h"
 #include "ModelLoader.h"
+#include <algorithm>
 
 class Light
 {
@@ -12,15 +13,16 @@ public:
 	void Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader);
 	void SetupCamera(int windowWidth, int windowHeight);
 	void UpdateCamera();
+	Camera* GetCamera();
 	void DrawGui(std::string name);
 	void Draw(Camera& camera);
 
 	void DrawVolume(Camera& camera);
 
-	XMMATRIX lightViewMatrix;
-	XMMATRIX lightProjectionMatrix;
-	XMFLOAT3 posOffset;
-	Camera camera;
+	DirectX::XMMATRIX lightViewMatrix;
+	DirectX::XMMATRIX lightProjectionMatrix;
+	DirectX::XMFLOAT3 posOffset;
+	//Camera camera;
 
 	DirectX::XMFLOAT3 lightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	DirectX::XMFLOAT3 emissionColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
@@ -69,5 +71,7 @@ private:
 	ID3D11DeviceContext* deviceContext;
 	ID3D11Device* device;
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
+
+	std::unique_ptr<Camera> camera;
 };
 

@@ -19,7 +19,7 @@ public:
 public:
 	struct InstanceType
 	{
-		XMFLOAT3 position;
+		DirectX::XMFLOAT3 position;
 	};
 
 	VertexBuffer<Vertex> vertexBuffer;
@@ -29,8 +29,8 @@ public:
 
 	Texture texture;
 
-	XMFLOAT3 pos = XMFLOAT3(0, 0, 0);
-	XMFLOAT3 rot = XMFLOAT3(0, 0, 0);
-	XMFLOAT3 scale = XMFLOAT3(1, 1, 1);
+	DirectX::XMFLOAT3 pos = DirectX::XMFLOAT3(0, 0, 0);
+	DirectX::XMFLOAT3 rot = DirectX::XMFLOAT3(0, 0, 0);
+	DirectX::XMFLOAT3 scale = DirectX::XMFLOAT3(1, 1, 1);
 };
 

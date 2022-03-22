@@ -19,8 +19,8 @@ public:
 	void SetupGridBounds();
 	void DrawGUI();
 
-	XMFLOAT3 bounds;
-	XMFLOAT3 pos;
+	DirectX::XMFLOAT3 bounds;
+	DirectX::XMFLOAT3 pos;
 
 	std::vector<NodeClass> nodes;
 	bool showGrid;

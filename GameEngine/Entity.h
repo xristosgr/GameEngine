@@ -7,7 +7,6 @@
 #include "Camera.h"
 #include "Mouse.h"
 #include "Keyboard.h"
-#include <algorithm>
 
 class Entity
 {
@@ -29,7 +28,6 @@ public:
 public:
 	std::string entityName = " ";
 	PhysicsComponent physicsComponent;
-
 
 public:
 	ModelLoader model;

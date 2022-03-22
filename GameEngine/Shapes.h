@@ -22,14 +22,14 @@ public:
 	virtual void CreateTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const std::string& filePath);
 	virtual void SetRenderTexture(ID3D11DeviceContext* deviceContext, RenderTexture& renderTexture);
 	virtual void Draw(ID3D11DeviceContext* deviceContext, Camera& camera, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader);
-	virtual void Draw(ID3D11DeviceContext* deviceContext, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader);
+	virtual void Draw(ID3D11DeviceContext* deviceContext, DirectX::XMMATRIX& viewMatrix, DirectX::XMMATRIX& projectionMatrix, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader);
 	virtual void DrawGUI(std::string name);
 
 
 public:
-	XMFLOAT3 pos = XMFLOAT3(0,0,0);
-	XMFLOAT3 rot = XMFLOAT3(0, 0, 0);
-	XMFLOAT3 scale = XMFLOAT3(0, 0, 0);
+	DirectX::XMFLOAT3 pos = DirectX::XMFLOAT3(0,0,0);
+	DirectX::XMFLOAT3 rot = DirectX::XMFLOAT3(0, 0, 0);
+	DirectX::XMFLOAT3 scale = DirectX::XMFLOAT3(0, 0, 0);
 
 
 	VertexBuffer<Vertex> vertexBuffer;

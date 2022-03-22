@@ -10,7 +10,7 @@ void PhysicsDebugDraw::DebugDraw(ID3D11Device* device, ID3D11DeviceContext* devi
 	this->mDeviceContext = deviceContext;
 
 	DirectX::XMMATRIX transformationMatrix = DirectX::XMMatrixIdentity();
-	XMMATRIX worldMatrix = DirectX::XMMatrixIdentity();
+	DirectX::XMMATRIX worldMatrix = DirectX::XMMatrixIdentity();
 	deviceContext->VSSetConstantBuffers(0, 1, cb_vs_vertexshader->GetBuffer().GetAddressOf());
 	cb_vs_vertexshader->data.viewMatrix = DirectX::XMMatrixTranspose(camera.GetViewMatrix());
 	cb_vs_vertexshader->data.projectionMatrix = DirectX::XMMatrixTranspose(camera.GetProjectionMatrix());

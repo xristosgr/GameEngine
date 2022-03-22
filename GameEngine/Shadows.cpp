@@ -15,13 +15,13 @@ void Shadows::RenderToTexture(DX11& gfx11, std::vector<Entity>& entities, Camera
 
 void Shadows::RenderShadowEntities(DX11& gfx11, std::vector<Entity>& entities, Light& light, Camera& camera,float& renderDistance)
 {
-	XMMATRIX viewMatrix = (light.lightViewMatrix);
-	XMMATRIX projectionMatrix = (light.lightProjectionMatrix);
+	DirectX::XMMATRIX viewMatrix = (light.lightViewMatrix);
+	DirectX::XMMATRIX projectionMatrix = (light.lightProjectionMatrix);
 	gfx11.deviceContext->PSSetShader(gfx11.depthPS.GetShader(), NULL, 0);
 
 	for (int i = 0; i < entities.size(); ++i)
 	{
-		XMFLOAT3 diff = XMFLOAT3(camera.GetPositionFloat3().x - entities[i].pos.x, camera.GetPositionFloat3().y - entities[i].pos.y, camera.GetPositionFloat3().z - entities[i].pos.z);
+		DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - entities[i].pos.x, camera.GetPositionFloat3().y - entities[i].pos.y, camera.GetPositionFloat3().z - entities[i].pos.z);
 		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
 		float dist = diffVec.dot(diffVec);
 

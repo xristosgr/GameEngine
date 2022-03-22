@@ -12,13 +12,18 @@
 #include <thread>
 #include "NavMeshClass.h"
 #include "SoundComponent.h"
-
+#include <algorithm>
+#include "Camera.h"
 class Engine : virtual WindowContainer
 {
 public:
 	Engine();
 	template<class T>
 	Engine(T& lhs, T& rhs);
+
+	template<class T>
+	void SwapElements(T& lhs, T& rhs);
+
 	bool Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height);
 	bool ProcessMessages();
 	void Update(int width, int height);
@@ -41,6 +46,7 @@ protected:
 
 private:
 	std::vector<Entity> entities;
+
 	std::vector<Entity*> AIEntities;
 	std::vector<Light> lights;
 	std::vector<Light> pointlights;
@@ -95,33 +101,33 @@ private:
 		bool isTextured;
 		bool bConvertCordinates;
 		physx::PxReal mass;
-		XMFLOAT3 pos;
-		XMFLOAT3 scale;
-		XMFLOAT3 rot;
-		XMFLOAT3 frustumScale;
+		DirectX::XMFLOAT3 pos;
+		DirectX::XMFLOAT3 scale;
+		DirectX::XMFLOAT3 rot;
+		DirectX::XMFLOAT3 frustumScale;
 		bool isCharacter;
 		bool isPlayer;
 		bool isWalkable;
 		bool isObstacle;
 		bool bRender;
-		XMFLOAT3 offsetPos;
-		XMFLOAT3 modelPos;
+		DirectX::XMFLOAT3 offsetPos;
+		DirectX::XMFLOAT3 modelPos;
 		physx::PxQuat physics_rot;
 		physx::PxVec3 physics_scale;
 		bool isfrustumEnabled;
 		bool isEmissive;
-		XMFLOAT3 emissiveColor;
+		DirectX::XMFLOAT3 emissiveColor;
 		PhysicsShapeEnum physicsShapeEnum;
 	};
 	struct CopiedLightData
 	{
 		bool isLightEnabled;
 		bool bShadow;
-		XMFLOAT3 pos;
-		XMFLOAT3 scale;
-		XMFLOAT3 lightColor;
-		XMFLOAT3 direction;
-		XMFLOAT3 SpotDir;
+		DirectX::XMFLOAT3 pos;
+		DirectX::XMFLOAT3 scale;
+		DirectX::XMFLOAT3 lightColor;
+		DirectX::XMFLOAT3 direction;
+		DirectX::XMFLOAT3 SpotDir;
 		float radius;
 		float cutOff;
 		float lightType;
