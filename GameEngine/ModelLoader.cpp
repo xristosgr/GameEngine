@@ -39,6 +39,7 @@ bool ModelLoader::Initialize(const std::string filePath, ID3D11Device* device, I
 
 	if (!_filePath.empty())
 	{
+		OutputDebugStringA("HELLO MODEL!!\n");
 		if (loadAsync)
 			_asyncLoad = std::async(std::launch::async, &ModelLoader::LoadModel, this, _filePath);
 		else
@@ -72,9 +73,9 @@ bool ModelLoader::LoadModel(const std::string filePath)
 	this->ProcessNode(scenes[_curScene]->mRootNode, scenes[_curScene], DirectX::XMMatrixIdentity());
 	
 	texturesLoaded = true;
-
 	for (int i = 0; i < animFiles.size(); ++i)
 	{
+		OutputDebugStringA("HELLO ANIM!!\n");
 		//OutputDebugStringA(animFiles[i].c_str());
 		//OutputDebugStringA("\n");
 		LoadAnimation(animFiles[i]);

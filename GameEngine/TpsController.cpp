@@ -90,6 +90,9 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 
 void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard& keyboard, Mouse& mouse, Camera& camera)
 {
+
+	if (entity.isDeleted)
+		return;
 	if (!entity.physicsComponent.aActor)
 		return;
 
@@ -104,7 +107,6 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 	float velocity = 5.0;
 	float moveX = 0.0f;
 	float moveZ = 0.0f;
-
 
 	entity.physicsComponent.trans = entity.physicsComponent.aActor->getGlobalPose();
 
@@ -281,7 +283,7 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 					canPressSpace = false;
 					timer.Restart();
 					isJumping = true;
-					entity.physicsComponent.aActor->addForce(physx::PxVec3(moveX, 300.0f, moveZ), physx::PxForceMode::eIMPULSE);
+					entity.physicsComponent.aActor->addForce(physx::PxVec3(moveX, 350.0f, moveZ), physx::PxForceMode::eIMPULSE);
 				}
 			}
 

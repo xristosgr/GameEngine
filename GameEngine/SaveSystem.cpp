@@ -85,6 +85,8 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 			outfile << "isEmissive= " << entities[i].isEmissive << "\n";
 			outfile << "physicsShape= " << entities[i].physicsComponent.physicsShapeEnum << "\n";
 			outfile << "animFilesCount= " << entities[i].model.animFiles.size() << "\n";
+
+			outfile << "entityName= " << entities[i].entityName << "\n";
 			if (entities[i].model.isAttached)
 			{
 				if(entities[i].parent && !entities[i].parent->entityName.empty())
@@ -272,7 +274,7 @@ void SaveSystem::LoadEntityData(std::vector<Entity>& entities)
 {
 	for (int i = 0; i < entitiesCount; ++i)
 	{
-		entities[i].entityName = "Entity" + std::to_string(i);
+		//entities[i].entityName = "Entity" + std::to_string(i);
 		std::ifstream f;
 		std::string path="";
 		float val = 0;
@@ -471,6 +473,10 @@ void SaveSystem::LoadEntityData(std::vector<Entity>& entities)
 			{
 				while (f >> path >> str)
 				{
+					if (path == "entityName=")
+					{
+						entities[i].entityName = str;
+					}
 					if (path == "attachedEntityName=")
 					{
 						entities[i].parentName = str;
@@ -821,3 +827,4 @@ void SaveSystem::LoadCollisionObjectData(std::vector<CollisionObject>& collision
 		}
 	}
 }
+

@@ -158,20 +158,24 @@ void PhysicsHandler::MouseRayCast(std::vector<Entity>& entities, Camera& camera,
 
 			for (int i = 0; i < entities.size(); ++i)
 			{
-				if (entities[i].physicsComponent.aActor)
+				if (!entities[i].isDeleted)
 				{
-					if (entities[i].physicsComponent.aActor->getName() == hit.block.actor->getName())
+					if (entities[i].physicsComponent.aActor)
 					{
-						entities[i].isSelected = true;
+						if (entities[i].physicsComponent.aActor->getName() == hit.block.actor->getName())
+						{
+							entities[i].isSelected = true;
+						}
+					}
+					else if (entities[i].physicsComponent.aStaticActor)
+					{
+						if (entities[i].physicsComponent.aStaticActor->getName() == hit.block.actor->getName())
+						{
+							entities[i].isSelected = true;
+						}
 					}
 				}
-				else if (entities[i].physicsComponent.aStaticActor)
-				{
-					if (entities[i].physicsComponent.aStaticActor->getName() == hit.block.actor->getName())
-					{
-						entities[i].isSelected = true;
-					}
-				}
+				
 			}
 		}
 	}
@@ -187,22 +191,26 @@ void PhysicsHandler::MouseRayCast(std::vector<Entity>& entities, Camera& camera,
 
 			for (int i = 0; i < entities.size(); ++i)
 			{
-				if (entities[i].physicsComponent.aActor)
+				if (!entities[i].isDeleted)
 				{
-					if (entities[i].physicsComponent.aActor->getName() == hit.block.actor->getName())
+					if (entities[i].physicsComponent.aActor)
 					{
-						entities[i].isSelected = false;
-						//bMousePicked = false;
+						if (entities[i].physicsComponent.aActor->getName() == hit.block.actor->getName())
+						{
+							entities[i].isSelected = false;
+							//bMousePicked = false;
+						}
+					}
+					else if (entities[i].physicsComponent.aStaticActor)
+					{
+						if (entities[i].physicsComponent.aStaticActor->getName() == hit.block.actor->getName())
+						{
+							entities[i].isSelected = false;
+							//bMousePicked = false;
+						}
 					}
 				}
-				else if (entities[i].physicsComponent.aStaticActor)
-				{
-					if (entities[i].physicsComponent.aStaticActor->getName() == hit.block.actor->getName())
-					{
-						entities[i].isSelected = false;
-						//bMousePicked = false;
-					}
-				}
+				
 			}
 		}
 	}
@@ -225,7 +233,7 @@ void PhysicsHandler::FallCheck(std::vector<Entity>& entities, Entity* character)
 	unitDir = physx::PxVec3(0, -1, 0);
 
 	unitDir.normalize();
-	physx::PxReal maxDistance = 0.45f;
+	physx::PxReal maxDistance = 0.42f;
 	physx::PxRaycastBuffer hit;
 
 	physx::PxQueryFilterData filterData(physx::PxQueryFlag::eSTATIC);

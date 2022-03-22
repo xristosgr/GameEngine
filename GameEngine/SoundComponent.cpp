@@ -58,21 +58,30 @@ bool SoundComponent::Play()
 
 void SoundComponent::Update()
 {
+    system->update();
     mpSystem->update();
 }
 
-void SoundComponent::UpdatePos(FMOD_VECTOR srcPosition, DirectX::XMFLOAT3& destPos, const DirectX::XMVECTOR& forwardVec)
+void SoundComponent::UpdatePos(const DirectX::XMFLOAT3& destPos, const DirectX::XMVECTOR& forwardVec,const DirectX::XMVECTOR& upVec)
 {
-    DirectX::XMFLOAT4 forwardFloat4;
-    DirectX::XMStoreFloat4(&forwardFloat4, forwardVec);
+   // DirectX::XMVECTOR _vec = DirectX::XMVector3Normalize(forwardVec);
+    DirectX::XMFLOAT3 forwardFloat3;
+    DirectX::XMStoreFloat3(&forwardFloat3, forwardVec);
+  
+    DirectX::XMFLOAT3 upFloat3;
+    DirectX::XMStoreFloat3(&upFloat3, upVec);
 
-    //this->position = srcPosition;
+    //OutputDebugStringA(("X=" + std::to_string(forwardFloat3.x)).c_str());
+    //OutputDebugStringA((" Y=" + std::to_string(forwardFloat3.y)).c_str());
+    //OutputDebugStringA((" Z=" + std::to_string(forwardFloat3.z)).c_str());
+    //OutputDebugStringA("\n\n");
     this->position = FMOD_VECTOR{ cube.pos.x,cube.pos.y,cube.pos.z };
     channel->set3DAttributes(&this->position, nullptr);
-    channel->set3DMinMaxDistance(1.0f, 4000.0f);
+    channel->set3DMinMaxDistance(1.0f, 10000.0f);
     FMOD_VECTOR pos{ destPos.x,destPos.y,destPos.z};
-    FMOD_VECTOR forward = { forwardFloat4.x,forwardFloat4.y,forwardFloat4.z };
-    FMOD_VECTOR up = { 0.0f, 1.0f, 0.0f };
+    FMOD_VECTOR forward = { forwardFloat3.x,forwardFloat3.y,forwardFloat3.z};
+    FMOD_VECTOR up = { upFloat3.x, upFloat3.y, upFloat3.z };
+    
     mpSystem->set3DListenerAttributes(0, &pos, nullptr, &forward, &up);
 }
 

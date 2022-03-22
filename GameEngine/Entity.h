@@ -7,12 +7,14 @@
 #include "Camera.h"
 #include "Mouse.h"
 #include "Keyboard.h"
-
+#include <algorithm>
 
 class Entity
 {
 public:
 	Entity();
+	template<class T>
+	Entity(T& lhs, T& rhs);
 
 	bool Intitialize(const std::string filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContex, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, bool isAnimated);
 	//void LoadAnimation();
@@ -85,6 +87,8 @@ public:
 
 	std::string attachedBone;
 	std::string parentName;
+
+	bool bFlagForDeletion;
 private:
 
 	imgui_addons::ImGuiFileBrowser file_dialog;

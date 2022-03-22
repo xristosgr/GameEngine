@@ -19,6 +19,7 @@ Renderer::Renderer()
 	rgb[2] = 0.0f;
 	rgb[3] = 1.0f;
 
+	bEntityDeleted = false;
 	save = false;
 	hasTexture = true;
 	isAnimated = false;
@@ -919,6 +920,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			{
 				copyPointLight = true;
 			}
+		
 		}
 
 		ImGui::NewLine();
@@ -931,12 +933,11 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			for (int i = 0; i < entities.size(); ++i)
 			{
 
-				entities[i].entityName = "Entity" + std::to_string(i);
-				if (!entities[i].isDeleted)
-				{
+				//entities[i].entityName = "Entity" + std::to_string(i);
+				//if (!entities[i].isDeleted)
+				//{
 					objNames.push_back(entities[i].entityName.c_str());
-				}
-
+				//}
 			}
 			ImGui::ListBox("Objects", &listbox_item_current, objNames.data(), objNames.size());
 
@@ -944,123 +945,67 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			{
 				for (int i = 0; i < entities.size(); ++i)
 				{
-					if (entities[i].entityName == objNames[listbox_item_current])
+					if (!entities[i].isDeleted)
 					{
-						if (entities[i].physicsComponent.aActor)
+						if (entities[i].entityName == objNames[listbox_item_current])
 						{
-							physx::PxShape* _shape = nullptr;
-							entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
-							_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
-							
-						
-						}
-						else if (entities[i].physicsComponent.aStaticActor)
-						{
-							physx::PxShape* _shape = nullptr;
-							entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
-							_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
-						}
-						entities[i].DrawGui(scene, entities);
-					}
-					else
-					{
-						if (entities[i].physicsComponent.aActor)
-						{
-							physx::PxShape* _shape = nullptr;
-							entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
-							_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
-						}
-						else if (entities[i].physicsComponent.aStaticActor)
-						{
-							physx::PxShape* _shape = nullptr;
-							entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
-							_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
-						}
-					}
-				}
-			}
-			else
-			{
-				for (int i = 0; i < entities.size(); ++i)
-				{
-					if (entities[i].isSelected)
-					{
-						for (int j = 0; j < objNames.size(); ++j)
-						{
-							if (objNames[j] == entities[i].entityName)
+							if (entities[i].physicsComponent.aActor)
 							{
-								listbox_item_current = j;
-								entities[i].DrawGui(scene, entities);
+								physx::PxShape* _shape = nullptr;
+								entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
+								_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
+
+
+							}
+							else if (entities[i].physicsComponent.aStaticActor)
+							{
+								physx::PxShape* _shape = nullptr;
+								entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
+								_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
+							}
+							entities[i].DrawGui(scene, entities);
+						}
+						else
+						{
+							if (entities[i].physicsComponent.aActor)
+							{
+								physx::PxShape* _shape = nullptr;
+								entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
+								_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+							}
+							else if (entities[i].physicsComponent.aStaticActor)
+							{
+								physx::PxShape* _shape = nullptr;
+								entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
+								_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
 							}
 						}
 					}
 					
 				}
 			}
-
-
-
-
-			//for (int i = 0; i < entities.size(); ++i)
-			//{
-			//	if (entities[i].isDeleted)
-			//		continue;
-			//
-			//	if (entities[i].physicsComponent.aActor)
-			//	{
-			//		physx::PxShape* _shape = nullptr;
-			//		entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
-			//
-			//		if (_shape)
-			//		{
-			//			if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
-			//			{
-			//				entities[i].DrawGui(scene,entities);
-			//				listbox_item_current = i;
-			//			}
-			//		}
-			//
-			//	}
-			//	else if (entities[i].physicsComponent.aStaticActor)
-			//	{
-			//		physx::PxShape* _shape = nullptr;
-			//		entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
-			//
-			//		if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
-			//		{
-			//			entities[i].DrawGui(scene, entities);
-			//			listbox_item_current = i;
-			//		}
-			//	}
-			//	
-			//
-			//}
-			//for (int j = 0; j < objNames.size(); ++j)
-			//{
-			//	for (int i = 0; i < entities.size(); ++i)
-			//	{
-			//		if (!entities[i].isDeleted)
-			//		{
-			//			if (!entities[i].physicsComponent.aActor && !entities[i].physicsComponent.aStaticActor)
-			//			{
-			//
-			//				if (j == listbox_item_current)
-			//				{
-			//					if (objNames[j] == entities[i].entityName)
-			//					{
-			//						entities[i].isSelected = true;
-			//						entities[i].DrawGui(scene, entities);
-			//					}
-			//					else
-			//						entities[i].isSelected = false;
-			//				}
-			//			}
-			//			
-			//		}
-			//	}
-			//	
-			//}
-
+			else
+			{
+				for (int i = 0; i < entities.size(); ++i)
+				{
+					if (!entities[i].isDeleted)
+					{
+						if (entities[i].isSelected)
+						{
+							for (int j = 0; j < objNames.size(); ++j)
+							{
+								if (objNames[j] == entities[i].entityName)
+								{
+									listbox_item_current = j;
+									entities[i].DrawGui(scene, entities);
+								}
+							}
+						}
+					}
+					
+					
+				}
+			}
 		}
 
 		ImGui::NewLine();
@@ -1078,30 +1023,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 
 			for (int i = 0; i < collisionObjects.size(); ++i)
 			{
-				//if (entities[i].physicsComponent.aActor)
-				//{
-				//	physx::PxShape* _shape = nullptr;
-				//	entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
-				//
-				//	if (_shape)
-				//	{
-				//		if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
-				//		{
-				//			listbox_item_current = i;
-				//		}
-				//	}
-				//
-				//}
-				//else if (entities[i].physicsComponent.aStaticActor)
-				//{
-				//	physx::PxShape* _shape = nullptr;
-				//	entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
-				//
-				//	if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
-				//	{
-				//		listbox_item_current = i;
-				//	}
-				//}
 				if (objNames[listbox_item_current] == collisionObjects[i].entityName)
 				{
 					collisionObjects[i].DrawGUI(objNames[listbox_item_current]);
@@ -1150,10 +1071,10 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		ImGui::NewLine();
 		ImGui::NewLine();
 
-		//if (ImGui::Button("CLEAR!!!!"))
-		//{
-		//	bClear = true;
-		//}
+		if (ImGui::Button("CLEAR!!!!"))
+		{
+			bClear = true;
+		}
 		ImGui::End();
 
 

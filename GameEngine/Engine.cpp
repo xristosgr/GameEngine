@@ -16,11 +16,11 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		return false;
 
 	saveSystem.Load();
-
 	for (int i = 0; i < saveSystem.entitiesCount; ++i)
 	{
 		entities.push_back(Entity());
 	}
+
 
 	physicsHandler.Initialize(camera);
 	saveSystem.LoadEntityData(entities);
@@ -29,6 +29,13 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 
 	for (int i = 0; i < entities.size(); ++i)
 	{
+		if (!entities[i].isDeleted)
+		{
+			if (entities[i].entityName == " ")
+			{
+				entities[i].entityName = "Entity" + std::to_string(i);
+			}
+		}
 		if (entities[i].model.isAttached)
 		{
 			for (int j = 0; j < entities.size(); ++j)
@@ -58,6 +65,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 
 	tpsPlayerController.Intitialize();
 	backGroundSound.Initialize("./Data/Sounds/through space.ogg",true, renderer.gfx11.device.Get());
+	backGroundSound.cube.pos = XMFLOAT3(6.39f, 2.0f, 4.34f);
 	sounds.push_back(&backGroundSound);
 
 	return true;
@@ -235,7 +243,14 @@ void Engine::Update(int width, int height)
 
 void Engine::RenderFrame(float& dt,float& fps)
 {
-
+	backGroundSound.Update();
+	backGroundSound.UpdatePos(camera.GetPositionFloat3(), camera.GetForwardVector(), camera.upDir);
+	bool fResult;
+	backGroundSound.channel->isPlaying(&fResult);
+	if (!fResult)
+	{
+		backGroundSound.Play();
+	}
 
 	float pointX = (float)mouse.GetPosX();
 	float pointY = (float)mouse.GetPosY();
@@ -244,6 +259,15 @@ void Engine::RenderFrame(float& dt,float& fps)
 	{
 		entities.push_back(Entity());
 		entities[entities.size() - 1].filePath = renderer.inName;
+		int nameIndex = 0;
+		for (int i = 0; i < entities.size(); ++i)
+		{
+			if (entities[i].entityName == "Entity" + std::to_string(entities.size() + nameIndex))
+			{
+				nameIndex++;
+			}
+		}
+		entities[entities.size() - 1].entityName = "Entity" + std::to_string(entities.size() + nameIndex);
 		asyncAddEntity = std::async(std::launch::async, &Engine::AddEntity, this, std::ref(renderer.inName),std::ref(renderer.isAnimated),std::ref(renderer.bConvertCordinates));
 		renderer.bAddEntity = false;
 	}
@@ -309,26 +333,17 @@ void Engine::RenderFrame(float& dt,float& fps)
 
 	AIHandler(dt);
 
-	if (renderer.bClear)
+	for (int i = 0; i < entities.size(); ++i)
 	{
-		for (int i = 0; i < entities.size(); ++i)
+		if (entities[i].bFlagForDeletion)
 		{
-			entities[i].Clear(*physicsHandler.aScene);
+
+			if(i < entities.size() - 1)
+				std::swap(entities[i], entities.back());
+			entities.pop_back();
+			entities[i].bFlagForDeletion = false;
 		}
-		entities.clear();
-		renderer.bClear = false;
 	}
-
-	
-	backGroundSound.UpdatePos(FMOD_VECTOR{ 0,2,0 }, camera.pos,camera.GetForwardVector());
-	bool fResult;
-	backGroundSound.channel->isPlaying(&fResult);
-	if (!fResult)
-	{
-		backGroundSound.Play();
-	}
-
-	backGroundSound.Update();
 }
 
 void Engine::AddEntity(std::string& _inName,bool& isAnimated, bool& bConvertCordinates)
@@ -396,7 +411,7 @@ void Engine::ObjectsHandler(float& dt)
 		{
 			if (entities[i].bCreateController)
 			{
-				entities[i].entityName = "Entity" + std::to_string(i);
+				//entities[i].entityName = "Entity" + std::to_string(i);
 				entities[i].physicsComponent.CreateController(*physicsHandler.mPhysics, *physicsHandler.aScene, physx::PxVec3(entities[i].pos.x, entities[i].pos.y, entities[i].pos.z), entities[i].entityName);
 				entities[i].bCreateController = false;
 			}
@@ -535,23 +550,7 @@ void Engine::CopyPasteEntity()
 	{
 		for (int i = 0; i < entities.size(); ++i)
 		{
-
-			physx::PxShape* _shape = nullptr;
-			if(entities[i].physicsComponent.aActor)
-				entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
-			else if(entities[i].physicsComponent.aStaticActor)
-				entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
-			if (_shape)
-			{
-				if (_shape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
-				{
-					entities[i].isSelected = true;
-				}
-				else
-					entities[i].isSelected = false;
-			}
-			
-			if (entities[i].isSelected)
+			if (renderer.listbox_item_current == i || entities[i].isSelected)
 			{
 				if (entities[i].physicsComponent.aActor)
 				{
@@ -585,6 +584,8 @@ void Engine::CopyPasteEntity()
 				copiedEntityData.frustumScale = entities[i].frustumScale;
 				copiedEntityData.isEmissive = entities[i].isEmissive;
 				copiedEntityData.emissiveColor = entities[i].emissiveColor;
+
+				OutputDebugStringA("Data copied!!\n");
 			}
 		}
 	}
@@ -617,17 +618,25 @@ void Engine::CopyPasteEntity()
 		entities[entities.size() - 1].isEmissive = copiedEntityData.isEmissive;
 		entities[entities.size() - 1].emissiveColor = copiedEntityData.emissiveColor;
 
-		entities[entities.size() - 1].entityName = "Entity" + std::to_string(entities.size() - 1);
-		//asyncAddEntity = std::async(std::launch::async, &Engine::AddEntity, this, std::ref(copiedEntityData.FilePath), std::ref(copiedEntityData.isAnimated), std::ref(entities[entities.size() - 1].model.bConvertCordinates));
-		AddEntity(copiedEntityData.FilePath, copiedEntityData.isAnimated, entities[entities.size() - 1].model.bConvertCordinates);
-
-		if (entities[entities.size() - 1].isAnimated)
+		int nameIndex = 0;
+		for (int i = 0; i < entities.size(); ++i)
 		{
-			for (int j = 0; j < entities[entities.size() - 1].model.animFiles.size(); ++j)
+			if (entities[i].entityName == "Entity" + std::to_string(entities.size()+nameIndex))
 			{
-				entities[entities.size() - 1].model.LoadAnimation(entities[entities.size() - 1].model.animFiles[j]);
+				nameIndex++;
 			}
 		}
+		entities[entities.size() - 1].entityName = "Entity" + std::to_string(entities.size()+ nameIndex);
+		asyncAddEntity = std::async(std::launch::async, &Engine::AddEntity, this, std::ref(copiedEntityData.FilePath), std::ref(copiedEntityData.isAnimated), std::ref(entities[entities.size() - 1].model.bConvertCordinates));
+		//AddEntity(copiedEntityData.FilePath, copiedEntityData.isAnimated, entities[entities.size() - 1].model.bConvertCordinates);
+	
+		//if (entities[entities.size() - 1].isAnimated)
+		//{
+		//	for (int j = 0; j < entities[entities.size() - 1].model.animFiles.size(); ++j)
+		//	{
+		//		entities[entities.size() - 1].model.LoadAnimation(entities[entities.size() - 1].model.animFiles[j]);
+		//	}
+		//}
 		
 		if (entities[entities.size() - 1].physicsComponent.isCharacter)
 			entities[entities.size() - 1].physicsComponent.CreateController(*physicsHandler.mPhysics, *physicsHandler.aScene, physx::PxVec3(entities[entities.size() - 1].pos.x, entities[entities.size() - 1].pos.y, entities[entities.size() - 1].pos.z), entities[entities.size() - 1].entityName);
@@ -642,6 +651,7 @@ void Engine::CopyPasteEntity()
 		{
 			entities[entities.size() - 1].physicsComponent.aStaticActor->setGlobalPose(copiedEntityData.trans);
 		}
+		OutputDebugStringA("Data Pasted!!\n");
 	}
 
 	

@@ -33,6 +33,7 @@ private:
 	void CopyPasteEntity();
 	void CopyPasteLight();
 	void CopyPastePointLight();
+
 protected:
 	AppTimer timer;
 

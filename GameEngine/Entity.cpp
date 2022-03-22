@@ -11,6 +11,13 @@ Entity::Entity()
 	isAnimated = false;
 	bRender = true;
 	isDeleted = false;
+	bFlagForDeletion = false;
+}
+
+template<class T>
+inline Entity::Entity(T& lhs, T& rhs)
+{
+	std::swap(lhs, rhs);
 }
 
 bool Entity::Intitialize(const std::string filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, bool isAnimated)
@@ -518,6 +525,7 @@ void Entity::DrawGui(physx::PxScene& scene,std::vector<Entity>& entities)
 
 		if (ImGui::Button("Delete"))
 		{
+			bFlagForDeletion = true;
 			Clear(scene);
 		}
 	}

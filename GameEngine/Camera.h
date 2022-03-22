@@ -64,7 +64,7 @@ public:
 	XMVECTOR vec_left;
 	XMVECTOR vec_right;
 	XMVECTOR vec_backward;
-
+	XMVECTOR upDir;
 
 
 };

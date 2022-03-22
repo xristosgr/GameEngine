@@ -90,6 +90,8 @@ public:
 	float acceptedDist;
 
 	int listbox_item_current = -1;
+
+	bool bEntityDeleted;
 private:
 	int windowWidth, windowHeight;
 	EnvironmentProbe environmentProbe;
