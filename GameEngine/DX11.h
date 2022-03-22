@@ -88,7 +88,6 @@ public:
 	//CONSTANT BUFFERS
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<CB_VS_lightsShader> cb_vs_lightsShader;
-	ConstantBuffer<CB_VS_blurWeights> cb_vs_blurWeights;
 	ConstantBuffer<CB_VS_windowParams> cb_vs_windowParams;
 
 	ConstantBuffer<CB_PS_lightsShader> cb_ps_lightsShader;

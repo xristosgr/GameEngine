@@ -87,7 +87,6 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	///////////////////////////////////////////////////
 	HRESULT hr = gfx11.cb_vs_vertexshader.Initialize(gfx11.device, gfx11.deviceContext);
 	hr = gfx11.cb_vs_lightsShader.Initialize(gfx11.device, gfx11.deviceContext);
-	hr = gfx11.cb_vs_blurWeights.Initialize(gfx11.device, gfx11.deviceContext);
 	hr = gfx11.cb_vs_windowParams.Initialize(gfx11.device, gfx11.deviceContext);
 
 	hr = gfx11.cb_ps_lightsShader.Initialize(gfx11.device, gfx11.deviceContext);
@@ -102,8 +101,7 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 
 	gfx11.deviceContext->VSSetConstantBuffers(0, 1, gfx11.cb_vs_vertexshader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->VSSetConstantBuffers(1, 1, gfx11.cb_vs_lightsShader.GetBuffer().GetAddressOf());
-	gfx11.deviceContext->VSSetConstantBuffers(2, 1, gfx11.cb_vs_blurWeights.GetBuffer().GetAddressOf());
-	gfx11.deviceContext->VSSetConstantBuffers(3, 1, gfx11.cb_vs_windowParams.GetBuffer().GetAddressOf());
+	gfx11.deviceContext->VSSetConstantBuffers(2, 1, gfx11.cb_vs_windowParams.GetBuffer().GetAddressOf());
 
 	gfx11.deviceContext->PSSetConstantBuffers(0, 1, gfx11.cb_ps_lightsShader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->PSSetConstantBuffers(1, 1, gfx11.cb_ps_PCFshader.GetBuffer().GetAddressOf());
@@ -215,13 +213,13 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 
 
 	//Bloom
-	BloomHorizontalBlurTexture.Initialize(gfx11.device.Get(), 640, 360);
-	BloomVerticalBlurTexture.Initialize(gfx11.device.Get(), 640, 360);
+	BloomHorizontalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
+	BloomVerticalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
 	bloomRenderTexture.Initialize(gfx11.device.Get(), windowWidth, windowHeight);
 
 	//Volumetric light
 	volumetricLightTexture.Initialize(gfx11.device.Get(), 640, 360);
-	cameraDepthTexture.Initialize(gfx11.device.Get(), 640, 360);
+	cameraDepthTexture.Initialize(gfx11.device.Get(), 800, 600);
 }
 
 //****************RENDER ENTITIES***************************************
@@ -406,17 +404,8 @@ void Renderer::RenderSceneToTexture(RenderTexture& texture, Camera& camera, std:
 
 void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera)
 {
-	XMFLOAT4 blurWeight1234 = XMFLOAT4(30.0f, 22.5f, 15.0f, 7.5f);
-	XMFLOAT4 blurWeight5678 = XMFLOAT4(0.0f, 7.5f, 15.0f, 22.5f);
-	float blurWeight9 = 30.0f;
-
-	gfx11.cb_vs_blurWeights.data.weight1234 = blurWeight1234;
-	gfx11.cb_vs_blurWeights.data.weight5678 = blurWeight5678;
-	gfx11.cb_vs_blurWeights.data.weight9 = blurWeight9;
-	gfx11.cb_vs_blurWeights.data.padding1 = XMFLOAT3(0.0f, 0.0f, 0.0f);
-
-	gfx11.cb_vs_windowParams.data.window_width = windowWidth;
-	gfx11.cb_vs_windowParams.data.window_height = windowHeight;
+	gfx11.cb_vs_windowParams.data.window_width = (float)windowWidth;
+	gfx11.cb_vs_windowParams.data.window_height = (float)windowHeight;
 
 	for (int i = 0; i < lights.size(); ++i)
 	{
@@ -488,7 +477,6 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 
 	gfx11.cb_vs_vertexshader.UpdateBuffer();
 	gfx11.cb_vs_lightsShader.UpdateBuffer();
-	gfx11.cb_vs_blurWeights.UpdateBuffer();
 	gfx11.cb_vs_windowParams.UpdateBuffer();
 	gfx11.cb_ps_lightsShader.UpdateBuffer();
 	gfx11.cb_ps_PCFshader.UpdateBuffer();

@@ -5,7 +5,7 @@ cbuffer constantBuffer : register(b0)
     float4x4 projectionMatrix;
 };
 
-cbuffer windowParams : register(b3)
+cbuffer windowParams : register(b2)
 {
     float window_width;
     float window_height;
@@ -36,8 +36,6 @@ VS_OUTPUT main(VS_INPUT input)
     output.position = mul(float4(input.position.xyz, 1.0f), worldMatrix);
     //output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
-
-
     output.tex = input.tex;
     output.centerTexCoords = output.position * 0.5 + 0.5;
     texelSize = 1.0f / window_width;

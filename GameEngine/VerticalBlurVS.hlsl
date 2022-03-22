@@ -5,7 +5,7 @@ cbuffer constantBuffer : register(b0)
     float4x4 projectionMatrix;
 };
 
-cbuffer windowParams : register(b3)
+cbuffer windowParams : register(b2)
 {
     float window_width;
     float window_height;

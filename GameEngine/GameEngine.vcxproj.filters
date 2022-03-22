@@ -553,9 +553,6 @@
     <FxCompile Include="VerticalBlurVS.hlsl">
       <Filter>Shaders\Vertex</Filter>
     </FxCompile>
-    <FxCompile Include="HorizontalBlurVS.hlsl">
-      <Filter>Shaders\Vertex</Filter>
-    </FxCompile>
     <FxCompile Include="BloomLightPS.hlsl">
       <Filter>Shaders\Pixel</Filter>
     </FxCompile>
@@ -573,6 +570,9 @@
     </FxCompile>
     <FxCompile Include="VolumeGPassPS.hlsl">
       <Filter>Shaders\Pixel</Filter>
+    </FxCompile>
+    <FxCompile Include="HorizontalBlurVS.hlsl">
+      <Filter>Shaders\Vertex</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -13,7 +13,7 @@ void NavMeshClass::CalculatePath(float& dt, Entity* start, Entity* end, AIContro
 	if (!end || !start)
 		return;
 
-	float acceptedRadius = 1.3f;
+	float acceptedRadius = 1.5f;
 	start->physicsComponent.trans = start->physicsComponent.aActor->getGlobalPose();
 	controller.v1 = start->physicsComponent.trans.p;
 

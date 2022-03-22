@@ -21,14 +21,6 @@ struct CB_VS_lightsShader
 	unsigned int lightsSize;
 };
 
-struct CB_VS_blurWeights
-{
-	DirectX::XMFLOAT4 weight1234;
-	DirectX::XMFLOAT4 weight5678;
-	float weight9;
-	DirectX::XMFLOAT3 padding1;
-};
-
 struct CB_VS_windowParams
 {
 	float window_width;

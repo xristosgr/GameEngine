@@ -447,17 +447,20 @@ void Engine::ObjectsHandler(float& dt)
 		if (entities[i].model.isAttached)
 		{
 			//entities[i].SetupAttachment(player, "mixamorig_RightHandMiddle1");
-
-			if(entities[i].parent->entityName == entities[i].parentName)
-				entities[i].SetupAttachment(player);
-			else
+			if (entities[i].parent)
 			{
-				for (int j = 0; j < entities.size(); ++j)
+				if (entities[i].parent->entityName == entities[i].parentName)
+					entities[i].SetupAttachment(player);
+				else
 				{
-					if(entities[j].entityName == entities[i].parentName)
-						entities[i].SetupAttachment(&entities[j],true);
+					for (int j = 0; j < entities.size(); ++j)
+					{
+						if (entities[j].entityName == entities[i].parentName)
+							entities[i].SetupAttachment(&entities[j], true);
+					}
 				}
 			}
+			
 		}
 	}
 

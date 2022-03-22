@@ -475,20 +475,28 @@ void Entity::DrawGui(physx::PxScene& scene,std::vector<Entity>& entities)
 		{
 			if (ImGui::CollapsingHeader("Show entities"))
 			{
-				if (parent)
+				std::vector<const char*> _entitiesData;
+				for (int i = 0; i < entities.size(); ++i)
 				{
-					std::vector<const char*> _entitiesData;
+					if(entities[i].isAnimated)
+						_entitiesData.push_back(entities[i].entityName.c_str());
+				}
+				static int listbox_current = -1;
+				ImGui::ListBox("Entities", &listbox_current, _entitiesData.data(), _entitiesData.size());
+			
+				if (listbox_current > -1)
+				{
+					parentName = _entitiesData[listbox_current];
 					for (int i = 0; i < entities.size(); ++i)
 					{
-						if(entities[i].isAnimated)
-							_entitiesData.push_back(entities[i].entityName.c_str());
+						if (entities[i].entityName == _entitiesData[listbox_current])
+						{
+							parent = &entities[i];
+						}
 					}
-					static int listbox_current = -1;
-					ImGui::ListBox("Entities", &listbox_current, _entitiesData.data(), _entitiesData.size());
-			
-					if(listbox_current > -1)
-						parentName = _entitiesData[listbox_current];
 				}
+					
+				
 			}
 
 			if (ImGui::CollapsingHeader("Show skeleton"))
