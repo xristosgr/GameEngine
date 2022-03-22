@@ -17,6 +17,8 @@ class Engine : virtual WindowContainer
 {
 public:
 	Engine();
+	template<class T>
+	Engine(T& lhs, T& rhs);
 	bool Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height);
 	bool ProcessMessages();
 	void Update(int width, int height);

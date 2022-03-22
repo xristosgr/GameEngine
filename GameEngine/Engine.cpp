@@ -4,6 +4,11 @@ Engine::Engine()
 {
 	player = nullptr;
 }
+template<class T>
+inline Engine::Engine(T& lhs, T& rhs)
+{
+	std::swap(lhs, rhs);
+}
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height)
 {

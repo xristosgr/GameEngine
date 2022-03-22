@@ -13,8 +13,6 @@ class Entity
 {
 public:
 	Entity();
-	template<class T>
-	Entity(T& lhs, T& rhs);
 
 	bool Intitialize(const std::string filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContex, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, bool isAnimated);
 	//void LoadAnimation();
