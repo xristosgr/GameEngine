@@ -18,6 +18,7 @@ private:
 	void RetracePath(NodeClass& _startNode, NodeClass& endNode, Entity* start);
 
 	std::future<void> solve_async;
+	std::future<void> move_async;
 	NodeClass* startNode;
 	NodeClass* endNode;
 

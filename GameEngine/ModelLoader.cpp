@@ -343,19 +343,21 @@ std::vector<Texture> ModelLoader::LoadMaterialTextures(aiMaterial* pMaterial, ai
 	return materialTextures;
 }
 
-
 void ModelLoader::Draw(const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix)
 {
 	//if (_filePath.empty())
 	//	return;
 
-	DirectX::XMFLOAT4X4 _transforms;
 	if (isAnimated)
 	{
+		DirectX::XMFLOAT4X4 _transforms;
 		std::vector<DirectX::XMMATRIX> transforms;
+
+		//boneTrans_async = std::async(std::launch::async, &ModelLoader::BoneTransAsync, this, std::ref(_transforms));
 		BoneTransform(transforms);
 		XMStoreFloat4x4(&_transforms, transforms[0]);
-
+		
+	
 		for (unsigned int i = 0; i < transforms.size(); ++i)
 		{
 			this->cb_vs_vertexshader.data.bones_transform[i] = transforms[i];

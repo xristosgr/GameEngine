@@ -1,0 +1,38 @@
+# Blender 3.1.0 MTL File: 'MyRobotSimpleDecimated.blend'
+# www.blender.org
+
+newmtl Metall
+Ns 288.235291
+Ka 0.070499 0.070499 0.070499
+Kd 0.892086 0.876674 0.762727
+Ks 0.380637 0.380637 0.380637
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.467626
+illum 6
+map_Kd  ..\robot_Metall2_Metallic.jpg
+map_Bump  -bm 1.000000 ..\robot_Metall2_Normal.jpg
+
+newmtl Metall2
+Ns 37.254898
+Ka 0.070499 0.070499 0.070499
+Kd 0.000000 0.000000 0.000000
+Ks 0.055344 0.055344 0.055344
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 3
+map_Kd  ..\robot_Metall_Metallic.jpg
+map_Bump  -bm 1.000000 ..\robot_Metall_Normal.jpg
+
+newmtl eyes
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd  ..\robot_glaz_Metallic.jpg
+map_Bump  -bm 1.000000 ..\robot_glaz_Normal.jpg

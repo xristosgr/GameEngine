@@ -119,7 +119,7 @@ float4 main(PS_INPUT input) : SV_TARGET
                     Lo += pointLight(input, albedo.rgb, dynamicLightPosition[i].xyz, dynamicLightColor[i].rgb, cutOff[i], bumpNormal, roughness, metallic, V, F0); //* Shadows(input.lightViewPosition[i], depthMapTextures[i]);
                 else if (lightType[i].x == 1.0)
                 {
-                    if (input.distToCamera < acceptedDistShadow * 2.0f)
+                    if (input.distToCamera < acceptedDistShadow * 5.0f)
                         Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, i) * Shadows(input.lightViewPosition[i], depthMapTextures[i], input.distToCamera);
                     else
                         Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, i);
@@ -205,7 +205,7 @@ float Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist)
             lightDepthValue = lightDepthValue - bias;
         
         
-            int PCF_RANGE = 4;
+            int PCF_RANGE = 3;
 
             [unroll(PCF_RANGE*2+1)]
             for (int x = -PCF_RANGE; x <= PCF_RANGE; x++)

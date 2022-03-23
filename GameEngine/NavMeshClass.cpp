@@ -50,10 +50,10 @@ void NavMeshClass::CalculatePath(float& dt, Entity* start, Entity* end, AIContro
 	if (!startNode || !endNode)
 		return;
 	
-	Solve_AStar(dt, start, end, controller, grid, gravity);
+	//Solve_AStar(dt, start, end, controller, grid, gravity);
 	
 		
-	//solve_async = std::async(std::launch::async, &NavMeshClass::Solve_AStar, this, std::ref(dt), start, end, std::ref(controller), std::ref(grid),std::ref(gravity));
+	solve_async = std::async(std::launch::async, &NavMeshClass::Solve_AStar, this, std::ref(dt), start, end, std::ref(controller), std::ref(grid),std::ref(gravity));
 
 	for (int i = start->locations.size() - 1; i >= 0; --i)
 	{
@@ -70,8 +70,10 @@ void NavMeshClass::CalculatePath(float& dt, Entity* start, Entity* end, AIContro
 	{
 		start->locToMove = start->locations[start->m_index];
 	}
-		
+	
 	controller.MoveTo(dt, start, end, gravity);
+
+	//move_async = std::async(std::launch::async, &AIController::MoveTo, &controller, std::ref(dt), start, end, std::ref(gravity));
 }
 
 void NavMeshClass::Solve_AStar(float& dt, Entity* start, Entity* end, AIController& controller, GridClass& grid,float& gravity)

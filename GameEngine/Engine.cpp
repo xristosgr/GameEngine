@@ -13,14 +13,6 @@ inline Engine::Engine(T& lhs, T& rhs)
 	std::swap(lhs, rhs);
 }
 
-template<class T>
-inline void Engine::SwapElements(T& lhs, T& rhs)
-{
-	T temp = lhs;
-	lhs = rhs;
-	rhs = temp;
-}
-
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height)
 {
 	this->width = width;
@@ -100,20 +92,7 @@ void Engine::Update(int width, int height)
 
 	float dt = 1000.0f / io.Framerate;
 	float fps = io.Framerate;
-	//OutputDebugStringA(("DT = " + std::to_string(dt) + "\n").c_str());
 	timer.Restart();
-	
-
-	//while (!keyboard.CharBufferIsEmpty())
-	//{
-	//	unsigned char ch = keyboard.ReadChar();
-	//}
-	//
-	//while (!keyboard.KeyBufferIsEmpty())
-	//{
-	//	KeyboardEvent kbe = keyboard.ReadKey();
-	//	unsigned char keycode = kbe.GetKeyCode();
-	//}
 	
 	if (keyboard.KeyIsPressed(VK_ESCAPE))
 	{
@@ -129,18 +108,12 @@ void Engine::Update(int width, int height)
 		{
 			MouseEvent me = mouse.ReadEvent();
 
-			//if (me.GetType() == MouseEvent::EventType::Move)
-			//{
-			//	OutputDebugStringA(("X = " + std::to_string(static_cast<float>(me.GetPosX())) + " |Y = " + std::to_string(static_cast<float>(me.GetPosY())) + "\n").c_str());
-			//}
 			if (mouse.IsMiddleDown())
 			{
 				if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
 				{
 					camera.AdjustRotation(static_cast<float>(me.GetPosY()) * 0.004f, static_cast<float>(me.GetPosX()) * 0.004f, 0.0f, true);
-
 				}
-
 			}
 		}
 
@@ -176,6 +149,7 @@ void Engine::Update(int width, int height)
 			camera.AdjustPosition(0.0f, -cameraSpeed * dt, 0.0f);
 		}
 		ClipCursor(NULL);
+		ShowCursor(TRUE);
 	}
 	else
 	{
@@ -184,6 +158,7 @@ void Engine::Update(int width, int height)
 		GetClientRect(this->render_window.GetHWND(), &rect);
 		MapWindowPoints(this->render_window.GetHWND(), nullptr, reinterpret_cast<POINT*>(&rect), 2);
 		ClipCursor(&rect);
+		ShowCursor(FALSE);
 	}
 
 	if (keyboard.KeyIsPressed(VK_F7))
@@ -227,7 +202,6 @@ void Engine::Update(int width, int height)
 		bCanPaste = true;
 	}
 
-
 	RenderFrame(dt, fps);
 
 
@@ -253,6 +227,26 @@ void Engine::Update(int width, int height)
 			}
 		}
 
+	}
+
+	if (gameThread.joinable())
+		gameThread.join();
+	if (playerThread.joinable())
+		playerThread.join();
+	if (aiThread.joinable())
+		aiThread.join();
+
+
+
+	for (int i = 0; i < entities.size(); ++i)
+	{
+		if (entities[i].bFlagForDeletion)
+		{
+			if (i < entities.size() - 1)
+				std::swap(entities[i], entities.back());
+			entities.pop_back();
+			entities[i].bFlagForDeletion = false;
+		}
 	}
 }
 
@@ -317,49 +311,49 @@ void Engine::RenderFrame(float& dt,float& fps)
 		renderer.bAddCollisionObject = false;
 	}
 
-	ObjectsHandler(dt);
+	
+	gameThread = std::thread(&Engine::GameThread, this, std::ref(dt));
 
-	renderer.Render(camera, entities,physicsHandler, lights, pointlights, collisionObjects,grid, navMeshes, *physicsHandler.aScene, sounds);
+	renderer.Render(camera, entities,physicsHandler, lights, pointlights, collisionObjects,grid, navMeshes, sounds);
+	//renderThread = std::thread(&Engine::RenderThread, this, std::ref(dt), std::ref(fps), std::ref(camera), std::ref(entities), std::ref(physicsHandler), std::ref(lights), std::ref(pointlights),std::ref(collisionObjects), std::ref(grid), std::ref(navMeshes), std::ref(sounds));
 	
 	if (physicsHandler.advance(dt, fps, camera))
 	{
-		if (player)
-		{
-			if (renderer.switchCameraMode == 0)
-			{
-				player->bRender = true;
-				tpsPlayerController.MouseMovement(dt, *player, keyboard, mouse, camera);
-				tpsPlayerController.Movement(dt, physicsHandler.aScene->getGravity().y, *player, keyboard, mouse, camera);
-				tpsPlayerController.Update();
-			}
-			else
-			{
-				player->bRender = false;
-				fpsPlayerController.MouseMovement(dt, *player, keyboard, mouse, camera);
-				fpsPlayerController.Movement(dt, physicsHandler.aScene->getGravity().y, player, keyboard, mouse, camera);
-			}
-
-		}
-
+		playerThread = std::thread(&Engine::PlayerThread, this, std::ref(dt));
+	
+	
 		if (!physicsHandler.isMouseHover && !renderer.runPhysics)
 			physicsHandler.MouseRayCast(entities, camera, mouse, keyboard, this->width, this->height,renderer.listbox_item_current);
 		physicsHandler.FallCheck(entities, player);
 	}
+	aiThread = std::thread(&Engine::AiThread, this, std::ref(dt));
+	
+	//for (int i = 0; i < entities.size(); ++i)
+	//{
+	//	if (entities[i].bFlagForDeletion)
+	//	{
+	//		if (i < entities.size() - 1)
+	//			std::swap(entities[i], entities.back());
+	//		entities.pop_back();
+	//		entities[i].bFlagForDeletion = false;
+	//	}
+	//}
 
-	AIHandler(dt);
 
-	for (int i = 0; i < entities.size(); ++i)
-	{
-		if (entities[i].bFlagForDeletion)
-		{
-			std::swap(lights[0], lights.back());
 
-			if (i < entities.size() - 1)
-				std::swap(entities[i], entities.back());
-			entities.pop_back();
-			entities[i].bFlagForDeletion = false;
-		}
-	}
+	//if (gameThread.joinable())
+	//	gameThread.join();
+	//if (playerThread.joinable())
+	//	playerThread.join();
+	//if (aiThread.joinable())
+	//	aiThread.join();
+
+
+	//if (renderThread.joinable())
+	//	renderThread.join();
+	//if (physicsThread.joinable())
+	//	physicsThread.join();
+	
 }
 
 void Engine::AddEntity(std::string& _inName,bool& isAnimated, bool& bConvertCordinates)
@@ -764,4 +758,40 @@ void Engine::CopyPastePointLight()
 
 	renderer.copyPointLight = false;
 
+}
+
+void Engine::GameThread(float& dt)
+{
+	ObjectsHandler(dt);
+}
+
+void Engine::AiThread(float& dt)
+{
+	AIHandler(dt);
+}
+
+void Engine::PlayerThread(float& dt)
+{
+	if (player)
+	{
+		if (renderer.switchCameraMode == 0)
+		{
+			player->bRender = true;
+			tpsPlayerController.MouseMovement(dt, *player, keyboard, mouse, camera);
+			tpsPlayerController.Movement(dt, physicsHandler.aScene->getGravity().y, *player, keyboard, mouse, camera);
+			tpsPlayerController.Update();
+		}
+		else
+		{
+			player->bRender = false;
+			fpsPlayerController.MouseMovement(dt, *player, keyboard, mouse, camera);
+			fpsPlayerController.Movement(dt, physicsHandler.aScene->getGravity().y, player, keyboard, mouse, camera);
+		}
+
+	}
+}
+
+void Engine::RenderThread(float& dt, float& fps,Camera& camera, std::vector<Entity>& entity, PhysicsHandler& physicsHandler, std::vector<Light>& lights, std::vector<Light>& pointLights, std::vector<CollisionObject>& collisionObjects, GridClass& grid, std::vector<NavMeshClass>& navMeshes, std::vector<SoundComponent*>& sounds)
+{
+	renderer.Render(camera, entities, physicsHandler, lights, pointlights, collisionObjects, grid, navMeshes, sounds);
 }

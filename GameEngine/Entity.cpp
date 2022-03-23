@@ -259,7 +259,7 @@ void Entity::MouseMove(Mouse& mouse, Keyboard& keyboard, Camera& camera)
 
 			float pointX, pointY;
 			DirectX::XMMATRIX viewMatrix, inverseViewMatrix;
-			DirectX::XMFLOAT3 direction = XMFLOAT3(0, 0, 0);
+			DirectX::XMFLOAT3 direction = DirectX::XMFLOAT3(0, 0, 0);
 
 			pointX = ((2.0f * (float)mouse.GetPosX()) / (float)1280) - 1.0f;
 			pointY = (((2.0f * (float)mouse.GetPosY()) / (float)720) - 1.0f) * -1.0f;
@@ -353,7 +353,7 @@ void Entity::SetupAttachment(Entity* entity, bool bSetParent)
 			DirectX::XMStoreFloat4(&parent->model.worldRot, _rot);
 
 
-			pos = XMFLOAT3(parent->model.worldPos.x, parent->model.worldPos.y, parent->model.worldPos.z);
+			pos = DirectX::XMFLOAT3(parent->model.worldPos.x, parent->model.worldPos.y, parent->model.worldPos.z);
 		}
 	}
 }

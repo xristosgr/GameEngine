@@ -89,6 +89,5 @@ public:
 
 	DirectX::XMFLOAT3 BoneRot;
 	//std::string attachedBone;
-
 };
 

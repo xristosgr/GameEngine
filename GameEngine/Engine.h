@@ -21,9 +21,6 @@ public:
 	template<class T>
 	Engine(T& lhs, T& rhs);
 
-	template<class T>
-	void SwapElements(T& lhs, T& rhs);
-
 	bool Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height);
 	bool ProcessMessages();
 	void Update(int width, int height);
@@ -40,6 +37,11 @@ private:
 	void CopyPasteEntity();
 	void CopyPasteLight();
 	void CopyPastePointLight();
+
+	void GameThread(float& dt);
+	void AiThread(float& dt);
+	void RenderThread(float& dt, float& fps,Camera& camera, std::vector<Entity>& entity, PhysicsHandler& physicsHandler, std::vector<Light>& lights, std::vector<Light>& pointLights, std::vector<CollisionObject>& collisionObjects, GridClass& grid, std::vector<NavMeshClass>& navMeshes, std::vector<SoundComponent*>& sounds);
+	void PlayerThread(float& dt);
 
 protected:
 	AppTimer timer;
@@ -144,4 +146,8 @@ private:
 
 
 	SoundComponent backGroundSound;
+
+
+
+	std::thread gameThread, aiThread,playerThread;
 };

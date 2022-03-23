@@ -1,4 +1,6 @@
 #include "SaveSystem.h"
+#include <stdio.h>
+#include <filesystem>
 
 SaveSystem::SaveSystem()
 {
@@ -15,6 +17,25 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 		outfile << "lightsCount= " << lights.size() << "\n";
 		outfile << "pointLightsCount= " << pointLights.size() << "\n";
 		outfile << "CollisionCount= " << collisionObject.size() << "\n";
+	}
+
+	auto dirIter = std::filesystem::directory_iterator("Files/File/Entities");
+	int fileCount = 1;
+
+	for (auto& entry : dirIter)
+	{
+		if (entry.is_regular_file())
+		{
+			++fileCount;
+		}
+	}
+
+	for (int i = entities.size(); i <= fileCount; ++i)
+	{
+		if (!std::remove(("Files/File/Entities/Entity" + std::to_string(i) + ".txt").c_str()))
+		{
+			break;
+		}
 	}
 
 	for (int i = 0; i < entities.size(); ++i)

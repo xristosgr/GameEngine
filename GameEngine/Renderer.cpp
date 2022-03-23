@@ -44,8 +44,8 @@ Renderer::Renderer()
 	vSync = 0;
 
 	renderDistance = 6000.0f;
-	renderShadowDistance = 1600.0f;
-	shadowDist = 10.0f;
+	renderShadowDistance = 2700.0f;
+	shadowDist = 5.5f;
 	acceptedDist = 100.0f;
 }
 
@@ -493,7 +493,7 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 //**********************************************************************************
 
 
-void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHandler& physicsHandler, std::vector<Light>& lights, std::vector<Light>& pointLights, std::vector< CollisionObject>& collisionObjects, GridClass& grid, std::vector<NavMeshClass>& navMeshes, physx::PxScene& scene, std::vector<SoundComponent*>& sounds)
+void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHandler& physicsHandler, std::vector<Light>& lights, std::vector<Light>& pointLights, std::vector< CollisionObject>& collisionObjects, GridClass& grid, std::vector<NavMeshClass>& navMeshes, std::vector<SoundComponent*>& sounds)
 {
 	//for(int i=0; i<lights.size();++i)
 	//	lights[i].UpdateCamera();
@@ -927,6 +927,11 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 					objNames.push_back(entities[i].entityName.c_str());
 				//}
 			}
+
+			if (listbox_item_current > objNames.size() - 1)
+			{
+				listbox_item_current = -1;
+			}
 			ImGui::ListBox("Objects", &listbox_item_current, objNames.data(), objNames.size());
 
 			if (listbox_item_current > -1)
@@ -941,7 +946,8 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 							{
 								physx::PxShape* _shape = nullptr;
 								entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
-								_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
+								if (_shape)
+									_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
 
 
 							}
@@ -949,9 +955,10 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 							{
 								physx::PxShape* _shape = nullptr;
 								entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
-								_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
+								if(_shape)
+									_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
 							}
-							entities[i].DrawGui(scene, entities);
+							entities[i].DrawGui(*physicsHandler.aScene, entities);
 						}
 						else
 						{
@@ -959,13 +966,15 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 							{
 								physx::PxShape* _shape = nullptr;
 								entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
-								_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+								if (_shape)
+									_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
 							}
 							else if (entities[i].physicsComponent.aStaticActor)
 							{
 								physx::PxShape* _shape = nullptr;
 								entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
-								_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+								if (_shape)
+									_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
 							}
 						}
 					}
@@ -985,7 +994,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 								if (objNames[j] == entities[i].entityName)
 								{
 									listbox_item_current = j;
-									entities[i].DrawGui(scene, entities);
+									entities[i].DrawGui(*physicsHandler.aScene, entities);
 								}
 							}
 						}
@@ -1096,6 +1105,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	/////////////////////////////////////
 	/////////////////////////////////////
 	gfx11.swapchain->Present(vSync, NULL);
+
 }
 
 
