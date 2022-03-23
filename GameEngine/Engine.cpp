@@ -149,7 +149,8 @@ void Engine::Update(int width, int height)
 			camera.AdjustPosition(0.0f, -cameraSpeed * dt, 0.0f);
 		}
 		ClipCursor(NULL);
-		ShowCursor(TRUE);
+		while (ShowCursor(TRUE) < 0);
+
 	}
 	else
 	{
@@ -158,7 +159,8 @@ void Engine::Update(int width, int height)
 		GetClientRect(this->render_window.GetHWND(), &rect);
 		MapWindowPoints(this->render_window.GetHWND(), nullptr, reinterpret_cast<POINT*>(&rect), 2);
 		ClipCursor(&rect);
-		ShowCursor(FALSE);
+		
+		while (ShowCursor(FALSE) >= 0);
 	}
 
 	if (keyboard.KeyIsPressed(VK_F7))

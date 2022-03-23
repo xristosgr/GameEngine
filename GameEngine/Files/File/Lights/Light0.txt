@@ -1,6 +1,6 @@
-posX= 6.135
+posX= 7.845
 posY= 4.37
-posZ= 5.475
+posZ= 5.1
 scaleX= 0.01
 scaleY= 0.01
 scaleZ= 0.01
@@ -10,7 +10,7 @@ colorZ= 500
 emissionColorX= 1
 emissionColorY= 1
 emissionColorZ= 1
-directionX= 6.03
+directionX= 7.84
 directionY= 0.41
 directionZ= 10.16
 spotDirX= 0
