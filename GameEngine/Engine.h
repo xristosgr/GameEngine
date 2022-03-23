@@ -149,5 +149,6 @@ private:
 
 
 
-	std::thread gameThread, aiThread,playerThread;
+	std::thread gameThread, aiThread,playerThread,fallCheckThread;
+	std::vector<std::thread> aiFallCheckThread;
 };

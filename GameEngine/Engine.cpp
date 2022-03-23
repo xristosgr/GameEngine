@@ -237,9 +237,14 @@ void Engine::Update(int width, int height)
 		playerThread.join();
 	if (aiThread.joinable())
 		aiThread.join();
-
-
-
+	if (fallCheckThread.joinable())
+		fallCheckThread.join();
+	for (int i = 0; i < aiFallCheckThread.size(); ++i)
+	{
+		if (aiFallCheckThread[i].joinable())
+			aiFallCheckThread[i].join();
+	}
+	
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		if (entities[i].bFlagForDeletion)
@@ -313,7 +318,7 @@ void Engine::RenderFrame(float& dt,float& fps)
 		renderer.bAddCollisionObject = false;
 	}
 
-	
+	//GameThread(dt);
 	gameThread = std::thread(&Engine::GameThread, this, std::ref(dt));
 
 	renderer.Render(camera, entities,physicsHandler, lights, pointlights, collisionObjects,grid, navMeshes, sounds);
@@ -321,41 +326,20 @@ void Engine::RenderFrame(float& dt,float& fps)
 	
 	if (physicsHandler.advance(dt, fps, camera))
 	{
+		//PlayerThread(dt);
 		playerThread = std::thread(&Engine::PlayerThread, this, std::ref(dt));
 	
 	
 		if (!physicsHandler.isMouseHover && !renderer.runPhysics)
 			physicsHandler.MouseRayCast(entities, camera, mouse, keyboard, this->width, this->height,renderer.listbox_item_current);
-		physicsHandler.FallCheck(entities, player);
+
+		
+		//physicsHandler.FallCheck(entities, player);
+
+		fallCheckThread = std::thread(&PhysicsHandler::FallCheck, &physicsHandler, std::ref(entities), player);
 	}
+	//AiThread(dt);
 	aiThread = std::thread(&Engine::AiThread, this, std::ref(dt));
-	
-	//for (int i = 0; i < entities.size(); ++i)
-	//{
-	//	if (entities[i].bFlagForDeletion)
-	//	{
-	//		if (i < entities.size() - 1)
-	//			std::swap(entities[i], entities.back());
-	//		entities.pop_back();
-	//		entities[i].bFlagForDeletion = false;
-	//	}
-	//}
-
-
-
-	//if (gameThread.joinable())
-	//	gameThread.join();
-	//if (playerThread.joinable())
-	//	playerThread.join();
-	//if (aiThread.joinable())
-	//	aiThread.join();
-
-
-	//if (renderThread.joinable())
-	//	renderThread.join();
-	//if (physicsThread.joinable())
-	//	physicsThread.join();
-	
 }
 
 void Engine::AddEntity(std::string& _inName,bool& isAnimated, bool& bConvertCordinates)
@@ -505,6 +489,7 @@ void Engine::AIHandler(float& dt)
 			if (entities[i].isAI)
 			{
 				AIEntities.push_back(&entities[i]);
+				aiFallCheckThread.push_back(std::thread());
 			}
 		}
 		isNavMeshCreated = false;
@@ -512,6 +497,7 @@ void Engine::AIHandler(float& dt)
 
 		grid.nodes.clear();
 		navMeshes.clear();
+		async_navMesh.clear();
 		//grid_test.clear();
 		navMeshes.resize(AIEntities.size());
 		async_navMesh.resize(AIEntities.size());
@@ -543,16 +529,18 @@ void Engine::AIHandler(float& dt)
 				if (AIEntities[i]->physicsComponent.aActor)
 				{
 					float gravity = physicsHandler.aScene->getGravity().y;
-					physicsHandler.FallCheck(entities, AIEntities[i]);
+
+					aiFallCheckThread[i] = std::thread(&PhysicsHandler::FallCheck, &physicsHandler, std::ref(entities), AIEntities[i]);
+
+					//physicsHandler.FallCheck(entities, AIEntities[i]);
 					if (isNavMeshCreated)
 					{
 						navMeshes[i].CalculatePath(dt, AIEntities[i], player, enemyController, grid, gravity);
-						//calculatePath_async = std::async(std::launch::async, &NavMeshClass::CalculatePath, &navMeshes[i], std::ref(dt), AIEntities[i], player, std::ref(enemyController), std::ref(grid), std::ref(gravity));
 					}
 						
 				}
-				//physicsHandler.LineOfSightCheck(AIEntities[i], entities, collisionObjects);
 				physicsHandler.LineOfSightToPlayer(AIEntities[i], player, entities, collisionObjects);
+
 			}
 		}
 	}

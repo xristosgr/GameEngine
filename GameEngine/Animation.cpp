@@ -232,7 +232,7 @@ void Animation::ReadNodeHierarchy(const aiScene* scene, float& AnimationTime, co
 
 		DirectX::XMMATRIX RotationM = DirectX::XMMatrixRotationQuaternion(DirectX::XMVectorSet(RotationQ.x, RotationQ.y, RotationQ.z, RotationQ.w));
 
-		if (NodeName == "mixamorig_RightArm")
+		if (NodeName == "mixamorig_LeftArm")
 			RotationM *= DirectX::XMMatrixRotationRollPitchYaw(BoneRot.x, BoneRot.y, BoneRot.z);
 		//RotationM *= XMMatrixRotationAxis(XMVECTOR{ BoneRot[m_BoneIndex].x, BoneRot[m_BoneIndex].y, BoneRot[m_BoneIndex].z }, BoneRot[m_BoneIndex].w);
 		RotationM = XMMatrixTranspose(RotationM);
@@ -319,7 +319,7 @@ void Animation::ReadNodeHierarchy(const aiScene* scene1, const aiScene* scene2, 
 		aiQuaternion::Interpolate(RotationQ, RotationQ2, RotationQ1, _blendingTime);
 		DirectX::XMMATRIX RotationM = DirectX::XMMatrixRotationQuaternion(DirectX::XMVectorSet(RotationQ.x, RotationQ.y, RotationQ.z, RotationQ.w));
 		
-		if (NodeName1 == "mixamorig_RightArm")
+		if (NodeName1 == "mixamorig_LeftArm")
 			RotationM *= DirectX::XMMatrixRotationRollPitchYaw(BoneRot.x, BoneRot.y, BoneRot.z);
 		RotationM = XMMatrixTranspose(RotationM);
 

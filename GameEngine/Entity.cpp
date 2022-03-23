@@ -180,17 +180,13 @@ void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const Dir
 		else
 		{
 			matrix_scale = DirectX::XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z);
-			//matrix_scale = DirectX::XMMatrixScalingFromVector(_scale);
 			matrix_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
 			matrix_rotate *= DirectX::XMMatrixRotationQuaternion(_rot);
-			//matrix_translate = DirectX::XMMatrixTranslation(modelPos.x, modelPos.y, modelPos.z);
 			matrix_translate = DirectX::XMMatrixTranslationFromVector(_pos);
-			//matrix_translate *= DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
 			worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
 		}
-		
-		//worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
 	}
+
 	if (bRender)
 	{
 		DirectX::XMMATRIX view = viewMatrix;
@@ -343,7 +339,7 @@ void Entity::SetupAttachment(Entity* entity, bool bSetParent)
 			parent->model.AttachTo(attachedBone, boneTrans);
 			//OutputDebugStringA(parent->model.attachedBone.c_str());
 			//OutputDebugStringA("\n");
-			boneTrans = boneTrans * parent->model._worldMatrix;
+			boneTrans = boneTrans * parent->worldMatrix;
 
 
 			DirectX::XMMatrixDecompose(&_scale, &_rot, &_pos, boneTrans);

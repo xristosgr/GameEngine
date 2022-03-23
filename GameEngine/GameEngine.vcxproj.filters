@@ -67,15 +67,6 @@
     <Filter Include="Physics\Source files">
       <UniqueIdentifier>{8f153901-cbc5-4fc5-8e8d-a3ad1160836a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ECS">
-      <UniqueIdentifier>{9d84cf24-7e29-4709-85a0-3de50917be10}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ECS\Header files">
-      <UniqueIdentifier>{5680a911-9677-41c4-b7f0-6f330a64e80b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ECS\Source files">
-      <UniqueIdentifier>{06825de5-5e49-41ab-8d2b-a7c5748bc73b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Characters">
       <UniqueIdentifier>{74845503-8d99-4aec-8618-2d15041ef52f}</UniqueIdentifier>
     </Filter>
@@ -102,6 +93,15 @@
     </Filter>
     <Filter Include="AI\PathFinding\Source Files">
       <UniqueIdentifier>{0d70c6a4-f58f-44d6-b104-a7c7e16c3f1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Entity">
+      <UniqueIdentifier>{9d84cf24-7e29-4709-85a0-3de50917be10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Entity\Header files">
+      <UniqueIdentifier>{5680a911-9677-41c4-b7f0-6f330a64e80b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Entity\Source files">
+      <UniqueIdentifier>{06825de5-5e49-41ab-8d2b-a7c5748bc73b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -226,7 +226,7 @@
       <Filter>Physics\Source files</Filter>
     </ClCompile>
     <ClCompile Include="Entity.cpp">
-      <Filter>ECS\Source files</Filter>
+      <Filter>Entity\Source files</Filter>
     </ClCompile>
     <ClCompile Include="ImGui\ImGuiFileBrowser.cpp">
       <Filter>ImGui\Source files</Filter>
@@ -435,7 +435,7 @@
       <Filter>Physics\Header files</Filter>
     </ClInclude>
     <ClInclude Include="Entity.h">
-      <Filter>ECS\Header files</Filter>
+      <Filter>Entity\Header files</Filter>
     </ClInclude>
     <ClInclude Include="ImGui\ImGuiFileBrowser.h">
       <Filter>ImGui\Header files</Filter>

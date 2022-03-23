@@ -368,7 +368,6 @@ void ModelLoader::Draw(const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMA
 	this->cb_vs_vertexshader.data.viewMatrix = DirectX::XMMatrixTranspose(viewMatrix);
 	this->cb_vs_vertexshader.data.projectionMatrix = DirectX::XMMatrixTranspose(projectionMatrix);
 
-	_worldMatrix = worldMatrix;
 	for (int i = 0; i < meshes.size(); ++i)
 	{
 		if (!bConvertCordinates)

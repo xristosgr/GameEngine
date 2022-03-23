@@ -80,14 +80,12 @@ public:
 
 	DirectX::XMFLOAT3 worldPos, worldScale;
 	DirectX::XMFLOAT4 worldRot;
-	//DirectX::XMMATRIX boneTrans;
+
 	DirectX::XMMATRIX FinalBoneTrans;
-	DirectX::XMMATRIX _worldMatrix;
 
 	std::vector<std::string> boneNames;
 
-
 	DirectX::XMFLOAT3 BoneRot;
-	//std::string attachedBone;
+
 };
 
