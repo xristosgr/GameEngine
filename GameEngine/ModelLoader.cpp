@@ -39,7 +39,6 @@ bool ModelLoader::Initialize(const std::string filePath, ID3D11Device* device, I
 
 	if (!_filePath.empty())
 	{
-		OutputDebugStringA("HELLO MODEL!!\n");
 		if (loadAsync)
 			_asyncLoad = std::async(std::launch::async, &ModelLoader::LoadModel, this, _filePath);
 		else
@@ -75,7 +74,6 @@ bool ModelLoader::LoadModel(const std::string filePath)
 	texturesLoaded = true;
 	for (int i = 0; i < animFiles.size(); ++i)
 	{
-		OutputDebugStringA("HELLO ANIM!!\n");
 		//OutputDebugStringA(animFiles[i].c_str());
 		//OutputDebugStringA("\n");
 		LoadAnimation(animFiles[i]);
@@ -319,9 +317,6 @@ std::vector<Texture> ModelLoader::LoadMaterialTextures(aiMaterial* pMaterial, ai
 			pMaterial->GetTexture(textureType, i, &path);
 			TextureStorageType storetype = DetermineTextureStorageType(pScene, pMaterial, i, textureType);
 
-			//std::string _filename = this->directory + '\\' + path.C_Str();
-			//OutputDebugStringA(_filename.c_str());
-			//OutputDebugStringA("\n");
 			switch (storetype)
 			{
 			case TextureStorageType::Disk:
@@ -353,8 +348,10 @@ void ModelLoader::Draw(const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMA
 		DirectX::XMFLOAT4X4 _transforms;
 		std::vector<DirectX::XMMATRIX> transforms;
 
-		//boneTrans_async = std::async(std::launch::async, &ModelLoader::BoneTransAsync, this, std::ref(_transforms));
+
 		BoneTransform(transforms);
+
+		
 		XMStoreFloat4x4(&_transforms, transforms[0]);
 		
 	

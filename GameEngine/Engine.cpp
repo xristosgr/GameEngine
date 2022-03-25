@@ -231,20 +231,6 @@ void Engine::Update(int width, int height)
 
 	}
 
-	if (gameThread.joinable())
-		gameThread.join();
-	if (playerThread.joinable())
-		playerThread.join();
-	if (aiThread.joinable())
-		aiThread.join();
-	if (fallCheckThread.joinable())
-		fallCheckThread.join();
-	for (int i = 0; i < aiFallCheckThread.size(); ++i)
-	{
-		if (aiFallCheckThread[i].joinable())
-			aiFallCheckThread[i].join();
-	}
-	
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		if (entities[i].bFlagForDeletion)
@@ -255,91 +241,99 @@ void Engine::Update(int width, int height)
 			entities[i].bFlagForDeletion = false;
 		}
 	}
+
 }
 
 void Engine::RenderFrame(float& dt,float& fps)
 {
-	backGroundSound.Update();
-	backGroundSound.UpdatePos(camera.GetPositionFloat3(), camera.GetForwardVector(), camera.upDir);
-	bool fResult;
-	backGroundSound.channel->isPlaying(&fResult);
-	if (!fResult)
-	{
-		backGroundSound.Play();
-	}
+	//backGroundSound.Update();
+	//backGroundSound.UpdatePos(camera.GetPositionFloat3(), camera.GetForwardVector(), camera.upDir);
+	//bool fResult;
+	//backGroundSound.channel->isPlaying(&fResult);
+	//if (!fResult)
+	//{
+	//	backGroundSound.Play();
+	//}
 
-	float pointX = (float)mouse.GetPosX();
-	float pointY = (float)mouse.GetPosY();
 
-	if (renderer.bAddEntity)
-	{
-		entities.push_back(Entity());
-		entities[entities.size() - 1].filePath = renderer.inName;
-		int nameIndex = 0;
-		for (int i = 0; i < entities.size(); ++i)
+		float pointX = (float)mouse.GetPosX();
+		float pointY = (float)mouse.GetPosY();
+
+		if (renderer.bAddEntity)
 		{
-			if (entities[i].entityName == "Entity" + std::to_string(entities.size() + nameIndex))
+			entities.push_back(Entity());
+			entities[entities.size() - 1].filePath = renderer.inName;
+			int nameIndex = 0;
+			for (int i = 0; i < entities.size(); ++i)
 			{
-				nameIndex++;
+				if (entities[i].entityName == "Entity" + std::to_string(entities.size() + nameIndex))
+				{
+					nameIndex++;
+				}
 			}
+			entities[entities.size() - 1].entityName = "Entity" + std::to_string(entities.size() + nameIndex);
+			asyncAddEntity = std::async(std::launch::async, &Engine::AddEntity, this, std::ref(renderer.inName), std::ref(renderer.isAnimated), std::ref(renderer.bConvertCordinates));
+			renderer.bAddEntity = false;
 		}
-		entities[entities.size() - 1].entityName = "Entity" + std::to_string(entities.size() + nameIndex);
-		asyncAddEntity = std::async(std::launch::async, &Engine::AddEntity, this, std::ref(renderer.inName),std::ref(renderer.isAnimated),std::ref(renderer.bConvertCordinates));
-		renderer.bAddEntity = false;
-	}
-	if (copyEntity || pasteEntity)
-	{
-		CopyPasteEntity();
-		if (copyEntity)
-			copyEntity = false;
-		if (pasteEntity)
-			pasteEntity = false;
-	}
+		if (copyEntity || pasteEntity)
+		{
+			CopyPasteEntity();
+			if (copyEntity)
+				copyEntity = false;
+			if (pasteEntity)
+				pasteEntity = false;
+		}
 
-	if (renderer.copyLight)
-		CopyPasteLight();
-	if (renderer.copyPointLight)
-		CopyPastePointLight();
+		if (renderer.copyLight)
+			CopyPasteLight();
+		if (renderer.copyPointLight)
+			CopyPastePointLight();
 
-	if (renderer.bAddLight)
-	{
-		AddLight();
-		renderer.bAddLight = false;
-	}
-	if (renderer.bAddPointLight)
-	{
-		AddPointLight();
-		renderer.bAddPointLight = false;
-	}
+		if (renderer.bAddLight)
+		{
+			AddLight();
+			renderer.bAddLight = false;
+		}
+		if (renderer.bAddPointLight)
+		{
+			AddPointLight();
+			renderer.bAddPointLight = false;
+		}
 
-	if (renderer.bAddCollisionObject)
-	{
-		AddCollisionObject();
-		renderer.bAddCollisionObject = false;
-	}
-
-	//GameThread(dt);
-	gameThread = std::thread(&Engine::GameThread, this, std::ref(dt));
-
-	renderer.Render(camera, entities,physicsHandler, lights, pointlights, collisionObjects,grid, navMeshes, sounds);
-	//renderThread = std::thread(&Engine::RenderThread, this, std::ref(dt), std::ref(fps), std::ref(camera), std::ref(entities), std::ref(physicsHandler), std::ref(lights), std::ref(pointlights),std::ref(collisionObjects), std::ref(grid), std::ref(navMeshes), std::ref(sounds));
+		if (renderer.bAddCollisionObject)
+		{
+			AddCollisionObject();
+			renderer.bAddCollisionObject = false;
+		}
 	
-	if (physicsHandler.advance(dt, fps, camera))
-	{
-		//PlayerThread(dt);
-		playerThread = std::thread(&Engine::PlayerThread, this, std::ref(dt));
-	
-	
-		if (!physicsHandler.isMouseHover && !renderer.runPhysics)
-			physicsHandler.MouseRayCast(entities, camera, mouse, keyboard, this->width, this->height,renderer.listbox_item_current);
+		gameThread = std::thread(&Engine::GameThread, this, std::ref(dt));
+		soundThread = std::thread(&Engine::SoundLogic, this);
+		//SoundLogic();
 
+		renderer.Render(camera, entities, physicsHandler, lights, pointlights, collisionObjects, grid, navMeshes, sounds);
+
+		if (physicsHandler.advance(dt, fps, camera))
+		{
+			//PlayerLogic(dt);
+			playerThread = std::thread(&Engine::PlayerLogic, this, std::ref(dt));
 		
-		//physicsHandler.FallCheck(entities, player);
+			if (!physicsHandler.isMouseHover && !renderer.runPhysics)
+				physicsHandler.MouseRayCast(entities, camera, mouse, keyboard, this->width, this->height, renderer.listbox_item_current);
 
-		fallCheckThread = std::thread(&PhysicsHandler::FallCheck, &physicsHandler, std::ref(entities), player);
-	}
-	//AiThread(dt);
-	aiThread = std::thread(&Engine::AiThread, this, std::ref(dt));
+		}
+		//AIHandler(dt);
+		aiThread = std::thread(&Engine::AIHandler, this, std::ref(dt));
+
+
+		if (gameThread.joinable())
+			gameThread.join();
+		if (soundThread.joinable())
+			soundThread.join();
+		if (playerThread.joinable())
+			playerThread.join();
+		if (aiThread.joinable())
+			aiThread.join();
+
 }
 
 void Engine::AddEntity(std::string& _inName,bool& isAnimated, bool& bConvertCordinates)
@@ -375,10 +369,6 @@ void Engine::AddPointLight()
 {
 	pointlights.push_back(Light());
 	pointlights[pointlights.size() - 1].Initialize(renderer.gfx11.device.Get(), renderer.gfx11.deviceContext.Get(), renderer.gfx11.cb_vs_vertexshader);
-	//pointlights[pointlights.size() - 1].scale = XMFLOAT3(0.02f, 0.02f, 0.02f);
-	//pointlights[pointlights.size() - 1].cutOff = 0.1f;
-	//pointlights[pointlights.size() - 1].radius = 5.0f;
-	//pointlights[pointlights.size() - 1].lightColor = XMFLOAT3(5.0f, 5.0f, 5.0f);
 }
 
 void Engine::AddCollisionObject()
@@ -394,7 +384,6 @@ void Engine::ObjectsHandler(float& dt)
 	{
 		if (entities[i].isDeleted)
 			continue;
-
 		if (entities[i].physicsComponent.isCharacter && entities[i].isPlayer)
 		{
 			player = &entities[i];
@@ -412,7 +401,7 @@ void Engine::ObjectsHandler(float& dt)
 				entities[i].bCreateController = false;
 			}
 		}
-
+	
 		if (!renderer.runPhysics)
 		{
 			if (entities[i].physicsComponent.aActor)
@@ -436,13 +425,10 @@ void Engine::ObjectsHandler(float& dt)
 			}
 		}
 		entities[i].physicsComponent.UpdatePhysics(*physicsHandler.mPhysics, *physicsHandler.aScene, physicsHandler.mCooking);
-
-		//entities[i].UpdatePhysics();
 		
 		entities[i].Update();
 		if (entities[i].model.isAttached)
 		{
-			//entities[i].SetupAttachment(player, "mixamorig_RightHandMiddle1");
 			if (entities[i].parent)
 			{
 				if (entities[i].parent->entityName == entities[i].parentName)
@@ -484,12 +470,13 @@ void Engine::AIHandler(float& dt)
 	if (grid.bCreateMesh)
 	{
 		AIEntities.clear();
+
 		for (int i = 0; i < entities.size(); ++i)
 		{
 			if (entities[i].isAI)
 			{
 				AIEntities.push_back(&entities[i]);
-				aiFallCheckThread.push_back(std::thread());
+			
 			}
 		}
 		isNavMeshCreated = false;
@@ -498,7 +485,7 @@ void Engine::AIHandler(float& dt)
 		grid.nodes.clear();
 		navMeshes.clear();
 		async_navMesh.clear();
-		//grid_test.clear();
+
 		navMeshes.resize(AIEntities.size());
 		async_navMesh.resize(AIEntities.size());
 		grid.Initialize(renderer.gfx11.device, renderer.gfx11.deviceContext, DirectX::XMMatrixIdentity(), renderer.gfx11.cb_vs_vertexshader);
@@ -507,8 +494,6 @@ void Engine::AIHandler(float& dt)
 	if (!isNavMeshCreated && grid.isReady)
 	{
 		physicsHandler.NavMeshRayCast(grid, entities, collisionObjects);
-		//rayCastNavMesh_async = std::async(std::launch::async,&PhysicsHandler::NavMeshRayCast, &physicsHandler, std::ref(grid), std::ref(entities), std::ref(collisionObjects));
-		//grid_test = std::thread(&PhysicsHandler::NavMeshRayCast, &physicsHandler, std::ref(grid), std::ref(entities), std::ref(collisionObjects));
 		
 		for (int i = 0; i < navMeshes.size(); ++i)
 		{
@@ -516,9 +501,6 @@ void Engine::AIHandler(float& dt)
 		}
 		isNavMeshCreated = true;
 	}
-	
-
-	//OutputDebugStringA(("SIZE = " + std::to_string(AIEntities.size()) + "\n").c_str());
 
 	if (renderer.runPhysics)
 	{
@@ -529,22 +511,18 @@ void Engine::AIHandler(float& dt)
 				if (AIEntities[i]->physicsComponent.aActor)
 				{
 					float gravity = physicsHandler.aScene->getGravity().y;
-
-					aiFallCheckThread[i] = std::thread(&PhysicsHandler::FallCheck, &physicsHandler, std::ref(entities), AIEntities[i]);
-
-					//physicsHandler.FallCheck(entities, AIEntities[i]);
+					physicsHandler.FallCheck(AIEntities[i]);
+					physicsHandler.LineOfSightToPlayer(AIEntities[i], player);
 					if (isNavMeshCreated)
 					{
+						async_navMesh.clear();
 						navMeshes[i].CalculatePath(dt, AIEntities[i], player, enemyController, grid, gravity);
 					}
 						
 				}
-				physicsHandler.LineOfSightToPlayer(AIEntities[i], player, entities, collisionObjects);
-
 			}
 		}
 	}
-
 }
 
 void Engine::CopyPasteEntity()
@@ -753,14 +731,10 @@ void Engine::CopyPastePointLight()
 void Engine::GameThread(float& dt)
 {
 	ObjectsHandler(dt);
+
 }
 
-void Engine::AiThread(float& dt)
-{
-	AIHandler(dt);
-}
-
-void Engine::PlayerThread(float& dt)
+void Engine::PlayerLogic(float& dt)
 {
 	if (player)
 	{
@@ -777,11 +751,19 @@ void Engine::PlayerThread(float& dt)
 			fpsPlayerController.MouseMovement(dt, *player, keyboard, mouse, camera);
 			fpsPlayerController.Movement(dt, physicsHandler.aScene->getGravity().y, player, keyboard, mouse, camera);
 		}
+		physicsHandler.FallCheck(player);
 
 	}
 }
 
-void Engine::RenderThread(float& dt, float& fps,Camera& camera, std::vector<Entity>& entity, PhysicsHandler& physicsHandler, std::vector<Light>& lights, std::vector<Light>& pointLights, std::vector<CollisionObject>& collisionObjects, GridClass& grid, std::vector<NavMeshClass>& navMeshes, std::vector<SoundComponent*>& sounds)
+void Engine::SoundLogic()
 {
-	renderer.Render(camera, entities, physicsHandler, lights, pointlights, collisionObjects, grid, navMeshes, sounds);
+	backGroundSound.Update();
+	backGroundSound.UpdatePos(camera.GetPositionFloat3(), camera.GetForwardVector(), camera.upDir);
+	bool fResult;
+	backGroundSound.channel->isPlaying(&fResult);
+	if (!fResult)
+	{
+		backGroundSound.Play();
+	}
 }

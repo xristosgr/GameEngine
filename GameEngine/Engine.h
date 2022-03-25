@@ -39,9 +39,8 @@ private:
 	void CopyPastePointLight();
 
 	void GameThread(float& dt);
-	void AiThread(float& dt);
-	void RenderThread(float& dt, float& fps,Camera& camera, std::vector<Entity>& entity, PhysicsHandler& physicsHandler, std::vector<Light>& lights, std::vector<Light>& pointLights, std::vector<CollisionObject>& collisionObjects, GridClass& grid, std::vector<NavMeshClass>& navMeshes, std::vector<SoundComponent*>& sounds);
-	void PlayerThread(float& dt);
+	void PlayerLogic(float& dt);
+	void SoundLogic();
 
 protected:
 	AppTimer timer;
@@ -148,7 +147,6 @@ private:
 	SoundComponent backGroundSound;
 
 
-
-	std::thread gameThread, aiThread,playerThread,fallCheckThread;
-	std::vector<std::thread> aiFallCheckThread;
+public:
+	std::thread gameThread,playerThread, aiThread, soundThread;
 };

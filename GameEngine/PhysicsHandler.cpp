@@ -217,7 +217,7 @@ void PhysicsHandler::MouseRayCast(std::vector<Entity>& entities, Camera& camera,
 }
 
 
-void PhysicsHandler::FallCheck(std::vector<Entity>& entities, Entity* character)
+void PhysicsHandler::FallCheck(Entity* character)
 {
 	if (!character)
 		return;
@@ -238,29 +238,26 @@ void PhysicsHandler::FallCheck(std::vector<Entity>& entities, Entity* character)
 
 	physx::PxQueryFilterData filterData(physx::PxQueryFlag::eSTATIC);
 
-	for (int j = 0; j < entities.size(); ++j)
+	bool status = aScene->raycast(origin, unitDir, maxDistance, hit, physx::PxHitFlag::eDEFAULT, filterData);
+	
+	if (status)
 	{
-		
-		bool status = aScene->raycast(origin, unitDir, maxDistance, hit, physx::PxHitFlag::eDEFAULT, filterData);
-		
-		if (status)
-		{
-			//OutputDebugStringA(hit.block.actor->getName());
+		//OutputDebugStringA(hit.block.actor->getName());
 
-			character->isFalling = false;
-		}
-		else
-		{
-			character->isFalling = true;
-		}
-		
-		//OutputDebugStringA(("FALLING = " + std::to_string(character->isFalling) + "\n").c_str());
-		//OutputDebugStringA(character->entityName.c_str());
-		//OutputDebugStringA("\n");
-		//OutputDebugStringA(("	FALLING = " + std::to_string(character->isFalling) + "\n").c_str());
-		
-		hit.finalizeQuery();
+		character->isFalling = false;
 	}
+	else
+	{
+		character->isFalling = true;
+	}
+	
+	//OutputDebugStringA(("FALLING = " + std::to_string(character->isFalling) + "\n").c_str());
+	//OutputDebugStringA(character->entityName.c_str());
+	//OutputDebugStringA("\n");
+	//OutputDebugStringA(("	FALLING = " + std::to_string(character->isFalling) + "\n").c_str());
+	
+	hit.finalizeQuery();
+
 
 }
 
@@ -363,7 +360,7 @@ void PhysicsHandler::NavMeshRayCast(GridClass& grid, std::vector<Entity>& entiti
 	OutputDebugStringA("FINISH RAY NAVMESSH!!\n");
 }
 
-void PhysicsHandler::LineOfSightToPlayer(Entity* character, Entity* player, std::vector<Entity>& entities, std::vector<CollisionObject>& collisionObjects)
+void PhysicsHandler::LineOfSightToPlayer(Entity* character, Entity* player)
 {
 	if (!character || !player)
 		return;
@@ -391,43 +388,23 @@ void PhysicsHandler::LineOfSightToPlayer(Entity* character, Entity* player, std:
 	physx::PxReal maxDistance = 100.0f;
 	physx::PxRaycastBuffer hit;
 	const physx::PxRaycastHit* _rayHit;
-	for (int j = 0; j < entities.size(); ++j)
+
+
+	bool status = aScene->raycast(origin, unitDir, maxDistance, hit);
+
+	if (status)
 	{
-		bool status = aScene->raycast(origin, unitDir, maxDistance, hit);
-		if (status)
-		{
-			//OutputDebugStringA(hit.block.actor->getName());
-			//OutputDebugStringA("\n");
-			if (hit.block.actor->getName() == entities[j].entityName)
-			{
-				if (entities[j].isPlayer)
-				{
-					//OutputDebugStringA("HIT!!!!\n");
-					character->physicsComponent.hasLineOfSight = true;
-					break;
-				}
-			}
-		}
+		//OutputDebugStringA(hit.block.actor->getName());
+		if (hit.block.actor->getName() == player->entityName)
+			character->physicsComponent.hasLineOfSight = true;
+		else
+			character->physicsComponent.hasLineOfSight = false;
+	}
+	else
+	{
+		character->physicsComponent.hasLineOfSight = false;
 	}
 
-	if (!character->physicsComponent.hasLineOfSight)
-	{
-		for (int j = 0; j < collisionObjects.size(); ++j)
-		{
-			bool status = aScene->raycast(origin, unitDir, maxDistance, hit);
-			if (status)
-			{
-				//OutputDebugStringA(hit.block.actor->getName());
-				//OutputDebugStringA("\n");
-
-				if (hit.block.actor->getName() == collisionObjects[j].entityName)
-				{
-					character->physicsComponent.hasLineOfSight = false;
-				}
-
-			}
-		}
-	}
 
 	//OutputDebugStringA(std::to_string(character->physicsComponent.hasLineOfSight).c_str());
 	//OutputDebugStringA("\n");

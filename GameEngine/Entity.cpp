@@ -110,41 +110,10 @@ void Entity::UpdatePhysics()
 void Entity::Update()
 {
 	UpdatePhysics();
-	
-	if (isPlayer)
-	{
-		//for (int i = 0; i < model.boneNames.size(); ++i)
-		//{
-		//	if (model.boneNames[i] == "mixamorig_RightHand")
-		//	{
-		//		OutputDebugStringA((" Name= " + model.boneNames[i]).c_str());
-		//		OutputDebugStringA("\n");
-		//	}
-		//}
-		
-		//OutputDebugStringA(("X= " + std::to_string(model.worldPos.x)).c_str());
-		//OutputDebugStringA((" Y= " + std::to_string(model.worldPos.y)).c_str());
-		//OutputDebugStringA((" Z= " + std::to_string(model.worldPos.z)+"\n").c_str());
-		//OutputDebugStringA((" W= " + std::to_string(model.worldRot.w) + "\n").c_str());
-	}
-
 }
 
 void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix)
 {
-	if (isDeleted)
-		return;
-
-	//if (model.isAnimated && bRender && !isPlayer)
-	//{
-	//	model.SetAnimIndex(1);
-	//	model.Update();
-	//}
-	DirectX::XMMATRIX matrix_scale;
-	DirectX::XMMATRIX matrix_rotate;
-	DirectX::XMMATRIX matrix_translate;
-
-	
 	if (physicsComponent.aActor || physicsComponent.aStaticActor)
 	{
 		if(physicsComponent.aActor)
@@ -453,10 +422,6 @@ void Entity::DrawGui(physx::PxScene& scene,std::vector<Entity>& entities)
 			{
 				model.LoadAnimation(inName);
 				model.animFiles.push_back(inName);
-				for (int i = 0; i < model.animFiles.size(); ++i)
-				{
-					OutputDebugStringA(("NAME = " + model.animFiles[i] + "\n").c_str());
-				}
 			}
 
 

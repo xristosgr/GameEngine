@@ -133,19 +133,6 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 
 	}
 
-	//for (int i = 0; i < entities.size(); ++i)
-	//{
-	//	OutputDebugStringA(std::to_string(entities[i].model.animFiles.size()).c_str());
-	//	OutputDebugStringA("\n");
-	//	for (int i = 0; i < entities[i].model.animFiles.size(); ++i)
-	//	{
-	//		OutputDebugStringA(entities[i].model.animFiles[i].c_str());
-	//		OutputDebugStringA("\n");
-	//		entities[i].model.LoadAnimation(entities[i].model.animFiles[i]);
-	//	}
-	//	entities[i].model.bAnimLoaded = true;
-	//}
-
 	rect.Initialize(gfx11.device.Get(),gfx11.windowWidth,gfx11.windowHeight);
 	rectBloom.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
 	rectSmall.Initialize(gfx11.device.Get(), windowWidth, gfx11.windowHeight);
@@ -396,6 +383,7 @@ void Renderer::RenderSceneToTexture(RenderTexture& texture, Camera& camera, std:
 	gfx11.deviceContext->PSSetSamplers(0, 1, gfx11.samplerState_Wrap.GetAddressOf());
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
+
 
 	RenderEntitiesAndLights(entities, lights,pointLights, camera);
 
@@ -1310,7 +1298,7 @@ void Renderer::BloomRender(Camera& camera)
 //***********************************************************************************
 
 
-void Renderer::RenderEntitiesSimple(std::vector<Entity>& entities,std::vector<Light>& lights, std::vector<Light>& pointLights, PixelShader& psShader, Camera& camera)
+void Renderer::RenderEntitiesPostProcess(std::vector<Entity>& entities,std::vector<Light>& lights, std::vector<Light>& pointLights, PixelShader& psShader, Camera& camera)
 {
 	gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState.Get(), 0);
 	gfx11.deviceContext->PSSetSamplers(0, 1, gfx11.samplerState_Wrap.GetAddressOf());
@@ -1358,7 +1346,7 @@ void Renderer::VolumeLightRender(std::vector<Entity>& entities, std::vector<Ligh
 	cameraDepthTexture.SetRenderTarget(gfx11.deviceContext.Get(), cameraDepthTexture.m_depthStencilView);
 	cameraDepthTexture.ClearRenderTarget(gfx11.deviceContext.Get(), cameraDepthTexture.m_depthStencilView, 0, 0, 0, 1.0f);
 	
-	RenderEntitiesSimple(entities,lights,pointLights, gfx11.depthPS, camera);
+	RenderEntitiesPostProcess(entities,lights,pointLights, gfx11.depthPS, camera);
 
 	gfx11.deviceContext->IASetInputLayout(gfx11.depthVS.GetInputLayout());
 	gfx11.deviceContext->VSSetShader(gfx11.depthVS.GetShader(), nullptr, 0);

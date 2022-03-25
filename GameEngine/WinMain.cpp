@@ -20,6 +20,7 @@ INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		{
 			engine.Update(w, h);
 		}
+
 	}
 	ClipCursor(NULL);
 	return 0;

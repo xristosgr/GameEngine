@@ -3,13 +3,13 @@
 #include "GridClass.h"
 #include<future>
 #include "AIController.h"
-
+#include <mutex>
 class NavMeshClass
 {
 public:
 	NavMeshClass();
 	void CalculatePath(float& dt, Entity* start, Entity* end, AIController& controller, GridClass& grid, float& gravity);
-	void Solve_AStar(float& dt, Entity* start, Entity* end, AIController& controller, GridClass& grid, float& gravity);
+	void Solve_AStar(float& dt, Entity* start, Entity* end, float& gravity);
 	//void DrawNavMesh(Camera& camera);
 
 private:
@@ -18,7 +18,7 @@ private:
 	void RetracePath(NodeClass& _startNode, NodeClass& endNode, Entity* start);
 
 	std::future<void> solve_async;
-	std::future<void> move_async;
+
 	NodeClass* startNode;
 	NodeClass* endNode;
 
@@ -28,5 +28,7 @@ public:
 
 	std::vector<NodeClass> validNodes;
 	bool recalculate;
+
+
 };
 

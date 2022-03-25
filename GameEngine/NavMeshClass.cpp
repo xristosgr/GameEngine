@@ -14,6 +14,7 @@ void NavMeshClass::CalculatePath(float& dt, Entity* start, Entity* end, AIContro
 		return;
 
 	float acceptedRadius = 1.5f;
+
 	start->physicsComponent.trans = start->physicsComponent.aActor->getGlobalPose();
 	controller.v1 = start->physicsComponent.trans.p;
 
@@ -49,11 +50,8 @@ void NavMeshClass::CalculatePath(float& dt, Entity* start, Entity* end, AIContro
 
 	if (!startNode || !endNode)
 		return;
-	
-	//Solve_AStar(dt, start, end, controller, grid, gravity);
-	
-		
-	solve_async = std::async(std::launch::async, &NavMeshClass::Solve_AStar, this, std::ref(dt), start, end, std::ref(controller), std::ref(grid),std::ref(gravity));
+	//Solve_AStar(dt, start, end, gravity);
+	solve_async = std::async(std::launch::async, &NavMeshClass::Solve_AStar, this, std::ref(dt), start, end, std::ref(gravity));
 
 	for (int i = start->locations.size() - 1; i >= 0; --i)
 	{
@@ -70,13 +68,11 @@ void NavMeshClass::CalculatePath(float& dt, Entity* start, Entity* end, AIContro
 	{
 		start->locToMove = start->locations[start->m_index];
 	}
-	
-	controller.MoveTo(dt, start, end, gravity);
 
-	//move_async = std::async(std::launch::async, &AIController::MoveTo, &controller, std::ref(dt), start, end, std::ref(gravity));
+	controller.MoveTo(dt, start, end, gravity);
 }
 
-void NavMeshClass::Solve_AStar(float& dt, Entity* start, Entity* end, AIController& controller, GridClass& grid,float& gravity)
+void NavMeshClass::Solve_AStar(float& dt, Entity* start, Entity* end, float& gravity)
 {
 	std::list<NodeClass*> openList, closeList;
 	openList.push_back(startNode);

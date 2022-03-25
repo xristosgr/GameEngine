@@ -34,7 +34,7 @@ private:
 	void RenderToEnvProbe(RenderTexture& texture, Camera& camera, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights);
 	void BloomRender(Camera& camera);
 
-	void RenderEntitiesSimple(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, PixelShader& psShader, Camera& camera);
+	void RenderEntitiesPostProcess(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, PixelShader& psShader, Camera& camera);
 	void VolumeLightRender(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera);
 private:
 	float rgb[4];

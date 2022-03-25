@@ -46,7 +46,7 @@ public:
 
 
 	DirectX::XMMATRIX matrix_rotate;
-	DirectX::XMMATRIX worldMatrix;
+	DirectX::XMMATRIX worldMatrix,_worldMatrix;
 
 	std::string filePath;
 	std::string _filePath;
@@ -93,6 +93,12 @@ private:
 
 
 	DirectX::XMVECTOR _pos, _scale, _rot;
+
+
+	DirectX::XMMATRIX matrix_scale;
+	//DirectX::XMMATRIX matrix_rotate;
+	DirectX::XMMATRIX matrix_translate;
+
 
 };
 

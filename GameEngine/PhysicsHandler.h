@@ -21,9 +21,9 @@ public:
 	void Initialize(Camera& camera);
 	void CreatePhysicsComponents(std::vector<Entity>& entities, std::vector<CollisionObject>& collisionObject);
 	void MouseRayCast(std::vector<Entity>& entities, Camera& camera, Mouse& mouse, Keyboard& keyboard, int& width, int& height, int& selected_list_object);
-	void FallCheck(std::vector<Entity>& entities, Entity* character);
+	void FallCheck(Entity* character);
 	void NavMeshRayCast(GridClass& grid, std::vector<Entity>& entities, std::vector<CollisionObject>& collisionObjects);
-	void LineOfSightToPlayer(Entity* character, Entity* player, std::vector<Entity>& entities, std::vector<CollisionObject>& collisionObjects);
+	void LineOfSightToPlayer(Entity* character, Entity* player);
 	bool advance(float& dt, float& fps, Camera& camera);
 	void ShutDown();
 
@@ -45,6 +45,5 @@ private:
 	float mStepSize = 1.0f / 60.0f;
 
 	AppTimer timer;
-
 };
 
