@@ -1,6 +1,7 @@
 #include "PhysicsHandler.h"
 #include "ErrorLogger.h"
 
+
 PhysicsHandler::PhysicsHandler()
 {
 	timer.Start();
@@ -225,10 +226,6 @@ void PhysicsHandler::FallCheck(Entity* character)
 
 	physx::PxVec3 origin = physx::PxVec3(character->physicsComponent.trans.p.x, character->physicsComponent.trans.p.y - 0.46, character->physicsComponent.trans.p.z);
 
-
-	if (origin.isZero())
-		return;
-
 	physx::PxVec3 unitDir;
 	unitDir = physx::PxVec3(0, -1, 0);
 
@@ -364,14 +361,13 @@ void PhysicsHandler::LineOfSightToPlayer(Entity* character, Entity* player)
 {
 	if (!character || !player)
 		return;
-
 	character->physicsComponent.trans = character->physicsComponent.aActor->getGlobalPose();
+
 	character->physicsComponent.hasLineOfSight = false;
 	auto _transChar = character->physicsComponent.trans;
 	
 	player->physicsComponent.trans = player->physicsComponent.aActor->getGlobalPose();
 	auto _transPlayer = player->physicsComponent.trans;
-
 	float angle = atan2(_transPlayer.p.x - _transChar.p.x, _transPlayer.p.z - _transChar.p.z);
 
 	float _rotX = std::sin(angle);

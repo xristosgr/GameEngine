@@ -119,5 +119,6 @@ private:
 	RenderTexture volumetricLightTexture, cameraDepthTexture;
 
 	AppTimer timer;
+
 };
 

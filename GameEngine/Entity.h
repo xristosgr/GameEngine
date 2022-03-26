@@ -22,7 +22,7 @@ public:
 	void AttachController(physx::PxController& characterController,bool& runPhysics);
 	void MouseMove(Mouse& mouse, Keyboard& keyboard,Camera& camera);
 	void SetupAttachment(Entity* entity, std::string boneName);
-	void SetupAttachment(Entity* entity, bool bSetParent = false);
+	void SetupAttachment(Entity* entity);
 	void DrawGui(physx::PxScene& scene, std::vector<Entity>& entities);
 	void Clear(physx::PxScene& scene);
 public:
@@ -95,9 +95,6 @@ private:
 	DirectX::XMVECTOR _pos, _scale, _rot;
 
 
-	DirectX::XMMATRIX matrix_scale;
-	//DirectX::XMMATRIX matrix_rotate;
-	DirectX::XMMATRIX matrix_translate;
 
 
 };

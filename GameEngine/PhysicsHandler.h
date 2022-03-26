@@ -10,7 +10,7 @@
 #include "Camera.h"
 #include "CollisionObject.h"
 #include "GridClass.h"
-
+#include <mutex>
 
 class PhysicsHandler
 {
@@ -45,5 +45,7 @@ private:
 	float mStepSize = 1.0f / 60.0f;
 
 	AppTimer timer;
+
+	//std::unique_ptr<std::mutex> m_mutex;
 };
 

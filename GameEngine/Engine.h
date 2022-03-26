@@ -148,5 +148,5 @@ private:
 
 
 public:
-	std::thread gameThread,playerThread, aiThread, soundThread;
+	std::thread gameThread;
 };

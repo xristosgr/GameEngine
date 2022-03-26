@@ -246,94 +246,72 @@ void Engine::Update(int width, int height)
 
 void Engine::RenderFrame(float& dt,float& fps)
 {
-	//backGroundSound.Update();
-	//backGroundSound.UpdatePos(camera.GetPositionFloat3(), camera.GetForwardVector(), camera.upDir);
-	//bool fResult;
-	//backGroundSound.channel->isPlaying(&fResult);
-	//if (!fResult)
-	//{
-	//	backGroundSound.Play();
-	//}
+	float pointX = (float)mouse.GetPosX();
+	float pointY = (float)mouse.GetPosY();
 
-
-		float pointX = (float)mouse.GetPosX();
-		float pointY = (float)mouse.GetPosY();
-
-		if (renderer.bAddEntity)
+	if (renderer.bAddEntity)
+	{
+		entities.push_back(Entity());
+		entities[entities.size() - 1].filePath = renderer.inName;
+		int nameIndex = 0;
+		for (int i = 0; i < entities.size(); ++i)
 		{
-			entities.push_back(Entity());
-			entities[entities.size() - 1].filePath = renderer.inName;
-			int nameIndex = 0;
-			for (int i = 0; i < entities.size(); ++i)
+			if (entities[i].entityName == "Entity" + std::to_string(entities.size() + nameIndex))
 			{
-				if (entities[i].entityName == "Entity" + std::to_string(entities.size() + nameIndex))
-				{
-					nameIndex++;
-				}
+				nameIndex++;
 			}
-			entities[entities.size() - 1].entityName = "Entity" + std::to_string(entities.size() + nameIndex);
-			asyncAddEntity = std::async(std::launch::async, &Engine::AddEntity, this, std::ref(renderer.inName), std::ref(renderer.isAnimated), std::ref(renderer.bConvertCordinates));
-			renderer.bAddEntity = false;
 		}
-		if (copyEntity || pasteEntity)
-		{
-			CopyPasteEntity();
-			if (copyEntity)
-				copyEntity = false;
-			if (pasteEntity)
-				pasteEntity = false;
-		}
+		entities[entities.size() - 1].entityName = "Entity" + std::to_string(entities.size() + nameIndex);
+		asyncAddEntity = std::async(std::launch::async, &Engine::AddEntity, this, std::ref(renderer.inName), std::ref(renderer.isAnimated), std::ref(renderer.bConvertCordinates));
+		renderer.bAddEntity = false;
+	}
+	if (copyEntity || pasteEntity)
+	{
+		CopyPasteEntity();
+		if (copyEntity)
+			copyEntity = false;
+		if (pasteEntity)
+			pasteEntity = false;
+	}
 
-		if (renderer.copyLight)
-			CopyPasteLight();
-		if (renderer.copyPointLight)
-			CopyPastePointLight();
+	if (renderer.copyLight)
+		CopyPasteLight();
+	if (renderer.copyPointLight)
+		CopyPastePointLight();
 
-		if (renderer.bAddLight)
-		{
-			AddLight();
-			renderer.bAddLight = false;
-		}
-		if (renderer.bAddPointLight)
-		{
-			AddPointLight();
-			renderer.bAddPointLight = false;
-		}
+	if (renderer.bAddLight)
+	{
+		AddLight();
+		renderer.bAddLight = false;
+	}
+	if (renderer.bAddPointLight)
+	{
+		AddPointLight();
+		renderer.bAddPointLight = false;
+	}
 
-		if (renderer.bAddCollisionObject)
-		{
-			AddCollisionObject();
-			renderer.bAddCollisionObject = false;
-		}
+	if (renderer.bAddCollisionObject)
+	{
+		AddCollisionObject();
+		renderer.bAddCollisionObject = false;
+	}
 	
-		gameThread = std::thread(&Engine::GameThread, this, std::ref(dt));
-		soundThread = std::thread(&Engine::SoundLogic, this);
-		//SoundLogic();
+	GameThread(dt);
+	renderer.Render(camera, entities, physicsHandler, lights, pointlights, collisionObjects, grid, navMeshes, sounds);
 
-		renderer.Render(camera, entities, physicsHandler, lights, pointlights, collisionObjects, grid, navMeshes, sounds);
 
-		if (physicsHandler.advance(dt, fps, camera))
+	if (physicsHandler.advance(dt, fps, camera))
+	{
+		//PlayerLogic(dt);
+	
+
+		if (!physicsHandler.isMouseHover && !renderer.runPhysics)
 		{
-			//PlayerLogic(dt);
-			playerThread = std::thread(&Engine::PlayerLogic, this, std::ref(dt));
-		
-			if (!physicsHandler.isMouseHover && !renderer.runPhysics)
-				physicsHandler.MouseRayCast(entities, camera, mouse, keyboard, this->width, this->height, renderer.listbox_item_current);
-
+			physicsHandler.MouseRayCast(entities, camera, mouse, keyboard, this->width, this->height, renderer.listbox_item_current);
 		}
-		//AIHandler(dt);
-		aiThread = std::thread(&Engine::AIHandler, this, std::ref(dt));
+		
 
-
-		if (gameThread.joinable())
-			gameThread.join();
-		if (soundThread.joinable())
-			soundThread.join();
-		if (playerThread.joinable())
-			playerThread.join();
-		if (aiThread.joinable())
-			aiThread.join();
-
+	}
 }
 
 void Engine::AddEntity(std::string& _inName,bool& isAnimated, bool& bConvertCordinates)
@@ -431,18 +409,17 @@ void Engine::ObjectsHandler(float& dt)
 		{
 			if (entities[i].parent)
 			{
-				if (entities[i].parent->entityName == entities[i].parentName)
-					entities[i].SetupAttachment(player);
+				if (!entities[i].parentName.empty() && (entities[i].parent->entityName == entities[i].parentName))
+					entities[i].SetupAttachment(entities[i].parent);
 				else
 				{
 					for (int j = 0; j < entities.size(); ++j)
 					{
 						if (entities[j].entityName == entities[i].parentName)
-							entities[i].SetupAttachment(&entities[j], true);
+							entities[i].SetupAttachment(&entities[j]);
 					}
 				}
 			}
-			
 		}
 	}
 
@@ -470,7 +447,6 @@ void Engine::AIHandler(float& dt)
 	if (grid.bCreateMesh)
 	{
 		AIEntities.clear();
-
 		for (int i = 0; i < entities.size(); ++i)
 		{
 			if (entities[i].isAI)
@@ -485,7 +461,6 @@ void Engine::AIHandler(float& dt)
 		grid.nodes.clear();
 		navMeshes.clear();
 		async_navMesh.clear();
-
 		navMeshes.resize(AIEntities.size());
 		async_navMesh.resize(AIEntities.size());
 		grid.Initialize(renderer.gfx11.device, renderer.gfx11.deviceContext, DirectX::XMMatrixIdentity(), renderer.gfx11.cb_vs_vertexshader);
@@ -515,13 +490,16 @@ void Engine::AIHandler(float& dt)
 					physicsHandler.LineOfSightToPlayer(AIEntities[i], player);
 					if (isNavMeshCreated)
 					{
-						async_navMesh.clear();
+						//async_navMesh.clear();
 						navMeshes[i].CalculatePath(dt, AIEntities[i], player, enemyController, grid, gravity);
 					}
+					
 						
 				}
 			}
 		}
+		
+
 	}
 }
 
@@ -731,6 +709,9 @@ void Engine::CopyPastePointLight()
 void Engine::GameThread(float& dt)
 {
 	ObjectsHandler(dt);
+	AIHandler(dt);
+	PlayerLogic(dt);
+	SoundLogic();
 
 }
 

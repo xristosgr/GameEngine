@@ -114,6 +114,11 @@ void Entity::Update()
 
 void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix)
 {
+
+	DirectX::XMMATRIX matrix_scale;
+	DirectX::XMMATRIX matrix_rotate;
+	DirectX::XMMATRIX matrix_translate;
+
 	if (physicsComponent.aActor || physicsComponent.aStaticActor)
 	{
 		if(physicsComponent.aActor)
@@ -295,31 +300,33 @@ void Entity::SetupAttachment(Entity* entity, std::string boneName)
 	//	}
 	//}
 }
-void Entity::SetupAttachment(Entity* entity, bool bSetParent)
+void Entity::SetupAttachment(Entity* entity)
 {
-	if(bSetParent)
+
+	if (entity)
 		parent = entity;
-	if (model.isAttached)
+	else
+		return;
+
+	//OutputDebugStringA(entityName.c_str());
+	//OutputDebugStringA("\n");
+	if (model.isAttached && parent)
 	{
-		if (parent)
-		{
-			//parent->model.attachedBone = attachedBone;
-			DirectX::XMMATRIX boneTrans;
-			parent->model.AttachTo(attachedBone, boneTrans);
-			//OutputDebugStringA(parent->model.attachedBone.c_str());
-			//OutputDebugStringA("\n");
-			boneTrans = boneTrans * parent->worldMatrix;
-
-
-			DirectX::XMMatrixDecompose(&_scale, &_rot, &_pos, boneTrans);
-
-			DirectX::XMStoreFloat3(&parent->model.worldPos, _pos);
-			DirectX::XMStoreFloat3(&parent->model.worldScale, _scale);
-			DirectX::XMStoreFloat4(&parent->model.worldRot, _rot);
-
-
-			pos = DirectX::XMFLOAT3(parent->model.worldPos.x, parent->model.worldPos.y, parent->model.worldPos.z);
-		}
+		//parent->model.attachedBone = attachedBone;
+		DirectX::XMMATRIX boneTrans;
+		parent->model.AttachTo(attachedBone, boneTrans);
+		//OutputDebugStringA(parent->model.attachedBone.c_str());
+		//OutputDebugStringA("\n");
+		boneTrans = boneTrans * parent->worldMatrix;
+	
+	
+		DirectX::XMMatrixDecompose(&_scale, &_rot, &_pos, boneTrans);
+	
+		DirectX::XMStoreFloat3(&parent->model.worldPos, _pos);
+		DirectX::XMStoreFloat3(&parent->model.worldScale, _scale);
+		DirectX::XMStoreFloat4(&parent->model.worldRot, _rot);
+	
+		pos = DirectX::XMFLOAT3(parent->model.worldPos.x, parent->model.worldPos.y, parent->model.worldPos.z);
 	}
 }
 void Entity::DrawGui(physx::PxScene& scene,std::vector<Entity>& entities)
@@ -328,7 +335,7 @@ void Entity::DrawGui(physx::PxScene& scene,std::vector<Entity>& entities)
 		return;
 
 
-
+	ImGui::Text(entityName.c_str());
 	ImGui::Text(("X: " + std::to_string(physicsComponent.trans.p.x)).c_str());
 	ImGui::SameLine();
 	ImGui::Text((" Y: " + std::to_string(physicsComponent.trans.p.y)).c_str());
@@ -463,7 +470,7 @@ void Entity::DrawGui(physx::PxScene& scene,std::vector<Entity>& entities)
 					{
 						_bonesData.push_back(parent->model.boneNames[i].c_str());
 					}
-					static int listbox_current = -1;
+					static int listbox_current = 0;
 					ImGui::ListBox("Skeleton", &listbox_current, _bonesData.data(), _bonesData.size());
 
 					if(listbox_current > -1)

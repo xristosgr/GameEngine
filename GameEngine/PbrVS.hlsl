@@ -1,4 +1,4 @@
-#define NO_LIGHTS 25
+#define NO_LIGHTS 4
 
 cbuffer constantBuffer : register(b0)
 {

@@ -22,8 +22,8 @@ public:
 protected:
 	bool LoadBones(aiMesh* mesh, std::vector<VertexBoneData>& bones, std::vector<Vertex>& vertices);
 	void BoneTransform(std::vector<DirectX::XMMATRIX>& Transforms);
-	void ReadNodeHierarchy(const aiScene* scene, float& AnimationTime, const aiNode* pNode, const DirectX::XMMATRIX& ParentTransform, int& StopAnimLevel);
-	void ReadNodeHierarchy(const aiScene* scene1, const aiScene* scene2, float& AnimationTime1, float& AnimationTime2, const aiNode* pNode1, const aiNode* pNode2, const DirectX::XMMATRIX& ParentTransform, int& StopAnimLevel);
+	void ReadNodeHierarchy1(const aiScene* scene, float& AnimationTime, const aiNode* pNode, const DirectX::XMMATRIX& ParentTransform);
+	void ReadNodeHierarchy2(const aiScene* scene1, const aiScene* scene2, float& AnimationTime1, float& AnimationTime2, const aiNode* pNode1, const aiNode* pNode2, const DirectX::XMMATRIX& ParentTransform);
 	aiQuaternion CalcInterpolatedRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
 	aiVector3D CalcInterpolatedScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
 	aiVector3D CalcInterpolatedPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
@@ -58,7 +58,6 @@ public:
 	float currentAnimTime = 0.0f;
 	float animDuration = 0.0f;
 	bool stepAnimation = false;
-	int animLevel = 0;
 
 	int selected_bone_index;
 

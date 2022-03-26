@@ -151,11 +151,11 @@ void Animation::BoneTransform(std::vector<DirectX::XMMATRIX>& Transforms)
 		TimeInTicks = _animationTime1 * TicksPerSecond;
 		float AnimationTime1 = fmod(TimeInTicks, scenes[_curScene]->mAnimations[0]->mDuration);
 
-		ReadNodeHierarchy(scenes[_prevAnimIndex], scenes[_curScene], AnimationTime0, AnimationTime1, scenes[_prevAnimIndex]->mRootNode, scenes[_curScene]->mRootNode, identity_matrix, animLevel);
+		ReadNodeHierarchy2(scenes[_prevAnimIndex], scenes[_curScene], AnimationTime0, AnimationTime1, scenes[_prevAnimIndex]->mRootNode, scenes[_curScene]->mRootNode, identity_matrix);
 
-		//nodeHierarchyAsync = std::async(std::launch::async, &Animation::ReadNodeHierarchy, this, scenes[_prevAnimIndex], scenes[_curScene],
+		//t1 = std::async(std::launch::async, &Animation::ReadNodeHierarchy2, this, scenes[_prevAnimIndex], scenes[_curScene],
 		//	std::ref(AnimationTime0), std::ref(AnimationTime1), scenes[_prevAnimIndex]->mRootNode,
-		//	scenes[_curScene]->mRootNode, std::ref(identity_matrix), std::ref(animLevel));
+		//	scenes[_curScene]->mRootNode, std::ref(identity_matrix));
 	}
 	else
 	{
@@ -165,17 +165,16 @@ void Animation::BoneTransform(std::vector<DirectX::XMMATRIX>& Transforms)
 		mAnimationTime = AnimationTime;
 
 		animDuration = scenes[_curScene]->mAnimations[0]->mDuration;
-		if (!stepAnimation)
-		{
+		//if (!stepAnimation)
+		//{
+			ReadNodeHierarchy1(scenes[_curScene], AnimationTime, scenes[_curScene]->mRootNode, identity_matrix);
+		//}
+		//else
+		//{
+		//ReadNodeHierarchy1(scenes[_curScene], currentAnimTime, scenes[_curScene]->mRootNode, identity_matrix);
+		//}
 
-			//nodeHierarchyAsync = std::async(std::launch::async, &Animation::ReadNodeHierarchy1, this, scenes[_curScene], std::ref(AnimationTime), scenes[_curScene]->mRootNode, std::ref(identity_matrix), std::ref(animLevel));
-			ReadNodeHierarchy(scenes[_curScene], AnimationTime, scenes[_curScene]->mRootNode, identity_matrix, animLevel);
-		}
-		else
-		{
-			//nodeHierarchyAsync = std::async(std::launch::async, &Animation::ReadNodeHierarchy1, this, scenes[_curScene], std::ref(currentAnimTime), scenes[_curScene]->mRootNode, std::ref(identity_matrix),std::ref(animLevel));
-			ReadNodeHierarchy(scenes[_curScene], currentAnimTime, scenes[_curScene]->mRootNode, identity_matrix, animLevel);
-		}
+		//t1 = std::async(std::launch::async, & Animation::ReadNodeHierarchy1, this, scenes[_curScene], std::ref(AnimationTime), scenes[_curScene]->mRootNode, std::ref(identity_matrix));
 
 	}
 
@@ -194,9 +193,10 @@ void Animation::BoneTransform(std::vector<DirectX::XMMATRIX>& Transforms)
 		
 		Transforms[i] = DirectX::XMMatrixTranspose(Transforms[i]);
 	}
+
 }
 
-void Animation::ReadNodeHierarchy(const aiScene* scene, float& AnimationTime, const aiNode* pNode, const DirectX::XMMATRIX& ParentTransform, int& StopAnimLevel)
+void Animation::ReadNodeHierarchy1(const aiScene* scene, float& AnimationTime, const aiNode* pNode, const DirectX::XMMATRIX& ParentTransform)
 {
 
 	std::string NodeName(pNode->mName.data);
@@ -241,8 +241,7 @@ void Animation::ReadNodeHierarchy(const aiScene* scene, float& AnimationTime, co
 
 		aiVector3D Translation;
 		{
-			float time(StopAnimLevel <= 0 ? AnimationTime : 0.0f);
-			Translation = CalcInterpolatedPosition(time, pNodeAnim);
+			Translation = CalcInterpolatedPosition(AnimationTime, pNodeAnim);
 		}
 
 		aiMatrix4x4 translate_mat;
@@ -257,7 +256,6 @@ void Animation::ReadNodeHierarchy(const aiScene* scene, float& AnimationTime, co
 
 
 	}
-	StopAnimLevel--;
 	DirectX::XMMATRIX GlobalTransformation = NodeTransformation * ParentTransform;
 
 	
@@ -275,12 +273,12 @@ void Animation::ReadNodeHierarchy(const aiScene* scene, float& AnimationTime, co
 
 	for (unsigned int i = 0; i < pNode->mNumChildren; i++)
 	{
-		ReadNodeHierarchy(scene, AnimationTime, pNode->mChildren[i], GlobalTransformation, StopAnimLevel);
+		ReadNodeHierarchy1(scene, AnimationTime, pNode->mChildren[i], GlobalTransformation);
 	}
 
 }
 
-void Animation::ReadNodeHierarchy(const aiScene* scene1, const aiScene* scene2, float& AnimationTime1, float& AnimationTime2, const aiNode* pNode1, const aiNode* pNode2, const DirectX::XMMATRIX& ParentTransform, int& StopAnimLevel)
+void Animation::ReadNodeHierarchy2(const aiScene* scene1, const aiScene* scene2, float& AnimationTime1, float& AnimationTime2, const aiNode* pNode1, const aiNode* pNode2, const DirectX::XMMATRIX& ParentTransform)
 {
 
 	std::string NodeName1(pNode1->mName.data);
@@ -325,15 +323,13 @@ void Animation::ReadNodeHierarchy(const aiScene* scene1, const aiScene* scene2, 
 
 		aiVector3D Translation1;
 		{
-			float time(StopAnimLevel <= 0 ? AnimationTime1 : 0.0f);
-			Translation1 = CalcInterpolatedPosition(time, pNodeAnim1);
+			Translation1 = CalcInterpolatedPosition(AnimationTime1, pNodeAnim1);
 		}
 
 
 		aiVector3D Translation2;
 		{
-			float time(StopAnimLevel <= 0 ? AnimationTime2 : 0.0f);
-			Translation2 = CalcInterpolatedPosition(time, pNodeAnim2);
+			Translation2 = CalcInterpolatedPosition(AnimationTime2, pNodeAnim2);
 		}
 
 
@@ -347,7 +343,6 @@ void Animation::ReadNodeHierarchy(const aiScene* scene1, const aiScene* scene2, 
 
 		NodeTransformation1 = XMMatrixTranspose(NodeTransformation1);
 	}
-	StopAnimLevel--;
 	DirectX::XMMATRIX GlobalTransformation = NodeTransformation1 * ParentTransform;
 
 	if (BoneMapping.find(NodeName1) != BoneMapping.end())
@@ -363,7 +358,7 @@ void Animation::ReadNodeHierarchy(const aiScene* scene1, const aiScene* scene2, 
 	unsigned int n = std::min(pNode1->mNumChildren, pNode2->mNumChildren);
 	for (unsigned int i = 0; i < n; i++)
 	{
-		ReadNodeHierarchy(scene1, scene2, AnimationTime1, AnimationTime2, pNode1->mChildren[i], pNode2->mChildren[i], GlobalTransformation, StopAnimLevel);
+		ReadNodeHierarchy2(scene1, scene2, AnimationTime1, AnimationTime2, pNode1->mChildren[i], pNode2->mChildren[i], GlobalTransformation);
 	}
 }
 

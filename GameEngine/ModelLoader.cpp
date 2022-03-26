@@ -351,7 +351,6 @@ void ModelLoader::Draw(const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMA
 
 		BoneTransform(transforms);
 
-		
 		XMStoreFloat4x4(&_transforms, transforms[0]);
 		
 	

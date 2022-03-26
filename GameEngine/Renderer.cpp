@@ -128,9 +128,28 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 			{
 				entities[i].model.loadAsync = true;
 			}
+
+
 			entities[i].Intitialize(entities[i].filePath, gfx11.device.Get(), gfx11.deviceContext.Get(), gfx11.cb_vs_vertexshader, entities[i].isAnimated);
 		}
-
+		if (!entities[i].isDeleted)
+		{
+			if (entities[i].entityName == " ")
+			{
+				entities[i].entityName = "Entity" + std::to_string(i);
+			}
+		}
+		//if (entities[i].model.isAttached)
+		//{
+		//	for (int j = 0; j < entities.size(); ++j)
+		//	{
+		//		if (entities[i].parentName == entities[j].entityName)
+		//		{
+		//			entities[i].SetupAttachment(&entities[j]);
+		//		}
+		//	}
+		//
+		//}
 	}
 
 	rect.Initialize(gfx11.device.Get(),gfx11.windowWidth,gfx11.windowHeight);
@@ -202,6 +221,8 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	//Bloom
 	BloomHorizontalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
 	BloomVerticalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
+	//BloomHorizontalBlurTexture.Initialize(gfx11.device.Get(), 640, 360);
+	//BloomVerticalBlurTexture.Initialize(gfx11.device.Get(), 640, 360);
 	bloomRenderTexture.Initialize(gfx11.device.Get(), windowWidth, windowHeight);
 
 	//Volumetric light
@@ -272,7 +293,14 @@ void Renderer::RenderEntitiesAndLights(std::vector<Entity>& entities, std::vecto
 					gfx11.deviceContext->VSSetShader(gfx11.pbrVS.GetShader(), nullptr, 0);
 				}
 				
-				
+				if (entities[i].model.isAttached)
+				{
+					if (entities[i].parent)
+					{
+						if (!entities[i].parentName.empty() && (entities[i].parent->entityName == entities[i].parentName))
+							entities[i].SetupAttachment(entities[i].parent);
+					}
+				}
 
 				entities[i].Draw(camera, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 			}
@@ -283,32 +311,32 @@ void Renderer::RenderEntitiesAndLights(std::vector<Entity>& entities, std::vecto
 
 	gfx11.deviceContext->OMSetBlendState(gfx11.AdditiveBlendState.Get(), NULL, 0xFFFFFFFF);
 	gfx11.deviceContext->PSSetShader(gfx11.transparentPbrPS.GetShader(), nullptr, 0);
-	for (int i = 0; i < entities.size(); ++i)
-	{
-		DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - entities[i].pos.x, camera.GetPositionFloat3().y - entities[i].pos.y, camera.GetPositionFloat3().z - entities[i].pos.z);
-		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
-		float dist = diffVec.dot(diffVec);
-
-		if (dist < renderDistance)
-		{
-			if (entities[i].model.isTransparent)
-			{
-				if (entities[i].model.isAnimated)
-				{
-					gfx11.deviceContext->IASetInputLayout(gfx11.animVS.GetInputLayout());
-					gfx11.deviceContext->VSSetShader(gfx11.animVS.GetShader(), nullptr, 0);
-				}
-				else
-				{
-					gfx11.deviceContext->IASetInputLayout(gfx11.pbrVS.GetInputLayout());
-					gfx11.deviceContext->VSSetShader(gfx11.pbrVS.GetShader(), nullptr, 0);
-				}
-
-				entities[i].Draw(camera, camera.GetViewMatrix(), camera.GetProjectionMatrix());
-			}
-		}
-		
-	}
+	//for (int i = 0; i < entities.size(); ++i)
+	//{
+	//	DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - entities[i].pos.x, camera.GetPositionFloat3().y - entities[i].pos.y, camera.GetPositionFloat3().z - entities[i].pos.z);
+	//	physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
+	//	float dist = diffVec.dot(diffVec);
+	//
+	//	if (dist < renderDistance)
+	//	{
+	//		if (entities[i].model.isTransparent)
+	//		{
+	//			if (entities[i].model.isAnimated)
+	//			{
+	//				gfx11.deviceContext->IASetInputLayout(gfx11.animVS.GetInputLayout());
+	//				gfx11.deviceContext->VSSetShader(gfx11.animVS.GetShader(), nullptr, 0);
+	//			}
+	//			else
+	//			{
+	//				gfx11.deviceContext->IASetInputLayout(gfx11.pbrVS.GetInputLayout());
+	//				gfx11.deviceContext->VSSetShader(gfx11.pbrVS.GetShader(), nullptr, 0);
+	//			}
+	//
+	//			entities[i].Draw(camera, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	//		}
+	//	}
+	//	
+	//}
 
 
 	for (int i = 0; i < lights.size(); ++i)
@@ -361,7 +389,6 @@ void Renderer::RenderEntitiesAndLights(std::vector<Entity>& entities, std::vecto
 
 void Renderer::RenderSceneToTexture(RenderTexture& texture, Camera& camera, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights,  std::vector< CollisionObject>& collisionObjects)
 {
-	UpdateBuffers(lights,pointLights, camera);
 
 	//float rgb[4] = { 0,0,0,1 };
 	texture.SetRenderTarget(gfx11.deviceContext.Get(), texture.m_depthStencilView);
@@ -412,21 +439,15 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 		gfx11.cb_ps_lightsShader.data.lightType[i].z = 0;
 		gfx11.cb_ps_lightsShader.data.lightType[i].w = 0;
 
-		gfx11.cb_ps_lightCull.data.Radius[i].x = lights[i].radius;
-		gfx11.cb_ps_lightCull.data.Radius[i].y = lights[i].radius;
-		gfx11.cb_ps_lightCull.data.Radius[i].z = lights[i].radius;
-		gfx11.cb_ps_lightCull.data.Radius[i].w = lights[i].radius;
-
-		gfx11.cb_ps_lightCull.data.cutOff[i].x = lights[i].cutOff;
-		gfx11.cb_ps_lightCull.data.cutOff[i].y = lights[i].cutOff;
-		gfx11.cb_ps_lightCull.data.cutOff[i].z = lights[i].cutOff;
-		gfx11.cb_ps_lightCull.data.cutOff[i].w = lights[i].cutOff;
+		gfx11.cb_ps_lightCull.data.RadiusAndcutOff[i].x = lights[i].radius;
+		gfx11.cb_ps_lightCull.data.RadiusAndcutOff[i].y = lights[i].cutOff;
+		gfx11.cb_ps_lightCull.data.RadiusAndcutOff[i].z = 0.0;
+		gfx11.cb_ps_lightCull.data.RadiusAndcutOff[i].w = 0.0;
 	}
-	gfx11.cb_ps_lightsShader.data.lightsSize = lights.size();
 	//gfx11.cb_ps_lightsShader.data.acceptedDistShadow = shadowDist;
 
-	gfx11.cb_ps_lightsShader.data.acceptedDistShadow = shadowDist;
-	gfx11.cb_ps_lightsShader.data.acceptedDist = acceptedDist;
+	gfx11.cb_ps_lightsShader.data.acceptedDistShadowAndLight.x = shadowDist;
+	gfx11.cb_ps_lightsShader.data.acceptedDistShadowAndLight.y = acceptedDist;
 	gfx11.cb_vs_lightsShader.data.lightsSize = lights.size();
 
 	for (int i = 0; i < pointLights.size(); ++i)
@@ -434,15 +455,11 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 		gfx11.cb_ps_pointLightsShader.data.dynamicLightColor[i] = DirectX::XMFLOAT4(pointLights[i].lightColor.x, pointLights[i].lightColor.y, pointLights[i].lightColor.z, 1.0f);
 		gfx11.cb_ps_pointLightsShader.data.dynamicLightPosition[i] = DirectX::XMFLOAT4(pointLights[i].pos.x, pointLights[i].pos.y, pointLights[i].pos.z, 1.0f);
 
-		gfx11.cb_ps_pointLightCull.data.Radius[i].x = pointLights[i].radius;
-		gfx11.cb_ps_pointLightCull.data.Radius[i].y = pointLights[i].radius;
-		gfx11.cb_ps_pointLightCull.data.Radius[i].z = pointLights[i].radius;
-		gfx11.cb_ps_pointLightCull.data.Radius[i].w = pointLights[i].radius;
+		gfx11.cb_ps_pointLightCull.data.RadiusAndcutOff[i].x = pointLights[i].radius;
+		gfx11.cb_ps_pointLightCull.data.RadiusAndcutOff[i].y = pointLights[i].cutOff;
+		gfx11.cb_ps_pointLightCull.data.RadiusAndcutOff[i].z =	0.0f;
+		gfx11.cb_ps_pointLightCull.data.RadiusAndcutOff[i].w =	0.0f;
 
-		gfx11.cb_ps_pointLightCull.data.cutOff[i].x = pointLights[i].cutOff;
-		gfx11.cb_ps_pointLightCull.data.cutOff[i].y = pointLights[i].cutOff;
-		gfx11.cb_ps_pointLightCull.data.cutOff[i].z = pointLights[i].cutOff;
-		gfx11.cb_ps_pointLightCull.data.cutOff[i].w = pointLights[i].cutOff;
 	}
 	gfx11.cb_ps_pointLightsShader.data.pointLightsSize = pointLights.size();
 
@@ -526,6 +543,9 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 
 	////////////
 	environmentProbe.UpdateCamera();
+
+	UpdateBuffers(lights, pointLights, camera);
+	
 	if (environmentProbe.recalculate)
 	{
 		environmentProbe.environmentCubeMap.m_renderTargetTexture->Release();
@@ -586,25 +606,27 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		environmentProbe.recalculate = false;
 	}
 
+
+
 	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
 	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
 	gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
 	gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
+
 	RenderSceneToTexture(gfx11.renderTexture, camera, entities, lights,pointLights, collisionObjects);
+
 
 	//////////////BLOOM///////////////////////////////////////
 	if (enablePostProccess)
 	{
 		BloomRender(camera);
-
+	}
 		gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
 		gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
 		gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
 		gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-		//VolumeLightRender(entities, lights,pointLights, camera);
-	}
+	
 
 	////////////////////////////////
 	// 
@@ -622,7 +644,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	//////////////////////////////////////////////////////////////////////////////////
 
 	/////////////////////////////////////////////////////////////////////////////////
-
 
 	if (!runPhysics)
 	{
@@ -1090,6 +1111,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	}
 
 	gfxGui.EndRender();
+
 	/////////////////////////////////////
 	/////////////////////////////////////
 	gfx11.swapchain->Present(vSync, NULL);
@@ -1195,7 +1217,7 @@ void Renderer::PbrRender(Camera& camera)
 
 void Renderer::RenderToEnvProbe(RenderTexture& texture, Camera& camera, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights)
 {
-	UpdateBuffers(lights,pointLights, camera);
+	//UpdateBuffers(lights,pointLights, camera);
 
 	//float rgb[4] = { 0.0f,0.0f,0.0f,1.0f };
 	texture.SetRenderTarget(gfx11.deviceContext.Get(), texture.m_depthStencilView);

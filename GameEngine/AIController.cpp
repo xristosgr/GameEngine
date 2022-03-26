@@ -9,6 +9,9 @@ void AIController::MoveTo(float& dt, Entity* start, Entity* end, float& gravity)
 	if (!end || !start)
 		return;
 
+	if (!start->physicsComponent.aActor || !end->physicsComponent.aActor)
+		return;
+
 	_force = 3.0f;
 	radius = 8.0f;
 
