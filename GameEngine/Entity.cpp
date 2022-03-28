@@ -336,6 +336,12 @@ void Entity::DrawGui(physx::PxScene& scene,std::vector<Entity>& entities)
 
 
 	ImGui::Text(entityName.c_str());
+	ImGui::SameLine();
+
+	if (ImGui::Button("Delete"))
+	{
+		bFlagForDeletion = true;
+	}
 	ImGui::Text(("X: " + std::to_string(physicsComponent.trans.p.x)).c_str());
 	ImGui::SameLine();
 	ImGui::Text((" Y: " + std::to_string(physicsComponent.trans.p.y)).c_str());
@@ -492,14 +498,11 @@ void Entity::DrawGui(physx::PxScene& scene,std::vector<Entity>& entities)
 				ImGui::ListBox("Skeleton", &listbox_current, _bonesData.data(), _bonesData.size());
 			}
 		}
-
-		if (ImGui::Button("Delete"))
-		{
-			bFlagForDeletion = true;
-			Clear(scene);
-		}
 	}
-	
+}
+
+void Entity::Input(Mouse& mouse, Keyboard& keyboard)
+{
 }
 
 

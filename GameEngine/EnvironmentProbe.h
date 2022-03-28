@@ -25,12 +25,13 @@ public:
 	bool recalculate;
 
 	DirectX::XMFLOAT3 pos;
+	DirectX::XMFLOAT3 prevPos;
 	DirectX::XMFLOAT3 scale;
 	DirectX::XMFLOAT3 rot;
 
 	ModelLoader model;
 
-	RenderTexture probeMaps[6];
+	//RenderTexture probeMaps[6];
 	RenderTexture environmentCubeMap;
 
 	std::vector <ID3D11Texture2D*> cubeTex;

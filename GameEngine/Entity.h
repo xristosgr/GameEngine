@@ -24,6 +24,7 @@ public:
 	void SetupAttachment(Entity* entity, std::string boneName);
 	void SetupAttachment(Entity* entity);
 	void DrawGui(physx::PxScene& scene, std::vector<Entity>& entities);
+	void Input(Mouse& mouse, Keyboard& keyboard);
 	void Clear(physx::PxScene& scene);
 public:
 	std::string entityName = " ";
@@ -93,9 +94,5 @@ private:
 
 
 	DirectX::XMVECTOR _pos, _scale, _rot;
-
-
-
-
 };
 

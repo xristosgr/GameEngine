@@ -13,7 +13,7 @@ void NavMeshClass::CalculatePath(float& dt, Entity* start, Entity* end, AIContro
 	if (!end || !start)
 		return;
 
-	float acceptedRadius = 1.5f;
+	float acceptedRadius = 1.3f;
 
 	if (!start->physicsComponent.aActor || !end->physicsComponent.aActor)
 		return;

@@ -538,7 +538,7 @@
     <FxCompile Include="BrdfPS.hlsl">
       <Filter>Shaders\Pixel</Filter>
     </FxCompile>
-    <FxCompile Include="PrifilterPS.hlsl">
+    <FxCompile Include="PrefilterPS.hlsl">
       <Filter>Shaders\Pixel</Filter>
     </FxCompile>
     <FxCompile Include="EnvProbePS.hlsl">

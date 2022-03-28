@@ -235,8 +235,11 @@ void Engine::Update(int width, int height)
 	{
 		if (entities[i].bFlagForDeletion)
 		{
+			entities[i].Clear(*physicsHandler.aScene);
 			if (i < entities.size() - 1)
+			{
 				std::swap(entities[i], entities.back());
+			}
 			entities.pop_back();
 			entities[i].bFlagForDeletion = false;
 		}
@@ -421,6 +424,7 @@ void Engine::ObjectsHandler(float& dt)
 				}
 			}
 		}
+		//entities[i].Input(mouse, keyboard);
 	}
 
 	for (int i = 0; i < collisionObjects.size(); ++i)

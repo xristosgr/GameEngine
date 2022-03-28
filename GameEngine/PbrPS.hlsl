@@ -67,7 +67,7 @@ TextureCube irradianceMap : TEXTURE : register(t5);
 Texture2D depthMapTextures[NO_LIGHTS] : TEXTURE : register(t6);
 
 SamplerState SampleTypeWrap : register(s0);
-
+SamplerState objSamplerStateMip : SAMPLER : register(s2);
 
 float Shadows(float4 lightViewPosition, Texture2D depthMapTexture,float dist);
 
@@ -151,15 +151,16 @@ float4 main(PS_INPUT input) : SV_TARGET
         
         }
    
-
+        
         float3 F = fresnelSchlickRoughness(max(dot(bumpNormal, V), 0.0f), F0, roughness);
         float3 kS = F;
         float3 kD = 1.0f - kS;
-        float3 irradiance = irradianceMap.Sample(SampleTypeWrap, bumpNormal.rgb).rgb;
+        float3 irradiance = irradianceMap.Sample(objSamplerStateMip, bumpNormal.rgb).rgb;
         float3 diffuse = irradiance * albedo.rgb;
         float3 R = reflect(-V, bumpNormal);
-        float3 prefilteredColor = prefilterMap.Sample(SampleTypeWrap, R);
-  
+        //float3 prefilteredColor = prefilterMap.Sample(SampleTypeWrap, R);
+        const float MAX_REF_LOD = 5.0f;
+        float3 prefilteredColor = prefilterMap.SampleLevel(objSamplerStateMip, R, roughness * MAX_REF_LOD).rgb;
         float2 brdf = brdfTexture.Sample(SampleTypeWrap, float2(max(dot(bumpNormal, V), 0.0), roughness)).rg;
 
         float3 specular = prefilteredColor * (F * brdf.x + brdf.y);

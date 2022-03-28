@@ -44,7 +44,7 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		scd1.SampleDesc.Count = MSSA_COUNT;
 		scd1.SampleDesc.Quality = MSSA_Quality;
 		scd1.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		scd1.BufferCount = 2;									//NOTE: Use double-buffering to minimize latency.
+		scd1.BufferCount = 3;									//NOTE: Use double-buffering to minimize latency.
 		scd1.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;	// All Microsoft Store apps must use this SwapEffect.
 		scd1.Flags = 0;
 		scd1.Scaling = DXGI_SCALING_NONE;
@@ -217,7 +217,7 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		//Create sampler description for sampler state
 		CD3D11_SAMPLER_DESC sampDesc(D3D11_DEFAULT);
 		sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-
+		//sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 		sampDesc.BorderColor[0] = 0;
 		sampDesc.BorderColor[1] = 0;
 		sampDesc.BorderColor[2] = 0;
@@ -233,7 +233,7 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 		hr = this->device->CreateSamplerState(&sampDesc, this->samplerState_Wrap.GetAddressOf()); //Create sampler state wrap
 		COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
-		sampDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+		sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
 		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
 		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
@@ -241,12 +241,12 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		hr = this->device->CreateSamplerState(&sampDesc, this->samplerState_Clamp.GetAddressOf()); //Create sampler state clamp
 		COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
 
+		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 		sampDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-
-		this->deviceContext->PSSetSamplers(0, 1, this->samplerState_Wrap.GetAddressOf());
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		hr = this->device->CreateSamplerState(&sampDesc, this->samplerState_MipMap.GetAddressOf()); //Create sampler state wrap
 	}
 	catch (COMException& exception)
 	{
@@ -315,7 +315,7 @@ bool DX11::InitializeShaders()
 	initPSShader(&cubeMapPS, device, L"CubeMapPS.cso");
 	initPSShader(&irradianceConvPS, device, L"IrradianceConvolutionPS.cso");
 	initPSShader(&brdfPS, device, L"BrdfPS.cso");
-	initPSShader(&prifilterPS, device, L"PrifilterPS.cso");
+	initPSShader(&prefilterPS, device, L"PrefilterPS.cso");
 	initPSShader(&envProbePS, device, L"envProbePS.cso");
 	initPSShader(&horizontalBlurPS, device, L"HorizontalBlurPS.cso");
 	initPSShader(&verticalBlurPS, device, L"VerticalBlurPS.cso");

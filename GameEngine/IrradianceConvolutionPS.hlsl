@@ -11,6 +11,8 @@ TextureCube environmentMap : TEXTURE : register(t0);
 
 SamplerState objSamplerState : SAMPLER : register(s0);
 SamplerState objSamplerStateClamp : SAMPLER : register(s1);
+SamplerState objSamplerStateMip : SAMPLER : register(s2);
+
 
 const float PI = 3.14159265359;
 
@@ -38,7 +40,7 @@ float4 main(PS_INPUT input) : SV_TARGET
         // tangent space to world
             float3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * normal;
 
-            irradiance += environmentMap.Sample(objSamplerStateClamp, sampleVec).rgb * cos(theta) * sin(theta);
+            irradiance += environmentMap.Sample(objSamplerStateMip, sampleVec).rgb * cos(theta) * sin(theta);
             nrSamples++;
         }
   

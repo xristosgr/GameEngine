@@ -53,6 +53,7 @@ public:
 
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState_Wrap;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState_Clamp;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState_MipMap;
 
 	VertexShader vs2D;
 	VertexShader testVS;
@@ -73,7 +74,7 @@ public:
 	PixelShader cubeMapPS;
 	PixelShader irradianceConvPS;
 	PixelShader brdfPS;
-	PixelShader prifilterPS;
+	PixelShader prefilterPS;
 	PixelShader envProbePS;
 	PixelShader horizontalBlurPS;
 	PixelShader verticalBlurPS;

@@ -9,15 +9,11 @@ Renderer::Renderer()
 {
 	timer.Start();
 
-	//rgb[0] = 0.3f;
-	//rgb[1] = 0.4f;
-	//rgb[2] = 0.7f;
+	skyColor = DirectX::XMFLOAT3(0.2f, 0.5f, 1.0f);
+	//rgb[0] = 0.0f;
+	//rgb[1] = 0.0f;
+	//rgb[2] = 0.0f;
 	//rgb[3] = 1.0f;
-
-	rgb[0] = 0.0f;
-	rgb[1] = 0.0f;
-	rgb[2] = 0.0f;
-	rgb[3] = 1.0f;
 
 	bEntityDeleted = false;
 	save = false;
@@ -42,7 +38,7 @@ Renderer::Renderer()
 	bGuiEnabled = true;
 	switchCameraMode = 0;
 	vSync = 0;
-
+	gamma = 2.2f;
 	renderDistance = 6000.0f;
 	renderShadowDistance = 2700.0f;
 	shadowDist = 5.5f;
@@ -139,17 +135,6 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 				entities[i].entityName = "Entity" + std::to_string(i);
 			}
 		}
-		//if (entities[i].model.isAttached)
-		//{
-		//	for (int j = 0; j < entities.size(); ++j)
-		//	{
-		//		if (entities[i].parentName == entities[j].entityName)
-		//		{
-		//			entities[i].SetupAttachment(&entities[j]);
-		//		}
-		//	}
-		//
-		//}
 	}
 
 	rect.Initialize(gfx11.device.Get(),gfx11.windowWidth,gfx11.windowHeight);
@@ -175,54 +160,12 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 
 	//PBR
 	brdfTexture.Initialize(gfx11.device.Get(), 512, 512);
-	for (int i = 0; i < 6; ++i)
-	{
-		IrradianceConvCubeTextures[i].Initialize(gfx11.device.Get(), 32, 32);
-	}
-
-
-
-
-	std::vector<ID3D11Resource*> _tempTexts;
-	envTextures[0].CreateTextureWIC(gfx11.device.Get(), "probeMaps1.jpg");
-	envTextures[1].CreateTextureWIC(gfx11.device.Get(), "probeMaps0.jpg");
-	envTextures[2].CreateTextureWIC(gfx11.device.Get(), "probeMaps2.jpg");
-	envTextures[3].CreateTextureWIC(gfx11.device.Get(), "probeMaps3.jpg");
-	envTextures[4].CreateTextureWIC(gfx11.device.Get(), "probeMaps5.jpg");
-	envTextures[5].CreateTextureWIC(gfx11.device.Get(), "probeMaps4.jpg");
-	for (int i = 0; i < 6; ++i)
-	{
-		_tempTexts.push_back(envTextures[i].texture.Get());
-		envTextures[i].texture.Get()->Release();
-		//envTextures[i].textureView.Get()->Release();
-	}
-	environmentProbe.environmentCubeMap.CubeMapTexture(gfx11.device.Get(), gfx11.deviceContext.Get(), _tempTexts);
-	
-	_tempTexts.clear();
-	irradianceTextures[0].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv1.jpg");
-	irradianceTextures[1].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv0.jpg");
-	irradianceTextures[2].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv2.jpg");
-	irradianceTextures[3].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv3.jpg");
-	irradianceTextures[4].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv5.jpg");
-	irradianceTextures[5].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv4.jpg");
-	for (int i = 0; i < 6; ++i)
-	{
-		_tempTexts.push_back(irradianceTextures[i].texture.Get());
-		irradianceTextures[i].texture.Get()->Release();
-		//irradianceTextures[i].textureView.Get()->Release();
-	}
-	irradianceCubeMap.CubeMapTexture(gfx11.device.Get(), gfx11.deviceContext.Get(), _tempTexts);
-	_tempTexts.clear();
-
-	brdfText.CreateTextureWIC(gfx11.device.Get(), "BrdfTexture.jpg");
-
 
 
 	//Bloom
 	BloomHorizontalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
 	BloomVerticalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
-	//BloomHorizontalBlurTexture.Initialize(gfx11.device.Get(), 640, 360);
-	//BloomVerticalBlurTexture.Initialize(gfx11.device.Get(), 640, 360);
+
 	bloomRenderTexture.Initialize(gfx11.device.Get(), windowWidth, windowHeight);
 
 	//Volumetric light
@@ -248,7 +191,8 @@ void Renderer::RenderEntitiesAndLights(std::vector<Entity>& entities, std::vecto
 
 
 	}
-	gfx11.deviceContext->PSSetShaderResources(3, 1, &environmentProbe.environmentCubeMap.shaderResourceView);
+	//gfx11.deviceContext->PSSetShaderResources(3, 1, &environmentProbe.environmentCubeMap.shaderResourceView);
+	gfx11.deviceContext->PSSetShaderResources(3, 1, &prefilterCubeMap.shaderResourceView);
 	if (brdfText.GetTextureResourceView())
 		gfx11.deviceContext->PSSetShaderResources(4, 1, brdfText.GetTextureResourceViewAddress());
 	else
@@ -261,6 +205,19 @@ void Renderer::RenderEntitiesAndLights(std::vector<Entity>& entities, std::vecto
 	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
 	for (int i = 0; i < entities.size(); ++i)
 	{
+		if (entities[i].model.loadAsync)
+		{
+			if (!entities[i].model._asyncLoad._Is_ready())
+			{
+				entities[i].model._asyncLoad.wait();
+				bHasFinishedLoading = false;
+			}
+			else
+			{
+				bHasFinishedLoading = true;
+			}
+		}
+
 		DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - entities[i].pos.x, camera.GetPositionFloat3().y - entities[i].pos.y, camera.GetPositionFloat3().z - entities[i].pos.z);
 		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
 		float dist = diffVec.dot(diffVec);
@@ -311,33 +268,6 @@ void Renderer::RenderEntitiesAndLights(std::vector<Entity>& entities, std::vecto
 
 	gfx11.deviceContext->OMSetBlendState(gfx11.AdditiveBlendState.Get(), NULL, 0xFFFFFFFF);
 	gfx11.deviceContext->PSSetShader(gfx11.transparentPbrPS.GetShader(), nullptr, 0);
-	//for (int i = 0; i < entities.size(); ++i)
-	//{
-	//	DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - entities[i].pos.x, camera.GetPositionFloat3().y - entities[i].pos.y, camera.GetPositionFloat3().z - entities[i].pos.z);
-	//	physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
-	//	float dist = diffVec.dot(diffVec);
-	//
-	//	if (dist < renderDistance)
-	//	{
-	//		if (entities[i].model.isTransparent)
-	//		{
-	//			if (entities[i].model.isAnimated)
-	//			{
-	//				gfx11.deviceContext->IASetInputLayout(gfx11.animVS.GetInputLayout());
-	//				gfx11.deviceContext->VSSetShader(gfx11.animVS.GetShader(), nullptr, 0);
-	//			}
-	//			else
-	//			{
-	//				gfx11.deviceContext->IASetInputLayout(gfx11.pbrVS.GetInputLayout());
-	//				gfx11.deviceContext->VSSetShader(gfx11.pbrVS.GetShader(), nullptr, 0);
-	//			}
-	//
-	//			entities[i].Draw(camera, camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	//		}
-	//	}
-	//	
-	//}
-
 
 	for (int i = 0; i < lights.size(); ++i)
 	{
@@ -413,8 +343,6 @@ void Renderer::RenderSceneToTexture(RenderTexture& texture, Camera& camera, std:
 
 
 	RenderEntitiesAndLights(entities, lights,pointLights, camera);
-
-	
 }
 
 void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera)
@@ -500,14 +428,11 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 
 void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHandler& physicsHandler, std::vector<Light>& lights, std::vector<Light>& pointLights, std::vector< CollisionObject>& collisionObjects, GridClass& grid, std::vector<NavMeshClass>& navMeshes, std::vector<SoundComponent*>& sounds)
 {
-	//for(int i=0; i<lights.size();++i)
-	//	lights[i].UpdateCamera();
-
 	//float rgb[4];
-	//rgb[0] = 0.5f;
-	//rgb[1] = 0.5f;
-	//rgb[2] = 0.5f;
-	//rgb[3] = 1.0f;
+	rgb[0] = skyColor.x;
+	rgb[1] = skyColor.y;
+	rgb[2] = skyColor.z;
+	rgb[3] = 1.0f;
 
 	//SHADOWS////
 	HRESULT hr;
@@ -545,66 +470,26 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	environmentProbe.UpdateCamera();
 
 	UpdateBuffers(lights, pointLights, camera);
-	
-	if (environmentProbe.recalculate)
+
+	if (bHasFinishedLoading)
 	{
-		environmentProbe.environmentCubeMap.m_renderTargetTexture->Release();
-		for (int i = 0; i < 6; ++i)
+		if (environmentProbe.recalculate)
 		{
-			//float rgb[4] = { 0.0f,0.0f,0.0f,1.0f };
-			gfx11.deviceContext->RSSetViewports(1, &environmentProbe.probeMaps[i].m_viewport);
+			gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
 			gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
 			gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
 			gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-			RenderToEnvProbe(environmentProbe.probeMaps[i], environmentProbe.camera[i], entities, lights, pointLights);
-			//RenderSceneToTexture(environmentProbe.probeMaps[i], environmentProbe.camera[i], entities, lights, collisionObjects);
-		}
-		environmentProbe.cubeTex.push_back(environmentProbe.probeMaps[1].m_renderTargetTexture);
-		environmentProbe.cubeTex.push_back(environmentProbe.probeMaps[0].m_renderTargetTexture);
-		environmentProbe.cubeTex.push_back(environmentProbe.probeMaps[2].m_renderTargetTexture);
-		environmentProbe.cubeTex.push_back(environmentProbe.probeMaps[3].m_renderTargetTexture);
-		environmentProbe.cubeTex.push_back(environmentProbe.probeMaps[5].m_renderTargetTexture);
-		environmentProbe.cubeTex.push_back(environmentProbe.probeMaps[4].m_renderTargetTexture);
-		
-		hr = DirectX::SaveWICTextureToFile(gfx11.deviceContext.Get(), environmentProbe.probeMaps[0].m_renderTargetTexture,GUID_ContainerFormatJpeg, L"probeMaps0.JPG",nullptr,nullptr,true);
-		hr = DirectX::SaveWICTextureToFile(gfx11.deviceContext.Get(), environmentProbe.probeMaps[1].m_renderTargetTexture,GUID_ContainerFormatJpeg, L"probeMaps1.JPG",nullptr,nullptr,true);
-		hr = DirectX::SaveWICTextureToFile(gfx11.deviceContext.Get(), environmentProbe.probeMaps[2].m_renderTargetTexture,GUID_ContainerFormatJpeg, L"probeMaps2.JPG",nullptr,nullptr,true);
-		hr = DirectX::SaveWICTextureToFile(gfx11.deviceContext.Get(), environmentProbe.probeMaps[3].m_renderTargetTexture,GUID_ContainerFormatJpeg, L"probeMaps3.JPG",nullptr,nullptr,true);
-		hr = DirectX::SaveWICTextureToFile(gfx11.deviceContext.Get(), environmentProbe.probeMaps[4].m_renderTargetTexture,GUID_ContainerFormatJpeg, L"probeMaps4.JPG",nullptr,nullptr,true);
-		hr = DirectX::SaveWICTextureToFile(gfx11.deviceContext.Get(), environmentProbe.probeMaps[5].m_renderTargetTexture,GUID_ContainerFormatJpeg, L"probeMaps5.JPG",nullptr,nullptr,true);
 
-			//COM_ERROR_IF_FAILED(hr, "Failed to save texture.");
-			//ErrorLogger::Log(hr, "Failed to save texture.");
-		
-		std::vector<ID3D11Resource*> _tempTexts;
-		envTextures[0].CreateTextureWIC(gfx11.device.Get(), "probeMaps1.jpg");
-		envTextures[1].CreateTextureWIC(gfx11.device.Get(), "probeMaps0.jpg");
-		envTextures[2].CreateTextureWIC(gfx11.device.Get(), "probeMaps2.jpg");
-		envTextures[3].CreateTextureWIC(gfx11.device.Get(), "probeMaps3.jpg");
-		envTextures[4].CreateTextureWIC(gfx11.device.Get(), "probeMaps5.jpg");
-		envTextures[5].CreateTextureWIC(gfx11.device.Get(), "probeMaps4.jpg");
-		for (int i = 0; i < 6; ++i)
-		{
-			_tempTexts.push_back(envTextures[i].texture.Get());
-			envTextures[i].texture.Get()->Release();
-			//envTextures[i].GetTextureResourceView()->Release();
-			//envTextures[i].textureView.Get()->Release();
-		}
-		environmentProbe.environmentCubeMap.CubeMapTexture(gfx11.device.Get(), gfx11.deviceContext.Get(), _tempTexts);
-		for (int i = 0; i < 6; ++i)
-		{
-			_tempTexts[i]->Release();
-			envTextures[i].GetTextureResourceView()->Release();
-		}
-	
-		_tempTexts.clear();
-		//environmentProbe.environmentCubeMap.CubeMapTexture(gfx11.device.Get(), gfx11.deviceContext.Get(), environmentProbe.cubeTex);
-		environmentProbe.cubeTex.clear();
+			environmentProbe.prevPos = environmentProbe.pos;
+			environmentProbe.UpdateCamera();
 
-		PbrRender(camera);
-
-		environmentProbe.recalculate = false;
+			RenderToEnvProbe(environmentProbe, entities, lights, pointLights);
+			PbrRender(camera);
+			environmentProbe.pos = environmentProbe.prevPos;
+			environmentProbe.recalculate = false;
+		}
 	}
+	
 
 
 
@@ -661,23 +546,21 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	{
 		gfx11.deviceContext->PSSetShader(gfx11.testPS.GetShader(), nullptr, 0);
 		rectSmall.pos = DirectX::XMFLOAT3(2.88, -1.56, 2.878);
-		gfx11.deviceContext->PSSetShaderResources(0, 1, &volumetricLightTexture.shaderResourceView);
+		//gfx11.deviceContext->PSSetShaderResources(0, 1, &PrefilterCubeTextures[0].shaderResourceView);
 		gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState2D.Get(), 0);
 		gfx11.deviceContext->IASetInputLayout(gfx11.vs2D.GetInputLayout());
 		gfx11.deviceContext->VSSetShader(gfx11.vs2D.GetShader(), nullptr, 0);
-	
-		//rectBloom.rot = XMFLOAT3(0, 0, 7.846);
-		//rectBloom.scale = XMFLOAT3(1, -1, 1);
-		//rectBloom.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
 		rectSmall.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
 
 		//debugCube.SetRenderTexture(gfx11.deviceContext.Get(), environmentProbe.environmentCubeMap);
+		//debugCube.SetRenderTexture(gfx11.deviceContext.Get(), irradianceCubeMap);
+		debugCube.SetRenderTexture(gfx11.deviceContext.Get(), prefilterCubeMap);
 		gfx11.deviceContext->PSSetShader(gfx11.cubeMapPS.GetShader(), nullptr, 0);
 		gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState.Get(), 0);
 		gfx11.deviceContext->IASetInputLayout(gfx11.pbrVS.GetInputLayout());
 		gfx11.deviceContext->VSSetShader(gfx11.pbrVS.GetShader(), nullptr, 0);
 		debugCube.pos = DirectX::XMFLOAT3(0, 0, 0);
-		//debugCube.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
+		debugCube.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
 		
 		gfx11.deviceContext->PSSetShader(gfx11.colorPS.GetShader(), nullptr, 0);
 		environmentProbe.Draw(camera);
@@ -858,6 +741,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			ImGui::DragFloat("renderShadowDistance", &renderShadowDistance, 1.0f);
 			ImGui::DragFloat("shadowDist", &shadowDist, 0.1f);
 			ImGui::DragFloat("acceptedDist", &acceptedDist, 0.1f);
+			ImGui::DragFloat3("sky color", &skyColor.x, 0.05f);
 		}
 
 
@@ -1137,21 +1021,36 @@ void Renderer::BrdfRender(Camera& camera, RenderTexture& texture)
 	this->gfx11.deviceContext->RSSetState(this->gfx11.rasterizerState.Get());
 	rect.Draw(this->gfx11.deviceContext.Get(), camera, this->gfx11.cb_vs_vertexshader);
 
-	HRESULT hr = DirectX::SaveWICTextureToFile(gfx11.deviceContext.Get(), texture.m_renderTargetTexture, GUID_ContainerFormatJpeg, L"BrdfTexture.JPG", nullptr, nullptr, true);
+	//HRESULT hr = DirectX::SaveWICTextureToFile(gfx11.deviceContext.Get(), texture.m_renderTargetTexture, GUID_ContainerFormatJpeg, L"BrdfTexture.JPG", nullptr, nullptr, true);
 }
 void Renderer::IrradianceConvolutionRender(Camera& camera)
 {
+	debugCube.pos = DirectX::XMFLOAT3(0, 0, 0);
 	//environmentProbe.UpdateCamera(512, 512);
-	debugCube.pos = environmentProbe.pos;
-	//environmentProbe.pos = debugCube.pos;
+	//debugCube.pos = environmentProbe.pos;
+	environmentProbe.pos = debugCube.pos;
+	environmentProbe.UpdateCamera();
 
-	irradianceCubeMap.m_renderTargetTexture->Release();
-	
+	unsigned int _width = 32;
+	unsigned int _height = 32;
+	unsigned int maxMipLevels = 1;
+	unsigned int mip = 0;
+	irradianceCubeMap.CreateCubeMap(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, maxMipLevels);
+	irradianceCubeMap.CreateCubeMapMipLevels(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, mip);
+
+	gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState.Get(), 0);
+	gfx11.deviceContext->PSSetSamplers(0, 1, gfx11.samplerState_Wrap.GetAddressOf());
+	gfx11.deviceContext->PSSetSamplers(2, 1, gfx11.samplerState_MipMap.GetAddressOf());
+	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
+	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
+
+
 	for (int i = 0; i < 6; ++i)
 	{
-		gfx11.deviceContext->RSSetViewports(1, &IrradianceConvCubeTextures[i].m_viewport);
-		IrradianceConvCubeTextures[i].SetRenderTarget(gfx11.deviceContext.Get(), IrradianceConvCubeTextures[i].m_depthStencilView);
-		IrradianceConvCubeTextures[i].ClearRenderTarget(gfx11.deviceContext.Get(), IrradianceConvCubeTextures[i].m_depthStencilView, 0, 0, 0, 1);
+		irradianceCubeMap.RenderCubeMapFaces(gfx11.device.Get(), gfx11.deviceContext.Get(), i, gfx11.depthStencilView.Get(),rgb, false);
+		float roughness = (float)mip / (float)(maxMipLevels - 1);
+		gfx11.cb_ps_pbrBuffer.data.roughness = roughness;
+		gfx11.cb_ps_pbrBuffer.UpdateBuffer();
 
 		gfx11.deviceContext->PSSetShader(gfx11.irradianceConvPS.GetShader(), nullptr, 0);
 		gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState.Get(), 0);
@@ -1160,85 +1059,91 @@ void Renderer::IrradianceConvolutionRender(Camera& camera)
 		this->gfx11.deviceContext->RSSetState(this->gfx11.rasterizerState.Get());
 		gfx11.deviceContext->PSSetSamplers(0, 1, gfx11.samplerState_Wrap.GetAddressOf());
 		gfx11.deviceContext->PSSetSamplers(1, 1, gfx11.samplerState_Clamp.GetAddressOf());
+		gfx11.deviceContext->PSSetSamplers(2, 1, gfx11.samplerState_MipMap.GetAddressOf());
 
 		DirectX::XMMATRIX viewMatrix = environmentProbe.viewMatrices[i];
 		DirectX::XMMATRIX projectionMatrix = environmentProbe.projectionMatrices[i];
 
 		debugCube.SetRenderTexture(gfx11.deviceContext.Get(), environmentProbe.environmentCubeMap);
+		gfx11.deviceContext->PSSetShaderResources(0, 1, &environmentProbe.environmentCubeMap.shaderResourceView);
 		debugCube.Draw(gfx11.deviceContext.Get(), viewMatrix, projectionMatrix, gfx11.cb_vs_vertexshader);
-
 	}
-	environmentProbe.cubeTex.push_back(IrradianceConvCubeTextures[1].m_renderTargetTexture);
-	environmentProbe.cubeTex.push_back(IrradianceConvCubeTextures[0].m_renderTargetTexture);
-	environmentProbe.cubeTex.push_back(IrradianceConvCubeTextures[2].m_renderTargetTexture);
-	environmentProbe.cubeTex.push_back(IrradianceConvCubeTextures[3].m_renderTargetTexture);
-	environmentProbe.cubeTex.push_back(IrradianceConvCubeTextures[5].m_renderTargetTexture);
-	environmentProbe.cubeTex.push_back(IrradianceConvCubeTextures[4].m_renderTargetTexture);
-
-	HRESULT hr = DirectX::SaveWICTextureToFile(gfx11.deviceContext.Get(), IrradianceConvCubeTextures[0].m_renderTargetTexture, GUID_ContainerFormatJpeg, L"IrradianceConv0.JPG",nullptr,nullptr,true);
-	hr = DirectX::SaveWICTextureToFile(gfx11.deviceContext.Get(), IrradianceConvCubeTextures[1].m_renderTargetTexture, GUID_ContainerFormatJpeg, L"IrradianceConv1.JPG", nullptr,nullptr,true);
-	hr = DirectX::SaveWICTextureToFile(gfx11.deviceContext.Get(), IrradianceConvCubeTextures[2].m_renderTargetTexture, GUID_ContainerFormatJpeg, L"IrradianceConv2.JPG", nullptr,nullptr,true);
-	hr = DirectX::SaveWICTextureToFile(gfx11.deviceContext.Get(), IrradianceConvCubeTextures[3].m_renderTargetTexture, GUID_ContainerFormatJpeg, L"IrradianceConv3.JPG", nullptr,nullptr,true);
-	hr = DirectX::SaveWICTextureToFile(gfx11.deviceContext.Get(), IrradianceConvCubeTextures[4].m_renderTargetTexture, GUID_ContainerFormatJpeg, L"IrradianceConv4.JPG", nullptr,nullptr,true);
-	hr = DirectX::SaveWICTextureToFile(gfx11.deviceContext.Get(), IrradianceConvCubeTextures[5].m_renderTargetTexture, GUID_ContainerFormatJpeg, L"IrradianceConv5.JPG", nullptr,nullptr,true);
 	
-	std::vector<ID3D11Resource*> _tempTexts;
-	irradianceTextures[0].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv1.jpg");
-	irradianceTextures[1].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv0.jpg");
-	irradianceTextures[2].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv2.jpg");
-	irradianceTextures[3].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv3.jpg");
-	irradianceTextures[4].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv5.jpg");
-	irradianceTextures[5].CreateTextureWIC(gfx11.device.Get(), "IrradianceConv4.jpg");
-	for (int i = 0; i < 6; ++i)
-	{
-		_tempTexts.push_back(irradianceTextures[i].texture.Get());
-		irradianceTextures[i].texture.Get()->Release();
-		
-		//irradianceTextures[i].textureView.Get()->Release();
-	}
-	irradianceCubeMap.CubeMapTexture(gfx11.device.Get(), gfx11.deviceContext.Get(), _tempTexts);
+}
 
-	for (int i = 0; i < 6; ++i)
+void Renderer::PrifilterRender(Camera& camera)
+{
+	debugCube.pos = DirectX::XMFLOAT3(0, 0, 0);
+	
+	//debugCube.pos = environmentProbe.pos;
+
+	environmentProbe.pos = debugCube.pos;
+	//environmentProbe.pos = debugCube.pos;
+	environmentProbe.UpdateCamera();
+	
+
+	unsigned int maxMipLevels = 5;
+
+	unsigned int _width = 256;
+	unsigned int _height = 256;
+	prefilterCubeMap.CreateCubeMap(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, maxMipLevels);
+
+	for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
 	{
-		_tempTexts[i]->Release();
-		irradianceTextures[i].GetTextureResourceView()->Release();
+		unsigned int mipWidth = static_cast<unsigned int>(_width * std::pow(0.5, mip));
+		unsigned int mipHeight = static_cast<unsigned int>(_height * std::pow(0.5, mip));
+
+		prefilterCubeMap.CreateCubeMapMipLevels(gfx11.device.Get(), gfx11.deviceContext.Get(), mipWidth, mipHeight, mip);
+		for (int i = 0; i < 6; ++i)
+		{
+			prefilterCubeMap.RenderCubeMapFaces(gfx11.device.Get(), gfx11.deviceContext.Get(), i, gfx11.depthStencilView.Get(), rgb,false,true);
+			float roughness = (float)mip / (float)(maxMipLevels-1);
+			gfx11.cb_ps_pbrBuffer.data.roughness = roughness;
+			gfx11.cb_ps_pbrBuffer.UpdateBuffer();
+
+			gfx11.deviceContext->PSSetShader(gfx11.prefilterPS.GetShader(), nullptr, 0);
+			gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState.Get(), 0);
+			gfx11.deviceContext->IASetInputLayout(gfx11.pbrVS.GetInputLayout());
+			gfx11.deviceContext->VSSetShader(gfx11.pbrVS.GetShader(), nullptr, 0);
+			this->gfx11.deviceContext->RSSetState(this->gfx11.rasterizerState.Get());
+			gfx11.deviceContext->PSSetSamplers(0, 1, gfx11.samplerState_Wrap.GetAddressOf());
+			gfx11.deviceContext->PSSetSamplers(1, 1, gfx11.samplerState_Clamp.GetAddressOf());
+			gfx11.deviceContext->PSSetSamplers(2, 1, gfx11.samplerState_MipMap.GetAddressOf());
+
+			DirectX::XMMATRIX viewMatrix = environmentProbe.viewMatrices[i];
+			DirectX::XMMATRIX projectionMatrix = environmentProbe.projectionMatrices[i];
+
+			debugCube.SetRenderTexture(gfx11.deviceContext.Get(), environmentProbe.environmentCubeMap);
+			gfx11.deviceContext->PSSetShaderResources(0, 1, &environmentProbe.environmentCubeMap.shaderResourceView);
+			debugCube.Draw(gfx11.deviceContext.Get(), viewMatrix, projectionMatrix, gfx11.cb_vs_vertexshader);
+
+		}
 	}
-	_tempTexts.clear();
-	//irradianceCubeMap.CubeMapTexture(gfx11.device.Get(), gfx11.deviceContext.Get(), environmentProbe.cubeTex);
-	environmentProbe.cubeTex.clear();
 }
 
 void Renderer::PbrRender(Camera& camera)
 {
 	BrdfRender(camera, brdfTexture);
 	IrradianceConvolutionRender(camera);
-	//PrifilterRender(camera, prefilterCubeMap);
+	PrifilterRender(camera);
 }
 
-void Renderer::RenderToEnvProbe(RenderTexture& texture, Camera& camera, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights)
+void Renderer::RenderToEnvProbe(EnvironmentProbe& probe, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights)
 {
 	//UpdateBuffers(lights,pointLights, camera);
-
+	environmentProbe.UpdateCamera();
 	//float rgb[4] = { 0.0f,0.0f,0.0f,1.0f };
-	texture.SetRenderTarget(gfx11.deviceContext.Get(), texture.m_depthStencilView);
-	texture.ClearRenderTarget(gfx11.deviceContext.Get(), texture.m_depthStencilView, rgb[0], rgb[1], rgb[2], rgb[3]);
-
+	unsigned int _width = 512;
+	unsigned int _height = 512;
+	unsigned int maxMipLevels = 1;
+	unsigned int mip = 0;
+	environmentProbe.environmentCubeMap.CreateCubeMap(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, maxMipLevels);
+	environmentProbe.environmentCubeMap.CreateCubeMapMipLevels(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, mip);
 	gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState.Get(), 0);
 	gfx11.deviceContext->PSSetSamplers(0, 1, gfx11.samplerState_Wrap.GetAddressOf());
+	gfx11.deviceContext->PSSetSamplers(2, 1, gfx11.samplerState_MipMap.GetAddressOf());
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
-
-
-	std::vector< ID3D11ShaderResourceView*> ShadowTextures;
-	ShadowTextures.resize(lights.size());
-	int index = 0;
-	for (int j = 0; j < ShadowTextures.size(); ++j)
-	{
-
-		ShadowTextures[index] = lights[j].m_shadowMap.shaderResourceView;
-		index++;
-	}
-	gfx11.deviceContext->PSSetShaderResources(6, ShadowTextures.size(), ShadowTextures.data());
 
 	///////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////
@@ -1247,25 +1152,31 @@ void Renderer::RenderToEnvProbe(RenderTexture& texture, Camera& camera, std::vec
 
 	gfx11.deviceContext->PSSetShader(gfx11.envProbePS.GetShader(), nullptr, 0);
 	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
-	for (int i = 0; i < entities.size(); ++i)
+
+	for (int face = 0; face < 6; ++face)
 	{
-		if (entities[i].isEmissive)
+	
+		environmentProbe.environmentCubeMap.RenderCubeMapFaces(gfx11.device.Get(), gfx11.deviceContext.Get(), face, gfx11.depthStencilView.Get(), rgb,true);
+		for (int i = 0; i < entities.size(); ++i)
 		{
-			gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
-			gfx11.cb_ps_lightBuffer.data.color = entities[i].emissiveColor;
-			gfx11.cb_ps_lightBuffer.UpdateBuffer();
+			if (entities[i].physicsComponent.mass == 0.0f)
+			{
+				if (entities[i].isEmissive)
+				{
+					gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
+					gfx11.cb_ps_lightBuffer.data.color = entities[i].emissiveColor;
+					gfx11.cb_ps_lightBuffer.UpdateBuffer();
+				}
+				else
+					gfx11.deviceContext->PSSetShader(gfx11.envProbePS.GetShader(), nullptr, 0);
+
+				gfx11.deviceContext->IASetInputLayout(gfx11.pbrVS.GetInputLayout());
+				gfx11.deviceContext->VSSetShader(gfx11.pbrVS.GetShader(), nullptr, 0);
+				entities[i].Draw(probe.camera[face], probe.camera[face].GetViewMatrix(), probe.camera[face].GetProjectionMatrix());
+			}
+
 		}
-		else
-			gfx11.deviceContext->PSSetShader(gfx11.envProbePS.GetShader(), nullptr, 0);
-
-		gfx11.deviceContext->IASetInputLayout(gfx11.pbrVS.GetInputLayout());
-		gfx11.deviceContext->VSSetShader(gfx11.pbrVS.GetShader(), nullptr, 0);
-		entities[i].Draw(camera, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	}
-
-	///////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////
-
 }
 
 //********************************PBR************************************************
@@ -1324,6 +1235,7 @@ void Renderer::RenderEntitiesPostProcess(std::vector<Entity>& entities,std::vect
 {
 	gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState.Get(), 0);
 	gfx11.deviceContext->PSSetSamplers(0, 1, gfx11.samplerState_Wrap.GetAddressOf());
+	gfx11.deviceContext->PSSetSamplers(2, 1, gfx11.samplerState_MipMap.GetAddressOf());
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
 
@@ -1333,9 +1245,6 @@ void Renderer::RenderEntitiesPostProcess(std::vector<Entity>& entities,std::vect
 	gfx11.deviceContext->VSSetConstantBuffers(0, 1, gfx11.cb_vs_vertexshader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 
-	//gfx11.deviceContext->IASetInputLayout(gfx11.depthVS.GetInputLayout());
-	//gfx11.deviceContext->VSSetShader(gfx11.depthVS.GetShader(), nullptr, 0);
-	//gfx11.deviceContext->PSSetShader(gfx11.depthPS.GetShader(), nullptr, 0);
 	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
 	gfx11.deviceContext->PSSetShader(psShader.GetShader(), NULL, 0);
 	for (int i = 0; i < entities.size(); ++i)
@@ -1381,23 +1290,6 @@ void Renderer::VolumeLightRender(std::vector<Entity>& entities, std::vector<Ligh
 		lights[i].scale = DirectX::XMFLOAT3(0.01, 0.01, 0.01);
 	}
 
-	//gfx11.deviceContext->RSSetViewports(1, &volumeGPassTexture.m_viewport);
-	//volumeGPassTexture.SetRenderTarget(gfx11.deviceContext.Get(), volumeGPassTexture.m_depthStencilView);
-	//volumeGPassTexture.ClearRenderTarget(gfx11.deviceContext.Get(), volumeGPassTexture.m_depthStencilView, 0, 0, 0, 1.0f);
-	//
-	//RenderEntitiesSimple(entities, lights, gfx11.volumeGPassPS, camera);
-	//
-	//gfx11.deviceContext->IASetInputLayout(gfx11.depthVS.GetInputLayout());
-	//gfx11.deviceContext->VSSetShader(gfx11.depthVS.GetShader(), nullptr, 0);
-	//gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
-	//for (int i = 0; i < lights.size(); ++i)
-	//{
-	//	lights[i].scale = DirectX::XMFLOAT3(0.05, 0.05, 0.05);
-	//
-	//	lights[i].Draw(camera);
-	//	lights[i].scale = DirectX::XMFLOAT3(0.01, 0.01, 0.01);
-	//}
-
 	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
 	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
 	gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
@@ -1415,6 +1307,5 @@ void Renderer::VolumeLightRender(std::vector<Entity>& entities, std::vector<Ligh
 	gfx11.deviceContext->PSSetShaderResources(0, 1, &cameraDepthTexture.shaderResourceView);
 	gfx11.deviceContext->PSSetShaderResources(1, 1, &lights[0].m_shadowMap.shaderResourceView);
 	
-	//lights[0].DrawVolume(camera);
 	rect.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
 }

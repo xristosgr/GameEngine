@@ -43,6 +43,7 @@ public:
 
 	DirectX::XMMATRIX parentWorldMatrix;
 
+	std::future<bool> _asyncLoad;
 private:
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext;
@@ -57,7 +58,6 @@ private:
 	bool texturesLoaded;
 	
 
-	std::future<bool> _asyncLoad;
 	std::string _filePath;
 };
 

@@ -40,7 +40,9 @@ bool ModelLoader::Initialize(const std::string filePath, ID3D11Device* device, I
 	if (!_filePath.empty())
 	{
 		if (loadAsync)
+		{
 			_asyncLoad = std::async(std::launch::async, &ModelLoader::LoadModel, this, _filePath);
+		}
 		else
 		{
 			if (!LoadModel(_filePath))
@@ -74,8 +76,6 @@ bool ModelLoader::LoadModel(const std::string filePath)
 	texturesLoaded = true;
 	for (int i = 0; i < animFiles.size(); ++i)
 	{
-		//OutputDebugStringA(animFiles[i].c_str());
-		//OutputDebugStringA("\n");
 		LoadAnimation(animFiles[i]);
 	}
 	bAnimLoaded = true;

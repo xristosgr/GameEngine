@@ -1,9 +1,0 @@
-posX= -9.66999
-posY= 0.61
-posZ= 3.62
-scaleX= 1
-scaleY= 1
-scaleZ= 1
-physicsScaleX= 0.2
-physicsScaleY= 0.95
-physicsScaleZ= 0.2
