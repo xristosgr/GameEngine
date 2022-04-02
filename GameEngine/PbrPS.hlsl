@@ -158,7 +158,7 @@ float4 main(PS_INPUT input) : SV_TARGET
         float3 irradiance = irradianceMap.Sample(objSamplerStateMip, bumpNormal.rgb).rgb;
         float3 diffuse = irradiance * albedo.rgb;
         float3 R = reflect(-V, bumpNormal);
-        //float3 prefilteredColor = prefilterMap.Sample(SampleTypeWrap, R);
+
         const float MAX_REF_LOD = 5.0f;
         float3 prefilteredColor = prefilterMap.SampleLevel(objSamplerStateMip, R, roughness * MAX_REF_LOD).rgb;
         float2 brdf = brdfTexture.Sample(SampleTypeWrap, float2(max(dot(bumpNormal, V), 0.0), roughness)).rg;
@@ -214,7 +214,7 @@ float Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist)
             lightDepthValue = lightDepthValue - bias;
         
         
-            int PCF_RANGE = 2;
+            int PCF_RANGE = 3;
 
             [unroll(PCF_RANGE*2+1)]
             for (int x = -PCF_RANGE; x <= PCF_RANGE; x++)

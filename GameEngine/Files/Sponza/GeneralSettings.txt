@@ -1,0 +1,4 @@
+Count= 6
+lightsCount= 2
+pointLightsCount= 1
+CollisionCount= 0

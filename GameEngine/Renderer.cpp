@@ -124,8 +124,6 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 			{
 				entities[i].model.loadAsync = true;
 			}
-
-
 			entities[i].Intitialize(entities[i].filePath, gfx11.device.Get(), gfx11.deviceContext.Get(), gfx11.cb_vs_vertexshader, entities[i].isAnimated);
 		}
 		if (!entities[i].isDeleted)
@@ -159,7 +157,7 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	environmentProbe.UpdateCamera();
 
 	//PBR
-	brdfTexture.Initialize(gfx11.device.Get(), 512, 512);
+	brdfTexture.Initialize(gfx11.device.Get(), 2048, 2048);
 
 
 	//Bloom
@@ -1011,6 +1009,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 //***********************************************************************************
 void Renderer::BrdfRender(Camera& camera, RenderTexture& texture)
 {
+	gfx11.deviceContext->RSSetViewports(1, &texture.m_viewport);
 	texture.SetRenderTarget(gfx11.deviceContext.Get(), texture.m_depthStencilView);
 	texture.ClearRenderTarget(gfx11.deviceContext.Get(), texture.m_depthStencilView, 0, 0, 0, 1);
 
@@ -1037,12 +1036,14 @@ void Renderer::IrradianceConvolutionRender(Camera& camera)
 	unsigned int mip = 0;
 	irradianceCubeMap.CreateCubeMap(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, maxMipLevels);
 	irradianceCubeMap.CreateCubeMapMipLevels(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, mip);
+	gfx11.deviceContext->RSSetViewports(1, &irradianceCubeMap.m_viewport);
 
 	gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState.Get(), 0);
 	gfx11.deviceContext->PSSetSamplers(0, 1, gfx11.samplerState_Wrap.GetAddressOf());
 	gfx11.deviceContext->PSSetSamplers(2, 1, gfx11.samplerState_MipMap.GetAddressOf());
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
+
 
 
 	for (int i = 0; i < 6; ++i)
@@ -1084,8 +1085,8 @@ void Renderer::PrifilterRender(Camera& camera)
 
 	unsigned int maxMipLevels = 5;
 
-	unsigned int _width = 256;
-	unsigned int _height = 256;
+	unsigned int _width = 128;
+	unsigned int _height = 128;
 	prefilterCubeMap.CreateCubeMap(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, maxMipLevels);
 
 	for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
@@ -1094,6 +1095,8 @@ void Renderer::PrifilterRender(Camera& camera)
 		unsigned int mipHeight = static_cast<unsigned int>(_height * std::pow(0.5, mip));
 
 		prefilterCubeMap.CreateCubeMapMipLevels(gfx11.device.Get(), gfx11.deviceContext.Get(), mipWidth, mipHeight, mip);
+		gfx11.deviceContext->RSSetViewports(1, &prefilterCubeMap.m_viewport);
+
 		for (int i = 0; i < 6; ++i)
 		{
 			prefilterCubeMap.RenderCubeMapFaces(gfx11.device.Get(), gfx11.deviceContext.Get(), i, gfx11.depthStencilView.Get(), rgb,false,true);
@@ -1133,12 +1136,14 @@ void Renderer::RenderToEnvProbe(EnvironmentProbe& probe, std::vector<Entity>& en
 	//UpdateBuffers(lights,pointLights, camera);
 	environmentProbe.UpdateCamera();
 	//float rgb[4] = { 0.0f,0.0f,0.0f,1.0f };
-	unsigned int _width = 512;
-	unsigned int _height = 512;
+	unsigned int _width = 256;
+	unsigned int _height = 256;
 	unsigned int maxMipLevels = 1;
 	unsigned int mip = 0;
 	environmentProbe.environmentCubeMap.CreateCubeMap(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, maxMipLevels);
 	environmentProbe.environmentCubeMap.CreateCubeMapMipLevels(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, mip);
+	gfx11.deviceContext->RSSetViewports(1, &environmentProbe.environmentCubeMap.m_viewport);
+
 	gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState.Get(), 0);
 	gfx11.deviceContext->PSSetSamplers(0, 1, gfx11.samplerState_Wrap.GetAddressOf());
 	gfx11.deviceContext->PSSetSamplers(2, 1, gfx11.samplerState_MipMap.GetAddressOf());
