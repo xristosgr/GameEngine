@@ -282,6 +282,12 @@
     <ClCompile Include="SoundComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PostProcessClass.cpp">
+      <Filter>GFX\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PbrClass.cpp">
+      <Filter>GFX\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WindowContainer.h">
@@ -493,6 +499,12 @@
     </ClInclude>
     <ClInclude Include="SoundComponent.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PostProcessClass.h">
+      <Filter>GFX\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PbrClass.h">
+      <Filter>GFX\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

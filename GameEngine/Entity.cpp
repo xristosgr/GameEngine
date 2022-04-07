@@ -126,12 +126,56 @@ void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const Dir
 		else if (physicsComponent.aStaticActor)
 			physicsComponent.trans = physicsComponent.aStaticActor->getGlobalPose();
 
-		matrix_scale = DirectX::XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z);
-		matrix_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
-		matrix_rotate *= DirectX::XMMatrixRotationAxis(DirectX::XMVECTOR{ physicsComponent.trans.q.x,physicsComponent.trans.q.y, physicsComponent.trans.q.z }, physicsComponent.trans.q.getAngle());
+		if (!model.isAttached)
+		{
+			matrix_scale = DirectX::XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z);
+			matrix_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
+			matrix_rotate *= DirectX::XMMatrixRotationAxis(DirectX::XMVECTOR{ physicsComponent.trans.q.x,physicsComponent.trans.q.y, physicsComponent.trans.q.z }, physicsComponent.trans.q.getAngle());
 
-		matrix_translate = DirectX::XMMatrixTranslation(physicsComponent.trans.p.x + modelPos.x, physicsComponent.trans.p.y + modelPos.y, physicsComponent.trans.p.z + modelPos.z);
-		worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
+			matrix_translate = DirectX::XMMatrixTranslation(physicsComponent.trans.p.x + modelPos.x, physicsComponent.trans.p.y + modelPos.y, physicsComponent.trans.p.z + modelPos.z);
+			worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
+		}
+		else
+		{
+			if (parent)
+			{
+
+				DirectX::XMFLOAT3 floatPos;
+				DirectX::XMFLOAT4 floatRot;
+				DirectX::XMStoreFloat3(&floatPos, _pos);
+				DirectX::XMStoreFloat4(&floatRot, _rot);
+
+
+				physicsComponent.trans.p = physx::PxVec3(floatPos.x, floatPos.y, floatPos.z);
+				physicsComponent.trans.q = physx::PxQuat(floatRot.w, physx::PxVec3(floatRot.x, floatRot.y, floatRot.z));
+
+				if (physicsComponent.aActor)
+				{
+					physicsComponent.aActor->setGlobalPose(physicsComponent.trans);
+					//physicsComponent.aActor->setActorFlag(physx::PxActorFlag::eDISABLE_SIMULATION, true)
+					physicsComponent.aActor->getShapes(&physicsComponent.aShape, physicsComponent.aActor->getNbShapes());
+					physicsComponent.aShape->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, false);
+					physicsComponent.aShape->setFlag(physx::PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+				}
+				else if (physicsComponent.aStaticActor)
+				{
+					physicsComponent.aStaticActor->setGlobalPose(physicsComponent.trans);
+					//physicsComponent.aStaticActor->setActorFlag(physx::PxActorFlag::eDISABLE_SIMULATION, true);
+					physicsComponent.aStaticActor->getShapes(&physicsComponent.aShape, physicsComponent.aStaticActor->getNbShapes());
+					physicsComponent.aShape->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, false);
+					physicsComponent.aShape->setFlag(physx::PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+				}
+		
+
+				matrix_scale = DirectX::XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z);
+				matrix_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
+				matrix_rotate *= DirectX::XMMatrixRotationAxis(DirectX::XMVECTOR{ physicsComponent.trans.q.x,physicsComponent.trans.q.y, physicsComponent.trans.q.z }, physicsComponent.trans.q.getAngle());
+
+				matrix_translate = DirectX::XMMatrixTranslation(physicsComponent.trans.p.x + modelPos.x, physicsComponent.trans.p.y + modelPos.y, physicsComponent.trans.p.z + modelPos.z);
+				worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
+			}
+
+		}
 	}
 	else
 	{
@@ -308,15 +352,10 @@ void Entity::SetupAttachment(Entity* entity)
 	else
 		return;
 
-	//OutputDebugStringA(entityName.c_str());
-	//OutputDebugStringA("\n");
 	if (model.isAttached && parent)
 	{
-		//parent->model.attachedBone = attachedBone;
 		DirectX::XMMATRIX boneTrans;
 		parent->model.AttachTo(attachedBone, boneTrans);
-		//OutputDebugStringA(parent->model.attachedBone.c_str());
-		//OutputDebugStringA("\n");
 		boneTrans = boneTrans * parent->worldMatrix;
 	
 	

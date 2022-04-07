@@ -194,11 +194,13 @@
     <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="NavMeshClass.cpp" />
     <ClCompile Include="NodeClass.cpp" />
+    <ClCompile Include="PbrClass.cpp" />
     <ClCompile Include="PhysicsCharacterController.cpp" />
     <ClCompile Include="PhysicsComponent.cpp" />
     <ClCompile Include="PhysicsDebugDraw.cpp" />
     <ClCompile Include="PhysicsHandler.cpp" />
     <ClCompile Include="PixelShader.cpp" />
+    <ClCompile Include="PostProcessClass.cpp" />
     <ClCompile Include="RectShape.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
@@ -264,11 +266,13 @@
     <ClInclude Include="MouseEvent.h" />
     <ClInclude Include="NavMeshClass.h" />
     <ClInclude Include="NodeClass.h" />
+    <ClInclude Include="PbrClass.h" />
     <ClInclude Include="PhysicsCharacterController.h" />
     <ClInclude Include="PhysicsComponent.h" />
     <ClInclude Include="PhysicsDebugDraw.h" />
     <ClInclude Include="PhysicsHandler.h" />
     <ClInclude Include="PixelShader.h" />
+    <ClInclude Include="PostProcessClass.h" />
     <ClInclude Include="PxDefaultAllocator.h" />
     <ClInclude Include="PxDefaultErrorCallback.h" />
     <ClInclude Include="Renderer.h" />

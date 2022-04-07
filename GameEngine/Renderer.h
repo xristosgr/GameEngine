@@ -13,6 +13,8 @@
 #include <thread>
 #include "AppTimer.h"
 #include "SoundComponent.h"
+#include "PostProcessClass.h"
+#include "PbrClass.h"
 
 class Renderer
 {
@@ -27,20 +29,19 @@ private:
 	void RenderEntitiesAndLights(std::vector<Entity>& entity, std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera);
 	void RenderSceneToTexture(RenderTexture& texture, Camera& camera, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, std::vector<CollisionObject>& collisionObjects);
 	void UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera);
-	void BrdfRender(Camera& camera, RenderTexture& texture);
-	void IrradianceConvolutionRender(Camera& camera);
-	void PrifilterRender(Camera& camera);
-	void PbrRender(Camera& camera);
+	//void BrdfRender(Camera& camera, RenderTexture& texture);
+	//void IrradianceConvolutionRender(Camera& camera);
+	//void PrifilterRender(Camera& camera);
+	//void PbrRender(Camera& camera);
 	void RenderToEnvProbe(EnvironmentProbe& probe, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights);
-	void BloomRender(Camera& camera);
 
-	void RenderEntitiesPostProcess(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, PixelShader& psShader, Camera& camera);
-	void VolumeLightRender(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera);
 private:
 	float rgb[4];
 
+	PbrClass pbr;
+	PostProcessClass postProcess;
 	InstancedShape object;
-	RectShape rect,rectSmall,rectBloom;
+	RectShape rect,rectSmall;
 	CubeShape debugCube;
 
 	Shadows shadowsRenderer;
@@ -51,8 +52,7 @@ private:
 
 
 	PhysicsDebugDraw physicsDebugDraw;
-	//TEST
-	//CubeShape cube;
+
 	int vSync;
 private:
 	imgui_addons::ImGuiFileBrowser file_dialog;
@@ -61,9 +61,11 @@ private:
 	bool isFileOpen;
 
 public:
+	DX11 gfx11;
+
 	bool bAddEntity;
 	bool isAnimated;
-	DX11 gfx11;
+	
 	std::string inName;
 	bool runPhysics;
 	bool bAddLight;
@@ -101,25 +103,18 @@ private:
 
 	RenderTexture cubeTexture;
 
-
-	//float rgb[4];
 	//PBR
-	RenderTexture brdfTexture, prefilterCubeMap, irradianceCubeMap;
+	//RenderTexture brdfTexture, prefilterCubeMap, irradianceCubeMap;
 	DirectX::XMMATRIX ViewMatrix2D;
 
 	Texture brdfText;
-
-	//Bloom
-	RenderTexture bloomRenderTexture;
-	RenderTexture BloomVerticalBlurTexture, BloomHorizontalBlurTexture, downSampleTexture;
 
 	float bloomBrightness = 0.65f;
 	float bloomStrengh = 4.0f;
 	float gamma;
 	bool bRenderCollision;
 
-	//Volumetric light
-	RenderTexture volumetricLightTexture, cameraDepthTexture;
+	RenderTexture cameraDepthTexture;
 
 	AppTimer timer;
 
