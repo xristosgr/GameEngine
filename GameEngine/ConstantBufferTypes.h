@@ -2,8 +2,8 @@
 
 #include <DirectXMath.h>
 
-#define NO_LIGHTS 4
-#define NO_POINT_LIGHTS 10
+#define NO_LIGHTS 20
+#define NO_POINT_LIGHTS 2000
 
 struct CB_VS_vertexshader
 {
@@ -34,7 +34,7 @@ struct CB_PS_lightsShader
 	DirectX::XMFLOAT4 SpotlightDir[NO_LIGHTS];
 	DirectX::XMFLOAT4 cameraPos;
 	DirectX::XMFLOAT4 lightType[NO_LIGHTS];
-	DirectX::XMFLOAT2 acceptedDistShadowAndLight;
+	//DirectX::XMFLOAT4 acceptedDistShadowAndLight;
 	unsigned int lightsSize;
 };
 
@@ -45,12 +45,12 @@ struct CB_PS_pointLightsShader
 	unsigned int pointLightsSize;
 };
 
-struct CB_PS_PCFshader
-{
-	int pcfLevel;
-	double bias;
-	bool enableShadows;
-};
+//struct CB_PS_PCFshader
+//{
+//	int pcfLevel;
+//	double bias;
+//	bool enableShadows;
+//};
 
 struct CB_PS_lightCull
 {
@@ -74,8 +74,8 @@ struct CB_PS_pbrBuffer
 	float roughness;
 };
 
-struct CB_PS_lightBuffer
+struct CB_PS_materialBuffer
 {
-	DirectX::XMMATRIX viewProjMatrix;
-	DirectX::XMFLOAT3 color;
+	DirectX::XMFLOAT3 emissiveColor;
+	float bEmissive;
 };

@@ -234,10 +234,12 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		hr = this->device->CreateSamplerState(&sampDesc, this->samplerState_Wrap.GetAddressOf()); //Create sampler state wrap
 		COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
 		sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
-		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
-		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
-
+		//sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
+		//sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
+		//sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 		hr = this->device->CreateSamplerState(&sampDesc, this->samplerState_Clamp.GetAddressOf()); //Create sampler state clamp
 		COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
 
@@ -270,7 +272,7 @@ bool DX11::InitializeShaders()
 	initVSShader(&testVS, device, L"TestVertex.cso", layout, &numElements);
 
 
-	D3D11_INPUT_ELEMENT_DESC pbrLayout[] =
+	D3D11_INPUT_ELEMENT_DESC deferredLayout[] =
 	{
 		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
 		{"TEXCOORD", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
@@ -278,9 +280,18 @@ bool DX11::InitializeShaders()
 		{"TANGENT", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
 		{"BINORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
 	};
+	numElements = ARRAYSIZE(deferredLayout);
+
+	initVSShader(&volumetricLightVS, device, L"VolumetricLightVS.cso", deferredLayout, &numElements);
+	initVSShader(&deferredVS, device, L"DeferredVS.cso", deferredLayout, &numElements);
+
+	D3D11_INPUT_ELEMENT_DESC pbrLayout[] =
+	{
+		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
+		{"TEXCOORD", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
+	};
 	numElements = ARRAYSIZE(pbrLayout);
 	initVSShader(&pbrVS, device, L"PbrVS.cso", pbrLayout, &numElements);
-	initVSShader(&volumetricLightVS, device, L"VolumetricLightVS.cso", pbrLayout, &numElements);
 
 	D3D11_INPUT_ELEMENT_DESC animlayout[] =
 	{
@@ -295,6 +306,7 @@ bool DX11::InitializeShaders()
 	numElements = ARRAYSIZE(animlayout);
 	initVSShader(&animVS, device, L"AnimVS.cso", animlayout, &numElements);
 	initVSShader(&depthAnimVS, device, L"DepthAnimVS.cso", animlayout, &numElements);
+	initVSShader(&animDeferredVS, device, L"AnimDeferredVS.cso", animlayout, &numElements);
 
 	D3D11_INPUT_ELEMENT_DESC depthLayout[] =
 	{
@@ -305,6 +317,18 @@ bool DX11::InitializeShaders()
 	initVSShader(&depthVS, device, L"DepthVS.cso", depthLayout, &numElements);
 	initVSShader(&horizontalBlurVS, device, L"HorizontalBlurVS.cso", depthLayout, &numElements);
 	initVSShader(&verticalBlurVS, device, L"VerticalBlurVS.cso", depthLayout, &numElements);
+	initVSShader(&shadowHorizontalBlurVS, device, L"ShadowHorizontalVS.cso", depthLayout, &numElements);
+	initVSShader(&shadowVerticalBlurVS, device, L"ShadowVerticalVS.cso", depthLayout, &numElements);
+
+	D3D11_INPUT_ELEMENT_DESC shadowLayout[] =
+	{
+		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
+		{"TEXCOORD", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  },
+		{"NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0  }
+	};
+	numElements = ARRAYSIZE(shadowLayout);
+
+	initVSShader(&shadowVS, device, L"ShadowVS.cso", shadowLayout, &numElements);
 
 	initPSShader(&depthPS, device, L"DepthPS.cso");
 	initPSShader(&testPS, device, L"TestPixel.cso");
@@ -323,6 +347,11 @@ bool DX11::InitializeShaders()
 	initPSShader(&volumetricLightPS, device, L"VolumetricLightPS.cso");
 	initPSShader(&postProccessPS, device, L"PostProccessPS.cso");
 	initPSShader(&volumeGPassPS, device, L"VolumeGPassPS.cso");
+	initPSShader(&deferredPS, device, L"DeferredPS.cso");
+	initPSShader(&shadowPS, device, L"ShadowPS.cso");
+	initPSShader(&shadowHorizontalBlurPS, device, L"ShadowHorizontalPS.cso");
+	initPSShader(&shadowVerticalBlurPS, device, L"ShadowVerticalPS.cso");
+
 	return true;
 }
 

@@ -1,6 +1,5 @@
 cbuffer lightBuffer : register(b5)
 {
-    float4x4 viewMatrix;
     float3 color;
 }
 

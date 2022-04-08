@@ -64,7 +64,6 @@ public:
 	bool isfrustumEnabled = true;
 	bool isPlayer = false;
 	bool isAI = false;
-
 	float offsetY = 1.2f;
 	float dirY = 0.0f;
 	float maxDist = 0.0f;

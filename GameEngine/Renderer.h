@@ -15,6 +15,8 @@
 #include "SoundComponent.h"
 #include "PostProcessClass.h"
 #include "PbrClass.h"
+#include "GBufferClass.h"
+#include "Sky.h"
 
 class Renderer
 {
@@ -26,18 +28,22 @@ public:
 
 private:
 
-	void RenderEntitiesAndLights(std::vector<Entity>& entity, std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera);
+	void RenderEntitiesAndLights(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera);
+	void RenderDeferred(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera);
 	void RenderSceneToTexture(RenderTexture& texture, Camera& camera, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, std::vector<CollisionObject>& collisionObjects);
 	void UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera);
 	//void BrdfRender(Camera& camera, RenderTexture& texture);
 	//void IrradianceConvolutionRender(Camera& camera);
 	//void PrifilterRender(Camera& camera);
 	//void PbrRender(Camera& camera);
-	void RenderToEnvProbe(EnvironmentProbe& probe, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights);
+	void RenderToEnvProbe(EnvironmentProbe& probe, Camera& camera, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights);
 
 private:
 	float rgb[4];
 
+	Sky sky;
+
+	GBufferClass gBuffer;
 	PbrClass pbr;
 	PostProcessClass postProcess;
 	InstancedShape object;

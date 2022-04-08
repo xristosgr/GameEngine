@@ -886,8 +886,23 @@ bool RenderTexture::CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* de
 	return true;
 }
 
-void RenderTexture::SetRenderTargets(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView)
+
+
+void RenderTexture::SetRenderTargets(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView, int count)
 {
 	// Bind the render target view and depth stencil buffer to the output render pipeline.
-	deviceContext->OMSetRenderTargets(6, m_renderTargetViews, depthStencilView);
+	deviceContext->OMSetRenderTargets(count, m_renderTargetViews, depthStencilView);
+}
+
+void RenderTexture::ClearRenderTargets(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView, int count, float* rgb)
+{
+	for (int i = 0; i < count; ++i)
+	{
+		// Clear the back buffer.
+		deviceContext->ClearRenderTargetView(m_renderTargetViews[i], rgb);
+
+		// Clear the depth buffer.
+		deviceContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	}
+
 }

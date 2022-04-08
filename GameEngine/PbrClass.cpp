@@ -56,8 +56,8 @@ void PbrClass::IrradianceConvolutionRender(DX11& gfx11, CubeShape debugCube, Env
 
 		gfx11.deviceContext->PSSetShader(gfx11.irradianceConvPS.GetShader(), nullptr, 0);
 		gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState.Get(), 0);
-		gfx11.deviceContext->IASetInputLayout(gfx11.pbrVS.GetInputLayout());
-		gfx11.deviceContext->VSSetShader(gfx11.pbrVS.GetShader(), nullptr, 0);
+		gfx11.deviceContext->IASetInputLayout(gfx11.deferredVS.GetInputLayout());
+		gfx11.deviceContext->VSSetShader(gfx11.deferredVS.GetShader(), nullptr, 0);
 		gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 		gfx11.deviceContext->PSSetSamplers(0, 1, gfx11.samplerState_Wrap.GetAddressOf());
 		gfx11.deviceContext->PSSetSamplers(1, 1, gfx11.samplerState_Clamp.GetAddressOf());
@@ -106,8 +106,8 @@ void PbrClass::PrifilterRender(DX11& gfx11, CubeShape debugCube, EnvironmentProb
 
 			gfx11.deviceContext->PSSetShader(gfx11.prefilterPS.GetShader(), nullptr, 0);
 			gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState.Get(), 0);
-			gfx11.deviceContext->IASetInputLayout(gfx11.pbrVS.GetInputLayout());
-			gfx11.deviceContext->VSSetShader(gfx11.pbrVS.GetShader(), nullptr, 0);
+			gfx11.deviceContext->IASetInputLayout(gfx11.deferredVS.GetInputLayout());
+			gfx11.deviceContext->VSSetShader(gfx11.deferredVS.GetShader(), nullptr, 0);
 			gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 			gfx11.deviceContext->PSSetSamplers(0, 1, gfx11.samplerState_Wrap.GetAddressOf());
 			gfx11.deviceContext->PSSetSamplers(1, 1, gfx11.samplerState_Clamp.GetAddressOf());

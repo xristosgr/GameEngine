@@ -1,4 +1,4 @@
-#define NO_LIGHTS 25
+#define NO_LIGHTS 20
 
 cbuffer lightBuffer : register(b0)
 {
@@ -122,7 +122,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     color = color / (color + float3(1.0, 1.0f, 1.0f));
     color = pow(color, float3(1.0f / 1.0f, 1.0f / 1.0f, 1.0f / 1.0f));
 
-    return float4(color, 0.4);
+    return float4(color, 1.0);
 }
 
 float Shadows(float4 lightViewPosition, Texture2D depthMapTexture)

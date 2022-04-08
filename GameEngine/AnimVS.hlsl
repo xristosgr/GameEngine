@@ -1,6 +1,6 @@
 //#pragma pack_matrix(row_major)
 
-#define NO_LIGHTS 4
+#define NO_LIGHTS 20
 
 cbuffer constantBuffer : register(b0)
 {
@@ -90,7 +90,7 @@ VS_OUTPUT main(VS_INPUT input)
     {
         if (i > lightsSize - 1)
             break;
-        output.lightViewPosition[i] = mul(float4(posL, 1.0f), worldMatrix);
+        output.lightViewPosition[i] = mul(float4(input.inPos, 1.0f), worldMatrix);
         output.lightViewPosition[i] = mul(output.lightViewPosition[i], transpose(lightViewMatrix[i]));
         output.lightViewPosition[i] = mul(output.lightViewPosition[i], transpose(lightProjectionMatrix[i]));
     }

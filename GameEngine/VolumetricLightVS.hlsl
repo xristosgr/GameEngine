@@ -1,5 +1,4 @@
-#define NO_LIGHTS 2
-
+#define NO_LIGHTS 4
 cbuffer constantBuffer : register(b0)
 {
     float4x4 worldMatrix;

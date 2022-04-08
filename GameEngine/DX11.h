@@ -64,6 +64,11 @@ public:
 	VertexShader depthVS;
 	VertexShader horizontalBlurVS;
 	VertexShader verticalBlurVS;
+	VertexShader deferredVS;
+	VertexShader animDeferredVS;
+	VertexShader shadowVS;
+	VertexShader shadowHorizontalBlurVS;
+	VertexShader shadowVerticalBlurVS;
 
 	PixelShader testPS;
 	PixelShader colorPS;
@@ -82,6 +87,10 @@ public:
 	PixelShader volumetricLightPS;
 	PixelShader postProccessPS;
 	PixelShader volumeGPassPS;
+	PixelShader deferredPS;
+	PixelShader shadowPS;
+	PixelShader shadowHorizontalBlurPS;
+	PixelShader shadowVerticalBlurPS;
 
 	VertexBuffer<Vertex> vertexBuffer;
 
@@ -93,12 +102,12 @@ public:
 
 	ConstantBuffer<CB_PS_lightsShader> cb_ps_lightsShader;
 	ConstantBuffer<CB_PS_pointLightsShader> cb_ps_pointLightsShader;
-	ConstantBuffer<CB_PS_PCFshader> cb_ps_PCFshader;
+	//ConstantBuffer<CB_PS_PCFshader> cb_ps_PCFshader;
 	ConstantBuffer<CB_PS_lightCull> cb_ps_lightCull;
 	ConstantBuffer<CB_PS_pointLightCull> cb_ps_pointLightCull;
 	ConstantBuffer<CB_PS_screenEffectBuffer> cb_ps_screenEffectBuffer;
 	ConstantBuffer<CB_PS_pbrBuffer> cb_ps_pbrBuffer;
-	ConstantBuffer<CB_PS_lightBuffer> cb_ps_lightBuffer;
+	ConstantBuffer<CB_PS_materialBuffer> cb_ps_materialBuffer;
 
 	RenderTexture renderTexture;
 	//RenderTexture shadowTexture;
