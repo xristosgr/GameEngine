@@ -538,9 +538,6 @@
     <FxCompile Include="PbrVS.hlsl">
       <Filter>Shaders\Vertex</Filter>
     </FxCompile>
-    <FxCompile Include="PbrPS.hlsl">
-      <Filter>Shaders\Pixel</Filter>
-    </FxCompile>
     <FxCompile Include="DepthAnimVS.hlsl">
       <Filter>Shaders\Vertex</Filter>
     </FxCompile>
@@ -624,6 +621,9 @@
     </FxCompile>
     <FxCompile Include="ShadowVerticalVS.hlsl">
       <Filter>Shaders\Vertex</Filter>
+    </FxCompile>
+    <FxCompile Include="PbrPS.hlsl">
+      <Filter>Shaders\Pixel</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -49,7 +49,7 @@ Renderer::Renderer()
 	renderDistance = 6000.0f;
 	renderShadowDistance = 2700.0f;
 	shadowDist = 5.5f;
-	acceptedDist = 100.0f;
+	acceptedDist = 1000.0f;
 }
 
 bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights)
@@ -187,6 +187,7 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	//	//pointLights[i].pos.x = x;
 	//	//pointLights[i].pos.z = z;
 	//}
+
 }
 
 //****************RENDER ENTITIES***************************************
@@ -665,7 +666,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	
 	}
 
-
 	////////////
 	environmentProbe.UpdateCamera();
 
@@ -675,6 +675,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	{
 		if (environmentProbe.recalculate)
 		{
+
 			gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
 			gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
 			gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
@@ -790,8 +791,8 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		rectSmall.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
 
 		//debugCube.SetRenderTexture(gfx11.deviceContext.Get(), environmentProbe.environmentCubeMap);
-		//debugCube.SetRenderTexture(gfx11.deviceContext.Get(), irradianceCubeMap);
-		debugCube.SetRenderTexture(gfx11.deviceContext.Get(), pbr.prefilterCubeMap);
+		debugCube.SetRenderTexture(gfx11.deviceContext.Get(), pbr.irradianceCubeMap);
+		//debugCube.SetRenderTexture(gfx11.deviceContext.Get(), pbr.prefilterCubeMap);
 		gfx11.deviceContext->PSSetShader(gfx11.cubeMapPS.GetShader(), nullptr, 0);
 		gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState.Get(), 0);
 		gfx11.deviceContext->IASetInputLayout(gfx11.deferredVS.GetInputLayout());
@@ -963,6 +964,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 
 		if (ImGui::CollapsingHeader("Options"))
 		{
+			ImGui::InputFloat3("Camera", &camera.pos.x);
 			ImGui::Checkbox("runPhysics", &runPhysics);
 			ImGui::Checkbox("Possess", &camera.PossessCharacter);
 			ImGui::Checkbox("bEnableShadows", &bEnableShadows);

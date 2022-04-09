@@ -73,8 +73,8 @@ float3 fresnelSchlickRoughness(float cosTheta, float3 F0, float roughness);
 float DistributionGGX(float3 N, float3 H, float roughness);
 float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(float3 N, float3 V, float3 L, float roughness);
-float3 pointLight(PS_INPUT input, float3 albedo, float3 pos,float3 color, float4 _cutOff, float3 bumpNormal, float roughness, float metallic, float3 V, float3 F0,float3 worldPos);
-float3 spotLight(PS_INPUT input, float3 albedo, float3 bumpNormal, float roughness, float metallic, float3 V, float3 F0,float3 worldPos, int index);
+float3 pointLight(PS_INPUT input, float3 albedo, float3 pos, float3 color, float4 _cutOff, float3 bumpNormal, float roughness, float metallic, float3 V, float3 F0, float3 worldPos);
+float3 spotLight(PS_INPUT input, float3 albedo, float3 bumpNormal, float roughness, float metallic, float3 V, float3 F0, float3 worldPos, int index);
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
@@ -107,17 +107,17 @@ float4 main(PS_INPUT input) : SV_TARGET
             if (i > lightsSize - 1)
                 break;
             
-             float distance = length(dynamicLightPosition[i].xyz - worldPos);
-             if (distance < RadiusAndcutOff[i].x)
-             {
-                 if (lightType[i].x == 0.0)
-                     Lo += pointLight(input, albedo.rgb, dynamicLightPosition[i].xyz, dynamicLightColor[i].rgb, RadiusAndcutOff[i].y, bumpNormal, roughness, metallic, V, F0, worldPos);
-                 else if (lightType[i].x == 1.0)
-                 {
-                     Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i);
-                 }
+            float distance = length(dynamicLightPosition[i].xyz - worldPos);
+            if (distance < RadiusAndcutOff[i].x)
+            {
+                if (lightType[i].x == 0.0)
+                    Lo += pointLight(input, albedo.rgb, dynamicLightPosition[i].xyz, dynamicLightColor[i].rgb, RadiusAndcutOff[i].y, bumpNormal, roughness, metallic, V, F0, worldPos);
+                else if (lightType[i].x == 1.0)
+                {
+                    Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i);
+                }
 
-             }
+            }
         
     
         }
@@ -247,7 +247,7 @@ float3 pointLight(PS_INPUT input, float3 albedo, float3 pos, float3 color, float
     return (kD * albedo / PI + specular) * radiance * NdotL;
 }
 
-float3 spotLight(PS_INPUT input, float3 albedo, float3 bumpNormal, float roughness, float metallic, float3 V, float3 F0,float3 worldPos, int index)
+float3 spotLight(PS_INPUT input, float3 albedo, float3 bumpNormal, float roughness, float metallic, float3 V, float3 F0, float3 worldPos, int index)
 {
     float3 L = normalize(dynamicLightPosition[index].xyz - worldPos.xyz).xyz;
     float theta = dot(L, normalize(-SpotlightDir[index].xyz));

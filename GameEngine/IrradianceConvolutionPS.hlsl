@@ -40,14 +40,12 @@ float4 main(PS_INPUT input) : SV_TARGET
         // tangent space to world
             float3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * normal;
 
-            irradiance += environmentMap.Sample(objSamplerStateMip, sampleVec).rgb * cos(theta) * sin(theta);
+            irradiance += environmentMap.Sample(objSamplerState, sampleVec).rgb * cos(theta) * sin(theta);
             nrSamples++;
         }
   
     }
     irradiance = PI * irradiance * (1.0 / float(nrSamples));
     
-   // irradiance = irradiance / (irradiance + float3(1.0, 1.0f, 1.0f));
-   // irradiance = pow(irradiance, float3(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));
     return float4(irradiance, 1.0f);
 }

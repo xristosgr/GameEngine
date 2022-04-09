@@ -63,18 +63,18 @@ float4 main(PS_INPUT input) : SV_TARGET
             break;
         
         float distance = length(dynamicLightPosition[i].xyz - input.inWorldPos);
-        if (distance < RadiusAndcutOff[i].x)
-        {
+        //if (distance < RadiusAndcutOff[i].x)
+        //{
             float3 shadows = Shadows(input.lightViewPosition[i], depthMapTextures[i], input.distToCamera, input,i);
             float3 light = float3(albedo.r * 0.5f, albedo.g * 0.5f, albedo.b * 0.5f);
  
             color += shadows;
-        }
-        else
-        {
-            color += float3(1, 1, 1);
-
-        }
+        //}
+        //else
+        //{
+        //    color += float3(1, 1, 1);
+        //
+        //}
         
     }    
     return float4(color, 1.0);

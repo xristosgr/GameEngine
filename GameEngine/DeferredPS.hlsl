@@ -36,15 +36,17 @@ PS_OUTPUT main(PS_INPUT input) : SV_TARGET
 {
     PS_OUTPUT output;
     
+   
+        
+    
     if (bEmissive == 0.0f)
     {
         output.albedo = albedoTexture.Sample(SampleTypeWrap, input.inTexCoord);
-        
-        //if (output.albedo.a < 0.95)
-        //{
-        //    discard;
-        //}
-        
+        if (output.albedo.a < 0.95)
+        {
+            discard;
+        }
+       
         output.normal = normalTexture.Sample(SampleTypeWrap, input.inTexCoord);
 
         output.normal = (output.normal * 2.0f) - 1.0f;

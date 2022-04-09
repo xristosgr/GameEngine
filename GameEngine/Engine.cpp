@@ -302,7 +302,7 @@ void Engine::RenderFrame(float& dt,float& fps)
 	GameThread(dt);
 	renderer.Render(camera, entities, physicsHandler, lights, pointlights, collisionObjects, grid, navMeshes, sounds);
 
-
+	
 	if (physicsHandler.advance(dt, fps, camera))
 	{
 		//PlayerLogic(dt);
