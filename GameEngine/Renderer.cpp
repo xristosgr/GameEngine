@@ -180,13 +180,13 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	shadowsRenderer.Initialize(gfx11);
 
 
-	for (int i = 0; i < pointLights.size(); ++i)
-	{
-		float x = randomFloatRange(-20.0f, 35.0f);
-		float z = randomFloatRange(-20.0f, 35.0f);
-		pointLights[i].pos.x = x;
-		pointLights[i].pos.z = z;
-	}
+	//for (int i = 0; i < pointLights.size(); ++i)
+	//{
+	//	//float x = randomFloatRange(-20.0f, 35.0f);
+	//	//float z = randomFloatRange(-20.0f, 35.0f);
+	//	//pointLights[i].pos.x = x;
+	//	//pointLights[i].pos.z = z;
+	//}
 }
 
 //****************RENDER ENTITIES***************************************

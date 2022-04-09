@@ -79,103 +79,94 @@ float3 spotLight(PS_INPUT input, float3 albedo, float3 bumpNormal, float roughne
 float4 main(PS_INPUT input) : SV_TARGET
 {
     float4 albedo = float4(pow(objTexture.Sample(SampleTypeWrap, input.inTexCoord), gamma));
-
-    if(albedo.a < 0.95)
+    
+    float3 bumpNormal = normalTexture.Sample(SampleTypeWrap, input.inTexCoord).rgb;
+    if (bumpNormal.r == -1 && bumpNormal.g == -1 && bumpNormal.b == -1)
     {
-        discard;
-        return float4(0, 0, 0, 1.0);
+        return float4(albedo.r, albedo.g, albedo.b, 1.0f);
     }
- 
-    else
-    {
-        
-        float3 bumpNormal = normalTexture.Sample(SampleTypeWrap, input.inTexCoord).rgb;
-        if (bumpNormal.r == -1 && bumpNormal.g == -1 && bumpNormal.b == -1)
-        {
-            return float4(albedo.r, albedo.g, albedo.b, 1.0f);
-        }
-        float metallic = roughnessMetalicTexture.Sample(SampleTypeWrap, input.inTexCoord).b;
-        float roughness = roughnessMetalicTexture.Sample(SampleTypeWrap, input.inTexCoord).g;
-        float3 worldPos = worldPositionTexture.Sample(SampleTypeWrap, input.inTexCoord).xyz;
-        float distToCamera = distToCameraTexture.Sample(SampleTypeWrap, input.inTexCoord).x;
-        
-        float3 V = normalize(cameraPos.xyz - worldPos);
+    float metallic = roughnessMetalicTexture.Sample(SampleTypeWrap, input.inTexCoord).b;
+    float roughness = roughnessMetalicTexture.Sample(SampleTypeWrap, input.inTexCoord).g;
+    float3 worldPos = worldPositionTexture.Sample(SampleTypeWrap, input.inTexCoord).xyz;
+    float distToCamera = distToCameraTexture.Sample(SampleTypeWrap, input.inTexCoord).x;
+    
+    float3 V = normalize(cameraPos.xyz - worldPos);
 
-        float3 ambient = float3(0.1, 0.1, 0.1);
-        float3 F0 = float3(0.04f, 0.04f, 0.04f);
+    float3 ambient = float3(0.1, 0.1, 0.1);
+    float3 F0 = float3(0.04f, 0.04f, 0.04f);
 
-        F0 = lerp(F0, albedo.rgb, metallic);
-        float3 Lo = float3(0.0f, 0.0f, 0.0f);
+    F0 = lerp(F0, albedo.rgb, metallic);
+    float3 Lo = float3(0.0f, 0.0f, 0.0f);
 
     //[unroll(NO_LIGHTS)]
         
-        if (lightsSize > 0)
+    if (lightsSize > 0)
+    {
+        for (int i = 0; i < NO_LIGHTS; ++i)
         {
-            for (int i = 0; i < NO_LIGHTS; ++i)
-            {
-                if (i > lightsSize - 1)
-                    break;
-                
-                 float distance = length(dynamicLightPosition[i].xyz - worldPos);
-                 if (distance < RadiusAndcutOff[i].x)
+            if (i > lightsSize - 1)
+                break;
+            
+             float distance = length(dynamicLightPosition[i].xyz - worldPos);
+             if (distance < RadiusAndcutOff[i].x)
+             {
+                 if (lightType[i].x == 0.0)
+                     Lo += pointLight(input, albedo.rgb, dynamicLightPosition[i].xyz, dynamicLightColor[i].rgb, RadiusAndcutOff[i].y, bumpNormal, roughness, metallic, V, F0, worldPos);
+                 else if (lightType[i].x == 1.0)
                  {
-                     if (lightType[i].x == 0.0)
-                         Lo += pointLight(input, albedo.rgb, dynamicLightPosition[i].xyz, dynamicLightColor[i].rgb, RadiusAndcutOff[i].y, bumpNormal, roughness, metallic, V, F0, worldPos);
-                     else if (lightType[i].x == 1.0)
-                     {
-                         Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i);
-                     }
-
+                     Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i);
                  }
-            
-       
-            }
-            float3 shadows = shadowTexture.Sample(SampleTypeWrap, input.inTexCoord).xyz;
-            Lo *= shadows;
+
+             }
+        
+    
         }
-        
-
-        if (pointLightsSize > 0)
-        {
-            for (int j = 0; j < NO_POINT_LIGHTS; ++j)
-            {
-                if (j > pointLightsSize - 1)
-                    break;
-            
-           // if (distToCamera < acceptedDistShadowAndLight.y)
-            //{
-                float distance = length(pointdynamicLightPosition[j].xyz - worldPos);
-                if (distance < pointRadiusAndcutOff[j].x)
-                {
-                    Lo += pointLight(input, albedo.rgb, pointdynamicLightPosition[j].xyz, pointdynamicLightColor[j].rgb, pointRadiusAndcutOff[j].y, bumpNormal, roughness, metallic, V, F0, worldPos);
-                }
-           // }
-        
-            }
-        }
-       
-   
-        
-        float3 F = fresnelSchlickRoughness(max(dot(bumpNormal, V), 0.0f), F0, roughness);
-        float3 kS = F;
-        float3 kD = 1.0f - kS;
-        float3 irradiance = irradianceMap.Sample(objSamplerStateMip, bumpNormal.rgb).rgb;
-        float3 diffuse = irradiance * albedo.rgb;
-        float3 R = reflect(-V, bumpNormal);
-
-        const float MAX_REF_LOD = 5.0f;
-        float3 prefilteredColor = prefilterMap.SampleLevel(objSamplerStateMip, R, roughness * MAX_REF_LOD).rgb;
-        float2 brdf = brdfTexture.Sample(SampleTypeWrap, float2(max(dot(bumpNormal, V), 0.0), roughness)).rg;
-
-        float3 specular = prefilteredColor * (F * brdf.x + brdf.y);
-        ambient = (kD * diffuse + specular);
-        float3 color = ambient + Lo;
-        
-        color = color / (color + float3(1.0, 1.0f, 1.0f));
-        color = pow(color, float3(1.0f / 1.0f, 1.0f / 1.0f, 1.0f / 1.0f));
-
-        return float4(color, 1.0);
+        float3 shadows = shadowTexture.Sample(SampleTypeWrap, input.inTexCoord).xyz;
+        Lo *= shadows;
     }
+    
+
+    if (pointLightsSize > 0)
+    {
+        for (int j = 0; j < NO_POINT_LIGHTS; ++j)
+        {
+            if (j > pointLightsSize - 1)
+                break;
+        
+       // if (distToCamera < acceptedDistShadowAndLight.y)
+        //{
+            float distance = length(pointdynamicLightPosition[j].xyz - worldPos);
+            if (distance < pointRadiusAndcutOff[j].x)
+            {
+                Lo += pointLight(input, albedo.rgb, pointdynamicLightPosition[j].xyz, pointdynamicLightColor[j].rgb, pointRadiusAndcutOff[j].y, bumpNormal, roughness, metallic, V, F0, worldPos);
+            }
+       // }
+    
+        }
+    }
+    
+   
+    
+    float3 F = fresnelSchlickRoughness(max(dot(bumpNormal, V), 0.0f), F0, roughness);
+    float3 kS = F;
+    float3 kD = 1.0f - kS;
+    float3 irradiance = irradianceMap.Sample(objSamplerStateMip, bumpNormal.rgb).rgb;
+    float3 diffuse = irradiance * albedo.rgb;
+    float3 R = reflect(-V, bumpNormal);
+
+    const float MAX_REF_LOD = 5.0f;
+    float3 prefilteredColor = prefilterMap.SampleLevel(objSamplerStateMip, R, roughness * MAX_REF_LOD).rgb;
+    float2 brdf = brdfTexture.Sample(SampleTypeWrap, float2(max(dot(bumpNormal, V), 0.0), roughness)).rg;
+
+    float3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+    ambient = (kD * diffuse + specular);
+    float3 color = ambient + Lo;
+    
+    color = color / (color + float3(1.0, 1.0f, 1.0f));
+    color = pow(color, float3(1.0f / 1.0f, 1.0f / 1.0f, 1.0f / 1.0f));
+
+    return float4(color, 1.0);
+   
 }
 
 

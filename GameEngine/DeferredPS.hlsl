@@ -39,6 +39,12 @@ PS_OUTPUT main(PS_INPUT input) : SV_TARGET
     if (bEmissive == 0.0f)
     {
         output.albedo = albedoTexture.Sample(SampleTypeWrap, input.inTexCoord);
+        
+        //if (output.albedo.a < 0.95)
+        //{
+        //    discard;
+        //}
+        
         output.normal = normalTexture.Sample(SampleTypeWrap, input.inTexCoord);
 
         output.normal = (output.normal * 2.0f) - 1.0f;
@@ -50,7 +56,7 @@ PS_OUTPUT main(PS_INPUT input) : SV_TARGET
     }
     else if(bEmissive == 1.0f)
     {
-        output.albedo = float4(color.r, color.b, color.g, 1.0f);
+        output.albedo = float4(color.r, color.g, color.b, 1.0f);
         output.normal = float4(-1, -1, -1, 1.0f);
         output.roughnessMetalic = float4(-1, -1, -1, 1.0f);
     }

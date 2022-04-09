@@ -20,7 +20,7 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 	}
 
 	auto dirIter = std::filesystem::directory_iterator("Files/File/Entities");
-	int fileCount = 1;
+	int fileCount = 0;
 
 	for (auto& entry : dirIter)
 	{
@@ -34,10 +34,11 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 	{
 		if (!std::remove(("Files/File/Entities/Entity" + std::to_string(i) + ".txt").c_str()))
 		{
-			break;
+			
 		}
 	}
 
+	OutputDebugStringA(("COUNT" + std::to_string(fileCount) + "\n").c_str());
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		if (entities[i].isDeleted)
