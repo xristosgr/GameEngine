@@ -59,6 +59,7 @@ void GBufferClass::LightPass(DX11& gfx11, RectShape& rect, Camera& camera)
 	}
 	
 	rect.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
+
 }
 
 void GBufferClass::SetRenderTargets(DX11& gfx11, ID3D11DepthStencilView* depthView)

@@ -2,7 +2,7 @@
 
 #include <DirectXMath.h>
 
-#define NO_LIGHTS 20
+#define NO_LIGHTS 4
 #define NO_POINT_LIGHTS 2000
 
 struct CB_VS_vertexshader

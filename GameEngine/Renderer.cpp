@@ -49,7 +49,7 @@ Renderer::Renderer()
 	renderDistance = 6000.0f;
 	renderShadowDistance = 2700.0f;
 	shadowDist = 5.5f;
-	acceptedDist = 1000.0f;
+	acceptedDist = 3000.0f;
 }
 
 bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights)
@@ -78,7 +78,7 @@ bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std:
 	gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
 	gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-
+	
 	ViewMatrix2D = camera.GetViewMatrix();
 
 	return true;
@@ -182,10 +182,10 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 
 	//for (int i = 0; i < pointLights.size(); ++i)
 	//{
-	//	//float x = randomFloatRange(-20.0f, 35.0f);
-	//	//float z = randomFloatRange(-20.0f, 35.0f);
-	//	//pointLights[i].pos.x = x;
-	//	//pointLights[i].pos.z = z;
+	//	float x = randomFloatRange(-70.0f, 70.0f);
+	//	float z = randomFloatRange(-70.0f, 40.0f);
+	//	pointLights[i].pos.x = x;
+	//	pointLights[i].pos.z = z;
 	//}
 
 }
@@ -425,48 +425,46 @@ void Renderer::RenderDeferred(std::vector<Entity>& entities, std::vector<Light>&
 	gfx11.deviceContext->IASetInputLayout(gfx11.deferredVS.GetInputLayout());
 	gfx11.deviceContext->VSSetShader(gfx11.deferredVS.GetShader(), nullptr, 0);
 
-	for (int i = 0; i < lights.size(); ++i)
-	{
-		gfx11.cb_ps_materialBuffer.data.emissiveColor = lights[i].emissionColor;
-		gfx11.cb_ps_materialBuffer.data.bEmissive = 1.0f;
-		gfx11.cb_ps_materialBuffer.UpdateBuffer();
-	
-		DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - lights[i].pos.x, camera.GetPositionFloat3().y - lights[i].pos.y, camera.GetPositionFloat3().z - lights[i].pos.z);
-		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
-		float dist = diffVec.dot(diffVec);
-	
-		if (dist < renderDistance)
-		{
-			gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
-			//gfx11.deviceContext->IASetInputLayout(gfx11.testVS.GetInputLayout());
-			//gfx11.deviceContext->VSSetShader(gfx11.testVS.GetShader(), nullptr, 0);
-			//gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
-	
-			lights[i].Draw(camera);
-		}
-	}
-	
-	for (int i = 0; i < pointLights.size(); ++i)
-	{
-		gfx11.cb_ps_materialBuffer.data.emissiveColor = pointLights[i].emissionColor;
-		gfx11.cb_ps_materialBuffer.data.bEmissive = 1.0f;
-		gfx11.cb_ps_materialBuffer.UpdateBuffer();
-		
-	
-		DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - pointLights[i].pos.x, camera.GetPositionFloat3().y - pointLights[i].pos.y, camera.GetPositionFloat3().z - pointLights[i].pos.z);
-		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
-		float dist = diffVec.dot(diffVec);
-	
-		if (dist < renderDistance)
-		{
-			gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
-			//gfx11.deviceContext->IASetInputLayout(gfx11.testVS.GetInputLayout());
-			//gfx11.deviceContext->VSSetShader(gfx11.testVS.GetShader(), nullptr, 0);
-			//gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
-	
-			pointLights[i].Draw(camera);
-		}
-	}
+	//for (int i = 0; i < lights.size(); ++i)
+	//{
+	//	gfx11.cb_ps_materialBuffer.data.emissiveColor = lights[i].emissionColor;
+	//	gfx11.cb_ps_materialBuffer.data.bEmissive = 1.0f;
+	//	gfx11.cb_ps_materialBuffer.UpdateBuffer();
+	//
+	//	DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - lights[i].pos.x, camera.GetPositionFloat3().y - lights[i].pos.y, camera.GetPositionFloat3().z - lights[i].pos.z);
+	//	physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
+	//	float dist = diffVec.dot(diffVec);
+	//
+	//	if (dist < renderDistance)
+	//	{
+	//		lights[i].Draw(camera);
+	//	}
+	//}
+	//
+	//for (int i = 0; i < pointLights.size(); ++i)
+	//{
+	//	DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - pointLights[i].pos.x, camera.GetPositionFloat3().y - pointLights[i].pos.y, camera.GetPositionFloat3().z - pointLights[i].pos.z);
+	//	physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
+	//	float dist = diffVec.dot(diffVec);
+	//
+	//	if (dist < acceptedDist)
+	//	{
+	//		gfx11.cb_ps_materialBuffer.data.emissiveColor = pointLights[i].emissionColor;
+	//		gfx11.cb_ps_materialBuffer.data.bEmissive = 1.0f;
+	//		gfx11.cb_ps_materialBuffer.UpdateBuffer();
+	//
+	//
+	//		DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - pointLights[i].pos.x, camera.GetPositionFloat3().y - pointLights[i].pos.y, camera.GetPositionFloat3().z - pointLights[i].pos.z);
+	//		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
+	//		float dist = diffVec.dot(diffVec);
+	//
+	//		if (dist < renderDistance)
+	//		{
+	//			pointLights[i].Draw(camera);
+	//		}
+	//	}
+	//	
+	//}
 
 	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
 	gfx11.deviceContext->PSSetShader(gfx11.testPS.GetShader(), nullptr, 0);
@@ -513,7 +511,7 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 		DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - lights[i].pos.x, camera.GetPositionFloat3().y - lights[i].pos.y, camera.GetPositionFloat3().z - lights[i].pos.z);
 		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
 		float dist = diffVec.dot(diffVec);
-		if (dist < acceptedDist)
+		if (dist < acceptedDist*2)
 		{
 			culledShadowLights.push_back(&lights[i]);
 		}
@@ -711,7 +709,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	RenderDeferred(entities, lights, pointLights, camera);
 
 
-
 	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
 	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
 	gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
@@ -777,7 +774,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		}
 	}
 	
-
 	if (debugEnabled)
 	{
 		gfx11.deviceContext->PSSetShader(gfx11.testPS.GetShader(), nullptr, 0);

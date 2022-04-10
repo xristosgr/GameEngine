@@ -1,4 +1,4 @@
-#define NO_LIGHTS 20
+#define NO_LIGHTS 4
 #define NO_POINT_LIGHTS 2000
 
 cbuffer lightBuffer : register(b0)
