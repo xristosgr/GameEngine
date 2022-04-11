@@ -105,6 +105,7 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 			outfile << "Frustum= " << entities[i].isfrustumEnabled << "\n";
 			outfile << "isDeleted= " << entities[i].isDeleted << "\n";
 			outfile << "isEmissive= " << entities[i].isEmissive << "\n";
+			outfile << "isTransparent= " << entities[i].model.isTransparent << "\n";
 			outfile << "physicsShape= " << entities[i].physicsComponent.physicsShapeEnum << "\n";
 			outfile << "animFilesCount= " << entities[i].model.animFiles.size() << "\n";
 
@@ -471,6 +472,10 @@ void SaveSystem::LoadEntityData(std::vector<Entity>& entities)
 					if (path == "isEmissive=")
 					{
 						entities[i].isEmissive = (int)val;
+					}
+					if (path == "isTransparent=")
+					{
+						entities[i].model.isTransparent = (int)val;
 					}
 					if (path == "physicsShape=")
 					{

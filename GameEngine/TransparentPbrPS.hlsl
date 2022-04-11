@@ -12,12 +12,7 @@ cbuffer lightBuffer : register(b0)
     uint lightsSize;
 }
 
-cbuffer PCFbuffer : register(b1)
-{
-    int pcfLevel;
-    double bias;
-    bool enableShadows;
-}
+
 
 cbuffer lightCull : register(b2)
 {
@@ -44,7 +39,6 @@ Texture2D objTexture : TEXTURE : register(t0);
 Texture2D normalTexture : TEXTURE : register(t1);
 Texture2D roughnessMetalicTexture : TEXTURE : register(t2);
 Texture2D worldPositionTexture : TEXTURE : register(t3);
-Texture2D distToCameraTexture : TEXTURE : register(t4);
 TextureCube prefilterMap : TEXTURE : register(t5);
 Texture2D brdfTexture : TEXTURE : register(t6);
 TextureCube irradianceMap : TEXTURE : register(t7);
@@ -76,15 +70,11 @@ float4 main(PS_INPUT input) : SV_TARGET
     float4 albedo = float4(pow(objTexture.Sample(SampleTypeWrap, input.inTexCoord), gamma));
     
     float3 bumpNormal = normalTexture.Sample(SampleTypeWrap, input.inTexCoord).rgb;
-    if (bumpNormal.r == -1 && bumpNormal.g == -1 && bumpNormal.b == -1)
-    {
-        return float4(albedo.r, albedo.g, albedo.b, 1.0f);
-    }
+  
     float metallic = roughnessMetalicTexture.Sample(SampleTypeWrap, input.inTexCoord).b;
     float roughness = roughnessMetalicTexture.Sample(SampleTypeWrap, input.inTexCoord).g;
     float3 worldPos = worldPositionTexture.Sample(SampleTypeWrap, input.inTexCoord).xyz;
-    float distToCamera = distToCameraTexture.Sample(SampleTypeWrap, input.inTexCoord).x;
-    
+  
     float3 V = normalize(cameraPos.xyz - worldPos);
 
     float3 ambient = float3(0.1, 0.1, 0.1);
@@ -95,31 +85,31 @@ float4 main(PS_INPUT input) : SV_TARGET
 
     //[unroll(NO_LIGHTS)]
         
-    if (lightsSize > 0)
-    {
-        for (int i = 0; i < NO_LIGHTS; ++i)
-        {
-            if (i > lightsSize - 1)
-                break;
-            
-            float distance = length(dynamicLightPosition[i].xyz - worldPos);
-            if (distance < RadiusAndcutOff[i].x)
-            {
-                if (lightType[i].x == 0.0)
-                    Lo += pointLight(input, albedo.rgb, dynamicLightPosition[i].xyz, dynamicLightColor[i].rgb, RadiusAndcutOff[i].y, bumpNormal, roughness, metallic, V, F0, worldPos);
-                else if (lightType[i].x == 1.0)
-                {
-                    Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i);
-                }
-
-            }
-        
-    
-        }
-        float3 shadows = shadowTexture.Sample(SampleTypeWrap, input.inTexCoord).xyz;
-        Lo *= shadows;
-    }
-    
+    //if (lightsSize > 0)
+    //{
+    //    for (int i = 0; i < NO_LIGHTS; ++i)
+    //    {
+    //        if (i > lightsSize - 1)
+    //            break;
+    //        
+    //        float distance = length(dynamicLightPosition[i].xyz - worldPos);
+    //        if (distance < RadiusAndcutOff[i].x)
+    //        {
+    //            if (lightType[i].x == 0.0)
+    //                Lo += pointLight(input, albedo.rgb, dynamicLightPosition[i].xyz, dynamicLightColor[i].rgb, RadiusAndcutOff[i].y, bumpNormal, roughness, metallic, V, F0, worldPos);
+    //            else if (lightType[i].x == 1.0)
+    //            {
+    //                Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i);
+    //            }
+    //
+    //        }
+    //    
+    //
+    //    }
+ 
+    //}
+    //float3 shadows = shadowTexture.Sample(SampleTypeWrap, input.inTexCoord).xyz;
+    //Lo = shadows;
     float3 F = fresnelSchlickRoughness(max(dot(bumpNormal, V), 0.0f), F0, roughness);
     float3 kS = F;
     float3 kD = 1.0f - kS;
@@ -138,7 +128,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     color = color / (color + float3(1.0, 1.0f, 1.0f));
     color = pow(color, float3(1.0f / 1.0f, 1.0f / 1.0f, 1.0f / 1.0f));
 
-    return float4(color, 0.5);
+    return float4(albedo.rgb, 0.4);
    
 }
 

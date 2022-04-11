@@ -1336,9 +1336,17 @@ void Renderer::ForwardPass(std::vector<Entity>& entities, Camera& camera, Sky& s
 	forwardRenderTexture.ClearRenderTarget(gfx11.deviceContext.Get(), gfx11.depthStencilView.Get(), 0, 0, 0, 1, false);
 
 
-
+	gfx11.deviceContext->PSSetShaderResources(5, 1, &pbr.prefilterCubeMap.shaderResourceView);
+	if (brdfText.GetTextureResourceView())
+		gfx11.deviceContext->PSSetShaderResources(6, 1, brdfText.GetTextureResourceViewAddress());
+	else
+		gfx11.deviceContext->PSSetShaderResources(6, 1, &pbr.brdfTexture.shaderResourceView);
+	gfx11.deviceContext->PSSetShaderResources(7, 1, &pbr.irradianceCubeMap.shaderResourceView);
+	gfx11.deviceContext->PSSetShaderResources(8, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
 	gfx11.deviceContext->PSSetShaderResources(9, 1, &gBuffer.m_shaderResourceViewArray[4]);
 	gfx11.deviceContext->PSSetShader(gfx11.transparentPbrPS.GetShader(), nullptr, 0);
+
+	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		if (entities[i].model.isTransparent)
@@ -1386,6 +1394,3 @@ void Renderer::ForwardPass(std::vector<Entity>& entities, Camera& camera, Sky& s
 	//gfx11.deviceContext->RSSetState(gfx11.rasterizerStateFront.Get());
 	sky.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
 }
-
-//********************************PBR************************************************
-//***********************************************************************************

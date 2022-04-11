@@ -36,6 +36,7 @@ isAttached= 0
 Frustum= 0
 isDeleted= 0
 isEmissive= 0
+isTransparent= 0
 physicsShape= 5
 animFilesCount= 0
 entityName= Entity1
