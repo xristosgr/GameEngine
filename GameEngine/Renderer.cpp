@@ -1336,17 +1336,6 @@ void Renderer::ForwardPass(std::vector<Entity>& entities, Camera& camera, Sky& s
 	forwardRenderTexture.ClearRenderTarget(gfx11.deviceContext.Get(), gfx11.depthStencilView.Get(), 0, 0, 0, 1, false);
 
 
-	gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[4]);
-	gfx11.deviceContext->IASetInputLayout(gfx11.testVS.GetInputLayout());
-	gfx11.deviceContext->VSSetShader(gfx11.testVS.GetShader(), nullptr, 0);
-	gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
-	gfx11.cb_ps_materialBuffer.data.emissiveColor = sky.color;
-	//gfx11.cb_ps_materialBuffer.data.bEmissive = 1.0f;
-	gfx11.cb_ps_materialBuffer.UpdateBuffer();
-	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
-	//gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
-	//gfx11.deviceContext->RSSetState(gfx11.rasterizerStateFront.Get());
-	sky.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
 
 	gfx11.deviceContext->PSSetShaderResources(9, 1, &gBuffer.m_shaderResourceViewArray[4]);
 	gfx11.deviceContext->PSSetShader(gfx11.transparentPbrPS.GetShader(), nullptr, 0);
@@ -1383,6 +1372,19 @@ void Renderer::ForwardPass(std::vector<Entity>& entities, Camera& camera, Sky& s
 			}
 		}
 	}
+
+
+	gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[4]);
+	gfx11.deviceContext->IASetInputLayout(gfx11.testVS.GetInputLayout());
+	gfx11.deviceContext->VSSetShader(gfx11.testVS.GetShader(), nullptr, 0);
+	gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
+	gfx11.cb_ps_materialBuffer.data.emissiveColor = sky.color;
+	//gfx11.cb_ps_materialBuffer.data.bEmissive = 1.0f;
+	gfx11.cb_ps_materialBuffer.UpdateBuffer();
+	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
+	//gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
+	//gfx11.deviceContext->RSSetState(gfx11.rasterizerStateFront.Get());
+	sky.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
 }
 
 //********************************PBR************************************************
