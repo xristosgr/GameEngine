@@ -23,6 +23,7 @@ struct PS_OUTPUT
     float4 normal : SV_Target1;
     float4 roughnessMetalic : SV_Target2;
     float4 worldPosition : SV_Target3;
+    float4 depth : SV_TARGET4;
 };
 
 Texture2D albedoTexture : TEXTURE : register(t0);
@@ -62,5 +63,9 @@ PS_OUTPUT main(PS_INPUT input) : SV_TARGET
         output.roughnessMetalic = float4(-1, -1, -1, 1.0f);
     }
     output.worldPosition = float4(input.inWorldPos, 1.0f);
+    
+    float depthValue = input.inPosition.z / input.inPosition.w;
+    output.depth = float4(depthValue, depthValue, depthValue,1.0f);
+    
     return output;
 }

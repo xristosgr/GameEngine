@@ -11,21 +11,25 @@ void GBufferClass::Initialize(DX11& gfx11)
 	normalTexture.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
 	metallicRoughnessTexture.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
 	worldPositionTexture.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
+	depthTexture.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
 
 	m_renderTargetTextureArray[0] = albedoTexture.m_renderTargetTexture;
 	m_renderTargetTextureArray[1] = normalTexture.m_renderTargetTexture;
 	m_renderTargetTextureArray[2] = metallicRoughnessTexture.m_renderTargetTexture;
 	m_renderTargetTextureArray[3] = worldPositionTexture.m_renderTargetTexture;
+	m_renderTargetTextureArray[4] = depthTexture.m_renderTargetTexture;
 
 	m_renderTargetViewArray[0] = albedoTexture.m_renderTargetView;
 	m_renderTargetViewArray[1] = normalTexture.m_renderTargetView;
 	m_renderTargetViewArray[2] = metallicRoughnessTexture.m_renderTargetView;
 	m_renderTargetViewArray[3] = worldPositionTexture.m_renderTargetView;
+	m_renderTargetViewArray[4] = depthTexture.m_renderTargetView;
 
 	m_shaderResourceViewArray[0] = albedoTexture.shaderResourceView;
 	m_shaderResourceViewArray[1] = normalTexture.shaderResourceView;
 	m_shaderResourceViewArray[2] = metallicRoughnessTexture.shaderResourceView;
 	m_shaderResourceViewArray[3] = worldPositionTexture.shaderResourceView;
+	m_shaderResourceViewArray[4] = depthTexture.shaderResourceView;
 }
 
 void GBufferClass::GeometryPass(DX11& gfx11, Camera& camera, ID3D11DepthStencilView* depthView, float* rgb)
@@ -48,7 +52,7 @@ void GBufferClass::LightPass(DX11& gfx11, RectShape& rect, Camera& camera, std::
 	gfx11.deviceContext->VSSetSamplers(0, 1, gfx11.samplerState_Wrap.GetAddressOf());
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerStateFront.Get());
 
-	for (int i = 0; i < BUFFER_COUNT; ++i)
+	for (int i = 0; i < BUFFER_COUNT-1; ++i)
 	{
 		gfx11.deviceContext->PSSetShaderResources(i, 1, &m_shaderResourceViewArray[i]);
 	}

@@ -252,7 +252,6 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		sampDesc.BorderColor[1] = 0;
 		sampDesc.BorderColor[2] = 0;
 		sampDesc.BorderColor[3] = 0;
-
 		sampDesc.MaxAnisotropy = D3D11_REQ_MAXANISOTROPY;
 		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -263,6 +262,7 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 		hr = this->device->CreateSamplerState(&sampDesc, this->samplerState_Wrap.GetAddressOf()); //Create sampler state wrap
 		COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
+
 		sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 		//sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
 		//sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;

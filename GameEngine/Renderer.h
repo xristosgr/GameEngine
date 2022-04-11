@@ -32,12 +32,10 @@ private:
 	void RenderDeferred(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera, Sky& sky);
 	void RenderSceneToTexture(RenderTexture& texture, Camera& camera, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, std::vector<CollisionObject>& collisionObjects);
 	void UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera);
-	//void BrdfRender(Camera& camera, RenderTexture& texture);
-	//void IrradianceConvolutionRender(Camera& camera);
-	//void PrifilterRender(Camera& camera);
-	//void PbrRender(Camera& camera);
+
 	void RenderToEnvProbe(EnvironmentProbe& probe, Camera& camera, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, Sky& sky);
 
+	void ForwardPass(std::vector<Entity>& entities, Camera& camera, Sky& sky);
 private:
 	float rgb[4];
 
@@ -118,7 +116,7 @@ private:
 	float gamma;
 	bool bRenderCollision;
 
-	RenderTexture cameraDepthTexture;
+	RenderTexture forwardRenderTexture;
 
 	AppTimer timer;
 

@@ -300,6 +300,9 @@ void Engine::RenderFrame(float& dt,float& fps)
 	}
 	
 	GameThread(dt);
+
+
+	sky.cube.pos = camera.pos;
 	renderer.Render(camera, entities, physicsHandler, lights, pointlights, collisionObjects, grid, navMeshes, sounds,sky);
 
 	
@@ -737,8 +740,6 @@ void Engine::PlayerLogic(float& dt)
 			fpsPlayerController.Movement(dt, physicsHandler.aScene->getGravity().y, player, keyboard, mouse, camera);
 		}
 		physicsHandler.FallCheck(player);
-		
-		sky.pos = player->pos;
 	}
 }
 
