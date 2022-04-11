@@ -38,29 +38,34 @@ struct CB_PS_lightsShader
 	unsigned int lightsSize;
 };
 
+//struct CB_PS_pointLightsShader
+//{
+//	DirectX::XMFLOAT4 dynamicLightPosition[NO_POINT_LIGHTS];
+//	DirectX::XMFLOAT4 dynamicLightColor[NO_POINT_LIGHTS];
+//	unsigned int pointLightsSize;
+//};
+
 struct CB_PS_pointLightsShader
 {
-	DirectX::XMFLOAT4 dynamicLightPosition[NO_POINT_LIGHTS];
-	DirectX::XMFLOAT4 dynamicLightColor[NO_POINT_LIGHTS];
-	unsigned int pointLightsSize;
+	DirectX::XMFLOAT4 dynamicLightPosition;
+	DirectX::XMFLOAT4 dynamicLightColor;
+	DirectX::XMFLOAT4 cameraPos;
+};
+struct CB_PS_pointLightCull
+{
+	DirectX::XMFLOAT4 RadiusAndcutOff;
 };
 
-//struct CB_PS_PCFshader
-//{
-//	int pcfLevel;
-//	double bias;
-//	bool enableShadows;
-//};
 
 struct CB_PS_lightCull
 {
 	DirectX::XMFLOAT4 RadiusAndcutOff[NO_LIGHTS];
 };
 
-struct CB_PS_pointLightCull
-{
-	DirectX::XMFLOAT4 RadiusAndcutOff[NO_POINT_LIGHTS];
-};
+//struct CB_PS_pointLightCull
+//{
+//	DirectX::XMFLOAT4 RadiusAndcutOff[NO_POINT_LIGHTS];
+//};
 
 struct CB_PS_screenEffectBuffer
 {

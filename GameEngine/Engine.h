@@ -14,6 +14,8 @@
 #include "SoundComponent.h"
 #include <algorithm>
 #include "Camera.h"
+#include "Sky.h"
+
 class Engine : virtual WindowContainer
 {
 public:
@@ -46,6 +48,7 @@ protected:
 	AppTimer timer;
 
 private:
+	Sky sky;
 	std::vector<Entity> entities;
 
 	std::vector<Entity*> AIEntities;

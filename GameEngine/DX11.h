@@ -42,6 +42,7 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilDeferredPassState;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState2D;
 
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
@@ -50,6 +51,7 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11BlendState> blendState;
 	Microsoft::WRL::ComPtr<ID3D11BlendState> AdditiveBlendState;
 	Microsoft::WRL::ComPtr<ID3D11BlendState> NoBlendState;
+	Microsoft::WRL::ComPtr<ID3D11BlendState> deferredLightBlendState;
 
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState_Wrap;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState_Clamp;
@@ -91,6 +93,8 @@ public:
 	PixelShader shadowPS;
 	PixelShader shadowHorizontalBlurPS;
 	PixelShader shadowVerticalBlurPS;
+	PixelShader deferredLightPassPS;
+	PixelShader deferredSpotLightPS;
 
 	VertexBuffer<Vertex> vertexBuffer;
 

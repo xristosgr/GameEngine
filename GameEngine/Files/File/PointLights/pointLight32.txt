@@ -1,6 +1,6 @@
-posX= -67.7783
+posX= -293.735
 posY= 0.89
-posZ= 31.1481
+posZ= 112.47
 scaleX= 0.02
 scaleY= 0.02
 scaleZ= 0.02

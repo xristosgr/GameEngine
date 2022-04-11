@@ -39,7 +39,7 @@ public:
 
 	DirectX::XMFLOAT3 conePos;
 	DirectX::XMFLOAT3 coneRot;
-	DirectX::XMFLOAT3 coneScale;
+	DirectX::XMFLOAT3 volumeScale;
 
 	float lightStrenth = 1.0f;
 	float attenuation_a = 1.0f;
@@ -66,7 +66,6 @@ public:
 	//CubeShape cube;
 
 	ModelLoader sphere;
-	ModelLoader volume;
 private:
 	ID3D11DeviceContext* deviceContext;
 	ID3D11Device* device;

@@ -64,7 +64,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		collisionObjects[i].Initialize(renderer.gfx11.device.Get());
 	}
 
-	renderer.InitScene(entities, lights,pointlights, camera);
+	renderer.InitScene(entities, lights,pointlights, camera,sky);
 	physicsHandler.CreatePhysicsComponents(entities, collisionObjects);
 	
 	grid.InitializeBoundsVolume(renderer.gfx11.device.Get());
@@ -300,7 +300,7 @@ void Engine::RenderFrame(float& dt,float& fps)
 	}
 	
 	GameThread(dt);
-	renderer.Render(camera, entities, physicsHandler, lights, pointlights, collisionObjects, grid, navMeshes, sounds);
+	renderer.Render(camera, entities, physicsHandler, lights, pointlights, collisionObjects, grid, navMeshes, sounds,sky);
 
 	
 	if (physicsHandler.advance(dt, fps, camera))
@@ -737,7 +737,8 @@ void Engine::PlayerLogic(float& dt)
 			fpsPlayerController.Movement(dt, physicsHandler.aScene->getGravity().y, player, keyboard, mouse, camera);
 		}
 		physicsHandler.FallCheck(player);
-
+		
+		sky.pos = player->pos;
 	}
 }
 

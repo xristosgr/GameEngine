@@ -24,6 +24,7 @@ VS_OUTPUT main(VS_INPUT input)
     VS_OUTPUT output;
     
     output.outPosition = mul(float4(input.inPos.xyz, 1.0f), worldMatrix);
+    //output.outPosition = mul(output.outPosition, viewMatrix);
     output.outPosition = mul(output.outPosition, projectionMatrix);
 
     output.outTexCoord = input.inTexCoord;

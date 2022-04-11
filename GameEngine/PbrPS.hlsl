@@ -1,5 +1,4 @@
 #define NO_LIGHTS 4
-#define NO_POINT_LIGHTS 2000
 
 cbuffer lightBuffer : register(b0)
 {
@@ -30,18 +29,6 @@ cbuffer screenEffectBuffer : register(b3)
     float gamma;
 }
 
-
-
-cbuffer pointLightBuffer : register(b6)
-{
-    float4 pointdynamicLightPosition[NO_POINT_LIGHTS];
-    float4 pointdynamicLightColor[NO_POINT_LIGHTS];
-    uint pointLightsSize;
-}
-cbuffer pointLightCull : register(b7)
-{
-    float4 pointRadiusAndcutOff[NO_POINT_LIGHTS];
-}
 
 struct PS_INPUT
 {
@@ -124,28 +111,6 @@ float4 main(PS_INPUT input) : SV_TARGET
         float3 shadows = shadowTexture.Sample(SampleTypeWrap, input.inTexCoord).xyz;
         Lo *= shadows;
     }
-    
-
-    if (pointLightsSize > 0)
-    {
-        for (int j = 0; j < NO_POINT_LIGHTS; ++j)
-        {
-            if (j > pointLightsSize - 1)
-                break;
-        
-       // if (distToCamera < acceptedDistShadowAndLight.y)
-        //{
-            float distance = length(pointdynamicLightPosition[j].xyz - worldPos);
-            if (distance < pointRadiusAndcutOff[j].x)
-            {
-                Lo += pointLight(input, albedo.rgb, pointdynamicLightPosition[j].xyz, pointdynamicLightColor[j].rgb, pointRadiusAndcutOff[j].y, bumpNormal, roughness, metallic, V, F0, worldPos);
-            }
-       // }
-    
-        }
-    }
-    
-   
     
     float3 F = fresnelSchlickRoughness(max(dot(bumpNormal, V), 0.0f), F0, roughness);
     float3 kS = F;

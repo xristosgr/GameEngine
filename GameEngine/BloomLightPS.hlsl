@@ -2,7 +2,6 @@ cbuffer screenEffectBuffer : register(b3)
 {
     float gamma;
     float bloomBrightness;
-   // unsigned int shadowLightSize;
 }
 
 struct PS_INPUT
@@ -22,11 +21,10 @@ float4 main(PS_INPUT input) : SV_TARGET
 {
     float3 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
 
-    float brightness = dot(sampleColor, float3(0.2126, 0.7152, 0.0722));
-
+    //float brightness = dot(sampleColor, float3(0.2126, 0.7152, 0.0722));
+    float brightness = dot(sampleColor, float3(0.2126, 0.2126, 0.2126));
     if (brightness > bloomBrightness)
     {
-        //return float4(sampleColor.xyz, 1.0f);
         return float4(sampleColor.x, sampleColor.y, sampleColor.z, 1.0f);
     }
     else

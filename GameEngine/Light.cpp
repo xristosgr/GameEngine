@@ -21,7 +21,7 @@ Light::Light()
 
 
 	conePos = DirectX::XMFLOAT3(0, 0, 0);
-	coneScale = DirectX::XMFLOAT3(1, 1, 1);
+	volumeScale = DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f);
 	coneRot = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
 }
 
@@ -32,12 +32,9 @@ void Light::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext,
 	this->cb_vs_vertexshader = cb_vs_vertexshader;
 
 	sphere.loadAsync = true;
-	volume.loadAsync = true;
-	sphere.Initialize(".//Data/Objects/skyDome.obj", device, deviceContext, cb_vs_vertexshader, false);
-	//volume.Initialize(".//Data/Objects/volume.obj", device, deviceContext, cb_vs_vertexshader, false);
-	//cube.Initialize(device);
 
-	//m_shadowMap.Initialize(device, 1024, 1024);
+	sphere.Initialize(".//Data/Objects/skyDome.obj", device, deviceContext, cb_vs_vertexshader, false);
+	//sphere.Initialize(".//Data/Objects/lightVolume.obj", device, deviceContext, cb_vs_vertexshader, false);
 }
 
 void Light::SetupCamera(int windowWidth, int windowHeight)
@@ -101,7 +98,7 @@ void Light::DrawGui(std::string name)
 
 	//ImGui::DragFloat3("coneRotate", &coneRot.x, 0.005f);
 	//ImGui::DragFloat3("coneTranslation", &conePos.x, 0.005f);
-	//ImGui::DragFloat3("coneScale", &coneScale.x, 0.005f);
+	ImGui::DragFloat3("volumeScale", &volumeScale.x, 0.005f);
 
 	//ImGui::End();
 }
@@ -119,7 +116,7 @@ void Light::Draw(Camera& camera)
 	worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
 
 	sphere.Draw(worldMatrix,camera.GetViewMatrix(),camera.GetProjectionMatrix());
-
+	//DrawVolume(camera);
 	//sphere.pos = pos;
 	//sphere.rot = rot;
 	//sphere.scale = scale;
@@ -133,9 +130,9 @@ void Light::DrawVolume(Camera& camera)
 	DirectX::XMMATRIX matrix_translate;
 	DirectX::XMMATRIX worldMatrix;
 
-	matrix_scale = DirectX::XMMatrixScaling(this->coneScale.x, this->coneScale.y, this->coneScale.z);
-	matrix_rotate = DirectX::XMMatrixRotationRollPitchYaw(coneRot.x, coneRot.y, coneRot.z);
-	matrix_translate = DirectX::XMMatrixTranslation(conePos.x, conePos.y, conePos.z);
+	matrix_scale = DirectX::XMMatrixScaling(this->volumeScale.x, this->volumeScale.y, this->volumeScale.z);
+	matrix_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
+	matrix_translate = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
 	worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
-	volume.Draw(worldMatrix, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	sphere.Draw(worldMatrix, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 }

@@ -144,6 +144,10 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		//Create depth stencil state
 		CD3D11_DEPTH_STENCIL_DESC depthstencildesc(D3D11_DEFAULT);
 		depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
+		//depthstencildesc.StencilEnable = true;
+		//depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		//depthstencildesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+		
 		hr = this->device->CreateDepthStencilState(&depthstencildesc, this->depthStencilState.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create depth stencil state.");
 
@@ -152,6 +156,12 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		hr = this->device->CreateDepthStencilState(&depthstencildesc, this->depthStencilState2D.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create depth stencil state 2D.");
 
+		depthstencildesc.StencilEnable = true;
+		depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		depthstencildesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	
+		hr = this->device->CreateDepthStencilState(&depthstencildesc, this->depthStencilDeferredPassState.GetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "Failed to create depth stencil state.");
 		//Create the Viewport and Set the Viewport
 		CD3D11_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(this->windowWidth), static_cast<float>(this->windowHeight));
 
@@ -193,9 +203,29 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		rtbd.SrcBlendAlpha = D3D11_BLEND::D3D11_BLEND_ONE;
 		rtbd.DestBlendAlpha = D3D11_BLEND::D3D11_BLEND_ZERO;
 		rtbd.BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+
+
 		rtbd.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE::D3D11_COLOR_WRITE_ENABLE_ALL;
 		blendDesc.RenderTarget[0] = rtbd;
+
+
 		hr = this->device->CreateBlendState(&blendDesc, this->blendState.GetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "Failed to create blend state.");
+
+
+		rtbd.BlendEnable = true;
+		rtbd.SrcBlend = D3D11_BLEND_ONE;
+		rtbd.DestBlend = D3D11_BLEND_ONE;
+		rtbd.BlendOp = D3D11_BLEND_OP_ADD;
+		rtbd.SrcBlendAlpha = D3D11_BLEND_ONE;
+		rtbd.DestBlendAlpha = D3D11_BLEND_ONE;
+		rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0] = rtbd;
+
+		blendDesc.AlphaToCoverageEnable = false;
+		blendDesc.IndependentBlendEnable = false;
+
+		hr = this->device->CreateBlendState(&blendDesc, this->deferredLightBlendState.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create blend state.");
 
 		rtbd.BlendEnable = true;
@@ -335,6 +365,8 @@ bool DX11::InitializeShaders()
 	initPSShader(&colorPS, device, L"ColorPS.cso");
 	initPSShader(&lightPS, device, L"LightPS.cso");
 	initPSShader(&pbrPS, device, L"PbrPS.cso");
+	initPSShader(&deferredLightPassPS, device, L"DeferredLightPassPS.cso");
+	initPSShader(&deferredSpotLightPS, device, L"DeferredSpotLightPS.cso");
 	initPSShader(&transparentPbrPS, device, L"TransparentPbrPS.cso");
 	initPSShader(&cubeMapPS, device, L"CubeMapPS.cso");
 	initPSShader(&irradianceConvPS, device, L"IrradianceConvolutionPS.cso");

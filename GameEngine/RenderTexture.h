@@ -13,7 +13,7 @@ public:
 	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int width, int height);
 	bool InitializeCustom(ID3D11Device* device, int textureWidth, int textureHeight, float* data);
 	void SetRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView);
-	void ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView, float, float, float, float);
+	void ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView, float, float, float, float, bool bClearStencil = false);
 
 	ID3D11ShaderResourceView* GetShaderResourceView();
 	ID3D11ShaderResourceView* shaderResourceView;

@@ -1,16 +1,16 @@
 #pragma once
 #include "ModelLoader.h"
 #include "Camera.h"
-
+#include "CubeShape.h"
 class Sky
 {
 public:
 	Sky();
 	void Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader);
 	void DrawGui(std::string name);
-	void Draw(Camera& camera);
+	void Draw(ID3D11DeviceContext* deviceContext, Camera& camera, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader);
 
-	ModelLoader model;
+	CubeShape cube;
 
 	DirectX::XMFLOAT3 pos;
 	DirectX::XMFLOAT3 rot;

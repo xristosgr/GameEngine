@@ -1,6 +1,6 @@
-posX= -3.25636
+posX= -15.6875
 posY= 0.89
-posZ= 14.0631
+posZ= 59.334
 scaleX= 0.02
 scaleY= 0.02
 scaleZ= 0.02
@@ -8,7 +8,7 @@ colorX= 5
 colorY= 20
 colorZ= 1
 emissionColorX= 1
-emissionColorY= 1
+emissionColorY= 2
 emissionColorZ= 1
 directionX= -1.21
 directionY= 0

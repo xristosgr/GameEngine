@@ -340,9 +340,6 @@ std::vector<Texture> ModelLoader::LoadMaterialTextures(aiMaterial* pMaterial, ai
 
 void ModelLoader::Draw(const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix)
 {
-	//if (_filePath.empty())
-	//	return;
-
 	if (isAnimated)
 	{
 		DirectX::XMFLOAT4X4 _transforms;
@@ -359,6 +356,7 @@ void ModelLoader::Draw(const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMA
 			this->cb_vs_vertexshader.data.bones_transform[i] = transforms[i];
 		}
 	}
+
 	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader.GetBuffer().GetAddressOf());
 
 	this->cb_vs_vertexshader.data.viewMatrix = DirectX::XMMatrixTranspose(viewMatrix);
