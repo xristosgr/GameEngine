@@ -49,7 +49,7 @@ Renderer::Renderer()
 	renderDistance = 6000.0f;
 	renderShadowDistance = 2700.0f;
 	shadowDist = 5.5f;
-	acceptedDist = 500.0f;
+	acceptedDist = 2000.0f;
 }
 
 bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights)
@@ -98,7 +98,7 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	hr = gfx11.cb_ps_screenEffectBuffer.Initialize(gfx11.device, gfx11.deviceContext);
 	hr = gfx11.cb_ps_pbrBuffer.Initialize(gfx11.device, gfx11.deviceContext);
 	hr = gfx11.cb_ps_materialBuffer.Initialize(gfx11.device, gfx11.deviceContext);
-
+	hr = gfx11.cb_ps_ssaoBuffer.Initialize(gfx11.device, gfx11.deviceContext);
 	hr = gfx11.cb_ps_pointLightCull.Initialize(gfx11.device, gfx11.deviceContext);
 	hr = gfx11.cb_ps_pointLightsShader.Initialize(gfx11.device, gfx11.deviceContext);
 
@@ -107,13 +107,14 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	gfx11.deviceContext->VSSetConstantBuffers(2, 1, gfx11.cb_vs_windowParams.GetBuffer().GetAddressOf());
 
 	gfx11.deviceContext->PSSetConstantBuffers(0, 1, gfx11.cb_ps_lightsShader.GetBuffer().GetAddressOf());
-	//gfx11.deviceContext->PSSetConstantBuffers(1, 1, gfx11.cb_ps_PCFshader.GetBuffer().GetAddressOf());
+	gfx11.deviceContext->PSSetConstantBuffers(1, 1, gfx11.cb_ps_ssaoBuffer.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->PSSetConstantBuffers(2, 1, gfx11.cb_ps_lightCull.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->PSSetConstantBuffers(3, 1, gfx11.cb_ps_screenEffectBuffer.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->PSSetConstantBuffers(4, 1, gfx11.cb_ps_pbrBuffer.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->PSSetConstantBuffers(5, 1, gfx11.cb_ps_materialBuffer.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->PSSetConstantBuffers(6, 1, gfx11.cb_ps_pointLightsShader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->PSSetConstantBuffers(7, 1, gfx11.cb_ps_pointLightCull.GetBuffer().GetAddressOf());
+	
 	//////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////
 	
@@ -167,6 +168,7 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 
 	//Bloom
 	postProcess.Initialize(gfx11, windowWidth, windowHeight);
+	postProcess.HbaoPlusInit(gfx11, windowWidth, windowHeight);
 	//BloomHorizontalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
 	//BloomVerticalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
 	//
@@ -179,18 +181,17 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	gBuffer.Initialize(gfx11);
 	shadowsRenderer.Initialize(gfx11);
 
-
 	for (int i = 0; i < pointLights.size(); ++i)
 	{
-		float x = randomFloatRange(-100.0f, 100.0f);
-		float z = randomFloatRange(-80.0f, 60.0f);
+		float x = randomFloatRange(-60.0f, 60.0f);
+		float z = randomFloatRange(-40.0f, 20.0f);
 		pointLights[i].pos.x = x;
 		pointLights[i].pos.z = z;
 		pointLights[i].lightColor = DirectX::XMFLOAT3(5, 20, 1);
 		pointLights[i].emissionColor = DirectX::XMFLOAT3(1, 2, 1);
 		pointLights[i].scale = DirectX::XMFLOAT3(0.02f, 0.02f, 0.02f);
-		pointLights[i].cutOff = 0.27f;
-		pointLights[i].radius = 4.05;
+		pointLights[i].cutOff = 0.05f;
+		pointLights[i].radius = 1.0f;
 	}
 
 }
@@ -616,7 +617,7 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 	gfx11.cb_vs_lightsShader.UpdateBuffer();
 	gfx11.cb_vs_windowParams.UpdateBuffer();
 	gfx11.cb_ps_lightsShader.UpdateBuffer();
-	//gfx11.cb_ps_PCFshader.UpdateBuffer();
+	gfx11.cb_ps_ssaoBuffer.UpdateBuffer();
 	gfx11.cb_ps_lightCull.UpdateBuffer();
 	gfx11.cb_ps_screenEffectBuffer.UpdateBuffer();
 	gfx11.cb_ps_pbrBuffer.UpdateBuffer();
@@ -753,6 +754,17 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	if (enablePostProccess)
 	{
 		postProcess.BloomRender(gfx11, rect, camera);
+
+		gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
+		gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
+		gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
+		gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+
+		//gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[5]);
+		//gfx11.deviceContext->PSSetShaderResources(1, 1, &gBuffer.m_shaderResourceViewArray[6]);
+		//gfx11.deviceContext->PSSetShaderResources(2, 1, &postProcess.ssao_noiseTexture.shaderResourceView);
+		postProcess.HbaoPlusRender(gfx11, rect, camera, gBuffer.m_shaderResourceViewArray[4]);
 	}
 	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
 	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
@@ -776,6 +788,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	rect.SetRenderTexture(gfx11.deviceContext.Get(), gfx11.renderTexture);
 	gfx11.deviceContext->PSSetShaderResources(1, 1, &postProcess.BloomHorizontalBlurTexture.shaderResourceView);
 	gfx11.deviceContext->PSSetShaderResources(2, 1, &forwardRenderTexture.shaderResourceView);
+	gfx11.deviceContext->PSSetShaderResources(3, 1, &postProcess.hbaoTexture.shaderResourceView);
 	gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState2D.Get(), 0);
 	gfx11.deviceContext->IASetInputLayout(gfx11.vs2D.GetInputLayout());
 	gfx11.deviceContext->VSSetShader(gfx11.vs2D.GetShader(), nullptr, 0);
@@ -803,7 +816,8 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		rectSmall.pos = DirectX::XMFLOAT3(2.88, -1.56, 2.878);
 		//gfx11.deviceContext->PSSetShaderResources(0, 1, &shadowsRenderer.shadowTexture.shaderResourceView);
 		//gfx11.deviceContext->PSSetShaderResources(0, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
-		gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[4]);
+		//gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[4]);
+		gfx11.deviceContext->PSSetShaderResources(0, 1, &postProcess.hbaoTexture.shaderResourceView);
 		gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState2D.Get(), 0);
 		gfx11.deviceContext->IASetInputLayout(gfx11.vs2D.GetInputLayout());
 		gfx11.deviceContext->VSSetShader(gfx11.vs2D.GetShader(), nullptr, 0);
@@ -1003,6 +1017,14 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			ImGui::DragFloat("shadowDist", &shadowDist, 0.1f);
 			ImGui::DragFloat("acceptedDist", &acceptedDist, 0.1f);
 			ImGui::DragFloat3("sky color", &skyColor.x, 0.05f);
+		}
+		if (ImGui::CollapsingHeader("HBAO+"))
+		{
+			ImGui::DragFloat("Radius", &postProcess.radius, 0.05f, 0.0f, 100.0f);
+			ImGui::DragFloat("Bias", &postProcess.bias, 0.001f, 0, 0.5f);
+			ImGui::DragFloat("Sharpness", &postProcess.sharpness, 1.0f, 0.0f, 100.0f);
+			ImGui::DragFloat("powerExponent", &postProcess.powerExponent, 1.0f, 1.0f, 10.0f);
+			ImGui::DragFloat("metersToViewSpaceUnits", &postProcess.metersToViewSpaceUnits, 1.0f, 1.0f, 100.0f);
 		}
 
 		if (ImGui::CollapsingHeader("Sky"))

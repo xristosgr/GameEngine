@@ -21,7 +21,7 @@ Light::Light()
 
 
 	conePos = DirectX::XMFLOAT3(0, 0, 0);
-	volumeScale = DirectX::XMFLOAT3(1.5f, 1.5f, 1.5f);
+	volumeScale = DirectX::XMFLOAT3(0.5f, 0.5f, 0.5f);
 	coneRot = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
 }
 
@@ -32,7 +32,7 @@ void Light::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext,
 	this->cb_vs_vertexshader = cb_vs_vertexshader;
 
 	sphere.loadAsync = true;
-
+	sphere.isTextured = false;
 	sphere.Initialize(".//Data/Objects/skyDome.obj", device, deviceContext, cb_vs_vertexshader, false);
 	//sphere.Initialize(".//Data/Objects/lightVolume.obj", device, deviceContext, cb_vs_vertexshader, false);
 }
@@ -129,6 +129,8 @@ void Light::DrawVolume(Camera& camera)
 	DirectX::XMMATRIX matrix_rotate;
 	DirectX::XMMATRIX matrix_translate;
 	DirectX::XMMATRIX worldMatrix;
+
+	volumeScale = DirectX::XMFLOAT3(radius, radius, radius);
 
 	matrix_scale = DirectX::XMMatrixScaling(this->volumeScale.x, this->volumeScale.y, this->volumeScale.z);
 	matrix_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);

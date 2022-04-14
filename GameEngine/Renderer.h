@@ -59,7 +59,7 @@ private:
 private:
 	imgui_addons::ImGuiFileBrowser file_dialog;
 
-	bool hasTexture;
+
 	bool isFileOpen;
 
 public:
@@ -67,7 +67,8 @@ public:
 
 	bool bAddEntity;
 	bool isAnimated;
-	
+	bool hasTexture;
+
 	std::string inName;
 	bool runPhysics;
 	bool bAddLight;

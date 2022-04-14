@@ -1,7 +1,7 @@
 mass= 0
-posX= 68.63
+posX= -0.170076
 posY= 0.0300008
-posZ= -53.03
+posZ= 1.27001
 rotX= 0
 rotY= 0
 rotZ= 0
@@ -37,6 +37,7 @@ Frustum= 0
 isDeleted= 0
 isEmissive= 0
 isTransparent= 0
+isTextured= 1
 physicsShape= 5
 animFilesCount= 0
 entityName= Entity1

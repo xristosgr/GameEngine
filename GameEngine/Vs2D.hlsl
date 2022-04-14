@@ -17,6 +17,7 @@ struct VS_OUTPUT
 {
     float4 outPosition : SV_POSITION;
     float2 outTexCoord : TEXCOORD;
+    float4x4 projection : TEXCOORD1;
 };
 VS_OUTPUT main(VS_INPUT input)
 {
@@ -28,6 +29,7 @@ VS_OUTPUT main(VS_INPUT input)
     //output.outPosition = mul(output.outPosition, viewMatrix);
     output.outPosition = mul(output.outPosition, projectionMatrix);
 
+    output.projection = projectionMatrix;
     output.outTexCoord = input.inTexCoord;
     return output;
 }

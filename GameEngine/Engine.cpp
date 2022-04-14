@@ -265,6 +265,7 @@ void Engine::RenderFrame(float& dt,float& fps)
 			}
 		}
 		entities[entities.size() - 1].entityName = "Entity" + std::to_string(entities.size() + nameIndex);
+		entities[entities.size() - 1].model.isTextured = renderer.hasTexture;
 		asyncAddEntity = std::async(std::launch::async, &Engine::AddEntity, this, std::ref(renderer.inName), std::ref(renderer.isAnimated), std::ref(renderer.bConvertCordinates));
 		renderer.bAddEntity = false;
 	}
@@ -526,6 +527,7 @@ void Engine::CopyPasteEntity()
 				{
 					copiedEntityData.trans = entities[i].physicsComponent.aStaticActor->getGlobalPose();
 				}
+				copiedEntityData.isTextured = entities[i].model.isTextured;
 				copiedEntityData.AnimFilePaths = entities[i].model.animFiles;
 				copiedEntityData.bRender = entities[i].bRender;
 				copiedEntityData.FilePath = entities[i]._filePath;
@@ -558,6 +560,7 @@ void Engine::CopyPasteEntity()
 	if (pasteEntity)
 	{
 		entities.push_back(Entity());
+		entities[entities.size() - 1].model.isTextured = copiedEntityData.isTextured;
 		entities[entities.size() - 1].filePath = copiedEntityData.FilePath;
 		entities[entities.size() - 1].model.animFiles = copiedEntityData.AnimFilePaths;
 	

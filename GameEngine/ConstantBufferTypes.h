@@ -84,3 +84,10 @@ struct CB_PS_materialBuffer
 	DirectX::XMFLOAT3 emissiveColor;
 	float bEmissive;
 };
+
+struct CB_PS_ssaoBuffer
+{
+	DirectX::XMMATRIX projectionMatrix;
+	DirectX::XMMATRIX viewMatrix;
+	DirectX::XMFLOAT4 ssaoKernel[48];
+};

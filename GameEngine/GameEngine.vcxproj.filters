@@ -631,5 +631,8 @@
     <FxCompile Include="DeferredSpotLightPS.hlsl">
       <Filter>Shaders\Pixel</Filter>
     </FxCompile>
+    <FxCompile Include="SsaoPS.hlsl">
+      <Filter>Shaders\Pixel</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

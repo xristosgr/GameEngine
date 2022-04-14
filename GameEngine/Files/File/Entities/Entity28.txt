@@ -37,6 +37,7 @@ Frustum= 1
 isDeleted= 0
 isEmissive= 1
 isTransparent= 0
+isTextured= 1
 physicsShape= -1
 animFilesCount= 0
 entityName= Entity30

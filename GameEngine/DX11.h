@@ -56,6 +56,7 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState_Wrap;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState_Clamp;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState_MipMap;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState_point;
 
 	VertexShader vs2D;
 	VertexShader testVS;
@@ -95,6 +96,7 @@ public:
 	PixelShader shadowVerticalBlurPS;
 	PixelShader deferredLightPassPS;
 	PixelShader deferredSpotLightPS;
+	PixelShader ssaoPS;
 
 	VertexBuffer<Vertex> vertexBuffer;
 
@@ -112,6 +114,7 @@ public:
 	ConstantBuffer<CB_PS_screenEffectBuffer> cb_ps_screenEffectBuffer;
 	ConstantBuffer<CB_PS_pbrBuffer> cb_ps_pbrBuffer;
 	ConstantBuffer<CB_PS_materialBuffer> cb_ps_materialBuffer;
+	ConstantBuffer<CB_PS_ssaoBuffer> cb_ps_ssaoBuffer;
 
 	RenderTexture renderTexture;
 	//RenderTexture shadowTexture;

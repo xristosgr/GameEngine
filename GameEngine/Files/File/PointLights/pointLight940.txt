@@ -1,6 +1,6 @@
-posX= -298.616
+posX= -98.8725
 posY= 2.4
-posZ= -13.583
+posZ= -2.97357
 scaleX= 0.02
 scaleY= 0.02
 scaleZ= 0.02
@@ -16,7 +16,7 @@ directionZ= -12.69
 spotDirX= 0
 spotDirY= 0
 spotDirZ= 0
-radius= 4.05
+radius= 1.5
 cutOff= 0.27
 lightType= 0
 dimensions= 1

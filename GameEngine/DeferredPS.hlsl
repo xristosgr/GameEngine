@@ -14,7 +14,9 @@ struct PS_INPUT
     float3 inWorldPos : WOLRD_POSITION;
     float3 inTangent : TANGENT;
     float3 inBinormal : BINORMAL;
-    float distToCamera : TEXCOORD1;
+    
+    float3 inViewNormal : NORMAL1;
+    float3 inViewPos : WOLRD_POSITION1;
 };
 
 struct PS_OUTPUT
@@ -24,6 +26,9 @@ struct PS_OUTPUT
     float4 roughnessMetalic : SV_Target2;
     float4 worldPosition : SV_Target3;
     float4 depth : SV_TARGET4;
+    
+    float4 viewNormal : SV_TARGET5;
+    float4 viewPos : SV_TARGET6;
 };
 
 Texture2D albedoTexture : TEXTURE : register(t0);
@@ -67,5 +72,7 @@ PS_OUTPUT main(PS_INPUT input) : SV_TARGET
     float depthValue = input.inPosition.z / input.inPosition.w;
     output.depth = float4(depthValue, depthValue, depthValue,1.0f);
     
+    output.viewNormal = normalize(float4(input.inViewNormal, 1.0f));
+    output.viewPos = float4(input.inViewPos, 1.0f);
     return output;
 }

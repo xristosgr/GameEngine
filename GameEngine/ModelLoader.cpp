@@ -7,6 +7,7 @@ ModelLoader::ModelLoader()
 	isTransparent = false;
 	bConvertCordinates = false;
 	isAttached = false;
+	isTextured = true;
 }
 
 bool ModelLoader::Initialize(const std::string filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContex, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, bool isAnimated)
@@ -219,16 +220,20 @@ Mesh ModelLoader::ProcessMesh(aiMesh* mesh, const aiScene* scene, const DirectX:
 
 	if (!texturesLoaded)
 	{
-		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-		std::vector<Texture> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
-		textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
+		if (isTextured)
+		{
+			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+			std::vector<Texture> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
+			textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
 
 
-		std::vector<Texture> normalTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_NORMALS, scene);
-		textures.insert(textures.end(), normalTextures.begin(), normalTextures.end());
+			std::vector<Texture> normalTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_NORMALS, scene);
+			textures.insert(textures.end(), normalTextures.begin(), normalTextures.end());
 
-		std::vector<Texture> roughnessMetallicTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_UNKNOWN, scene);
-		textures.insert(textures.end(), roughnessMetallicTextures.begin(), roughnessMetallicTextures.end());
+			std::vector<Texture> roughnessMetallicTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_UNKNOWN, scene);
+			textures.insert(textures.end(), roughnessMetallicTextures.begin(), roughnessMetallicTextures.end());
+		}
+		
 	}
 	
 

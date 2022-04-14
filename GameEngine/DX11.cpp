@@ -260,7 +260,7 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		sampDesc.MipLODBias = 0.0f;
 		sampDesc.MinLOD = 0;
 		sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-		hr = this->device->CreateSamplerState(&sampDesc, this->samplerState_Wrap.GetAddressOf()); //Create sampler state wrap
+		hr = this->device->CreateSamplerState(&sampDesc, this->samplerState_Wrap.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
 
 		sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
@@ -270,7 +270,15 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-		hr = this->device->CreateSamplerState(&sampDesc, this->samplerState_Clamp.GetAddressOf()); //Create sampler state clamp
+		hr = this->device->CreateSamplerState(&sampDesc, this->samplerState_Clamp.GetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
+
+		sampDesc.Filter = D3D11_FILTER::D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.ComparisonFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_ALWAYS;
+		hr = this->device->CreateSamplerState(&sampDesc, this->samplerState_point.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
 
 		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -278,7 +286,9 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		hr = this->device->CreateSamplerState(&sampDesc, this->samplerState_MipMap.GetAddressOf()); //Create sampler state wrap
+		hr = this->device->CreateSamplerState(&sampDesc, this->samplerState_MipMap.GetAddressOf());
+		COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
+
 	}
 	catch (COMException& exception)
 	{
@@ -383,7 +393,7 @@ bool DX11::InitializeShaders()
 	initPSShader(&shadowPS, device, L"ShadowPS.cso");
 	initPSShader(&shadowHorizontalBlurPS, device, L"ShadowHorizontalPS.cso");
 	initPSShader(&shadowVerticalBlurPS, device, L"ShadowVerticalPS.cso");
-
+	initPSShader(&ssaoPS, device, L"SsaoPS.cso");
 	return true;
 }
 

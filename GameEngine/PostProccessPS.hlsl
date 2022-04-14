@@ -13,6 +13,7 @@ cbuffer screenEffectBuffer : register(b3)
 Texture2D objTexture : TEXTURE : register(t0);
 Texture2D bloomTexture : TEXTURE : register(t1);
 Texture2D forwardRenderTexture : TEXTURE : register(t2);
+Texture2D hbaoPlusTexture : TEXTURE : register(t3);
 
 SamplerState objSamplerState : SAMPLER : register(s0);
 SamplerState objSamplerStateClamp : SAMPLER : register(s1);
@@ -23,9 +24,9 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 bloom = bloomTexture.Sample(objSamplerState, input.inTexCoord);
     float3 forwardColor = forwardRenderTexture.Sample(objSamplerState, input.inTexCoord);
 
-  
+    float3 hbaoPlus = hbaoPlusTexture.Sample(objSamplerState, input.inTexCoord);
+    sampleColor *= hbaoPlus;
     sampleColor += bloom * bloomStrength;
-    
     
     sampleColor += forwardColor;
     

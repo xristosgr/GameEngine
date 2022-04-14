@@ -13,7 +13,7 @@ RenderTexture::RenderTexture()
 
 }
 
-bool RenderTexture::Initialize(ID3D11Device* device, int width, int height)
+bool RenderTexture::Initialize(ID3D11Device* device, int width, int height, bool bMapData, D3D11_SUBRESOURCE_DATA* data)
 {
 	try
 	{
@@ -41,7 +41,11 @@ bool RenderTexture::Initialize(ID3D11Device* device, int width, int height)
 
 		if (!init)
 		{
-			hr = device->CreateTexture2D(&textureDesc, NULL, &m_renderTargetTexture);
+			if (bMapData)
+				hr = device->CreateTexture2D(&textureDesc, data, &m_renderTargetTexture);
+			else
+				hr = device->CreateTexture2D(&textureDesc, NULL, &m_renderTargetTexture);
+
 			COM_ERROR_IF_FAILED(hr, "Failed to create texture");
 		}
 

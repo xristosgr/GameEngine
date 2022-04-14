@@ -34,6 +34,7 @@ public:
 	bool isTransparent;
 	bool bConvertCordinates;
 	bool isAttached;
+	bool isTextured;
 
 	std::vector<std::string> animFiles;
 
