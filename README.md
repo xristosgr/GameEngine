@@ -12,18 +12,31 @@
 <br />
 
 - ## Features
- - Physically based rendering(PBR)
-  
 
+
+ - Physically based rendering(PBR)
+ 
  https://user-images.githubusercontent.com/32782134/163597456-cf06261a-3dc9-4537-982a-0a3b27334b76.mp4
 
  https://user-images.githubusercontent.com/32782134/163598252-fb64da9d-0af7-45a9-b233-c65698e7984b.mp4
 
 <br />
 
+<br />
+
+- Deferred rendering
+  
+
+ ![Screenshot 2022-04-15 210117](https://user-images.githubusercontent.com/32782134/163605102-f6d7a1ae-bdf9-4cc6-98e7-78a331b48cc6.jpg)   1000 point lights
+
+<br />
+
+<br />
  - Skeletal animation with bone attachments and 3rd person controller
 
   ![ezgif-5-9dbb42043c](https://user-images.githubusercontent.com/32782134/163599871-052728a6-c2d4-4960-9d56-8c7c61915045.gif)
+
+<br />
 
 <br />
 
@@ -37,10 +50,14 @@
 
 <br />
 
+<br />
+
 - Physics
 
   ![ezgif-5-8224f5fd9f](https://user-images.githubusercontent.com/32782134/163603923-5352db82-49ab-4c0b-8f2b-d356f001a9c2.gif)
 
+<br />
+ 
 <br />
 
 - 3D sounds
