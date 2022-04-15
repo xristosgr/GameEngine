@@ -24,38 +24,44 @@ void NavMeshClass::CalculatePath(float& dt, Entity* start, Entity* end, AIContro
 	end->physicsComponent.trans = end->physicsComponent.aActor->getGlobalPose();
 	controller.v2 = end->physicsComponent.trans.p;
 
-	for (int i = 0; i < validNodes.size(); ++i)
+	if (!hasInit || (controller.v2.x < endNode->pos.x - acceptedRadius || controller.v2.x > endNode->pos.x + acceptedRadius ||
+		controller.v2.z < endNode->pos.z - acceptedRadius || controller.v2.z > endNode->pos.z + acceptedRadius))
 	{
-		validNodes[i].gCost = 0.0f;
-		validNodes[i].hCost = 0.0f;
-		validNodes[i].parent = nullptr;
-		validNodes[i].isInCloseList = false;
-		validNodes[i].isInOpenList = false;
+		hasInit = true;
+		for (int i = 0; i < validNodes.size(); ++i)
+		{
+			validNodes[i].gCost = 0.0f;
+			validNodes[i].hCost = 0.0f;
+			validNodes[i].parent = nullptr;
+			validNodes[i].isInCloseList = false;
+			validNodes[i].isInOpenList = false;
 
-		if (controller.v1.x >= validNodes[i].pos.x - acceptedRadius && controller.v1.x <= validNodes[i].pos.x + acceptedRadius &&
-			controller.v1.z >= validNodes[i].pos.z - acceptedRadius && controller.v1.z <= validNodes[i].pos.z + acceptedRadius)
-		{
-			startNode = &validNodes[i];
-			validNodes[i].isAiActive = true;
+			if (controller.v1.x >= validNodes[i].pos.x - acceptedRadius && controller.v1.x <= validNodes[i].pos.x + acceptedRadius &&
+				controller.v1.z >= validNodes[i].pos.z - acceptedRadius && controller.v1.z <= validNodes[i].pos.z + acceptedRadius)
+			{
+				startNode = &validNodes[i];
+				validNodes[i].isAiActive = true;
+			}
+			else
+				validNodes[i].isAiActive = false;
+
+			if (controller.v2.x >= validNodes[i].pos.x - acceptedRadius && controller.v2.x <= validNodes[i].pos.x + acceptedRadius &&
+				controller.v2.z >= validNodes[i].pos.z - acceptedRadius && controller.v2.z <= validNodes[i].pos.z + acceptedRadius)
+			{
+				endNode = &validNodes[i];
+				validNodes[i].isPlayerActive = true;
+			}
+			else
+				validNodes[i].isPlayerActive = false;
 		}
-		else
-			validNodes[i].isAiActive = false;
-		
-		if (controller.v2.x >= validNodes[i].pos.x - acceptedRadius && controller.v2.x <= validNodes[i].pos.x + acceptedRadius &&
-			controller.v2.z >= validNodes[i].pos.z - acceptedRadius && controller.v2.z <= validNodes[i].pos.z + acceptedRadius)
-		{
-			endNode = &validNodes[i];
-			validNodes[i].isPlayerActive = true;
-		}
-		else
-			validNodes[i].isPlayerActive = false;
+
+		if (!startNode || !endNode)
+			return;
+		//Solve_AStar(dt, start, end, gravity);
+		solve_async = std::async(std::launch::async, &NavMeshClass::Solve_AStar, this, std::ref(dt), start, end, std::ref(gravity));
+
 	}
-
-	if (!startNode || !endNode)
-		return;
-	//Solve_AStar(dt, start, end, gravity);
-	solve_async = std::async(std::launch::async, &NavMeshClass::Solve_AStar, this, std::ref(dt), start, end, std::ref(gravity));
-
+	
 	for (int i = start->locations.size() - 1; i >= 0; --i)
 	{
 			//OutputDebugStringA("HAS SIGHT!!!!\n");

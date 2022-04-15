@@ -24,6 +24,7 @@ private:
 
 	AppTimer timer;
 
+	bool hasInit = false;
 public:
 
 	std::vector<NodeClass> validNodes;
