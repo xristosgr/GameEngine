@@ -6,9 +6,9 @@ Shadows::Shadows()
 
 void Shadows::Initialize(DX11& gfx11)
 {
-	shadowTexture.Initialize(gfx11.device.Get(), 512, 512);
-	shadowHorizontalBlurTexture.Initialize(gfx11.device.Get(), 256, 256);
-	shadowVerticalBlurTexture.Initialize(gfx11.device.Get(), 256, 256);
+	shadowTexture.Initialize(gfx11.device.Get(), 1024, 1024);
+	shadowHorizontalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
+	shadowVerticalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
 }
 
 void Shadows::RenderToTexture(DX11& gfx11, std::vector<Entity>& entities, Camera& camera, RenderTexture& shadowMap, Light& light, float& renderDistance)

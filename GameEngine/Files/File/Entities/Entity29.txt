@@ -1,7 +1,7 @@
 mass= 0
-posX= 8.17438
-posY= 1.10785
-posZ= -0.384198
+posX= 12.2924
+posY= 0.795885
+posZ= -1.99114
 rotX= 0
 rotY= 0
 rotZ= 0
@@ -42,5 +42,5 @@ physicsShape= 0
 animFilesCount= 0
 entityName= Entity38
 attachedEntityName= Entity3
-attachedBone= LeftHand
+attachedBone= mixamorig_LeftHand
 filePath= .//Data/Objects/TestScene/cube.gltf
