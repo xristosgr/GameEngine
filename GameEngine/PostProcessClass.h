@@ -12,7 +12,7 @@ public:
 	void BloomRender(DX11& gfx11, RectShape& rect, Camera& camera);
 
 	void HbaoPlusInit(DX11& gfx11, int width, int height);
-	void HbaoPlusRender(DX11& gfx11, RectShape& rect, Camera& camera, ID3D11ShaderResourceView* depthView);
+	void HbaoPlusRender(DX11& gfx11, RectShape& rect, Camera& camera, ID3D11ShaderResourceView* depthView, ID3D11ShaderResourceView* normalView);
 	RenderTexture bloomRenderTexture;
 	RenderTexture BloomVerticalBlurTexture, BloomHorizontalBlurTexture, downSampleTexture;
 	RenderTexture hbaoTexture;

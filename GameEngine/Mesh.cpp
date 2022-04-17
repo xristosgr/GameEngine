@@ -44,7 +44,7 @@ Mesh::Mesh(Microsoft::WRL::ComPtr<ID3D11Device>& device, Microsoft::WRL::ComPtr<
 }
 
 
-void Mesh::Draw()
+void Mesh::Draw(Texture* text)
 {
 	ID3D11Buffer* buffers[2] = { vertexBuffer.Get(),boneDataBuffer.Get() };
 	const UINT stride[2] = { vertexBuffer.Stride(),boneDataBuffer.Stride() };
@@ -73,6 +73,16 @@ void Mesh::Draw()
 			}
 			
 		}
+	}
+	else
+	{
+		if (text)
+		{
+			this->deviceContext->PSSetShaderResources(0, 1,	text[0].GetTextureResourceViewAddress());
+			this->deviceContext->PSSetShaderResources(1, 1,	text[1].GetTextureResourceViewAddress());
+			this->deviceContext->PSSetShaderResources(2, 1,	text[2].GetTextureResourceViewAddress());
+		}
+		
 	}
 	
 

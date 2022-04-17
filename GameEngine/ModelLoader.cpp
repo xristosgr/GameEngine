@@ -343,7 +343,7 @@ std::vector<Texture> ModelLoader::LoadMaterialTextures(aiMaterial* pMaterial, ai
 	return materialTextures;
 }
 
-void ModelLoader::Draw(const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix)
+void ModelLoader::Draw(const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix, Texture* text)
 {
 	if (isAnimated)
 	{
@@ -383,7 +383,7 @@ void ModelLoader::Draw(const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMA
 
 		this->cb_vs_vertexshader.UpdateBuffer();
 
-		meshes[i].Draw();
+		meshes[i].Draw(text);
 
 	}
 }

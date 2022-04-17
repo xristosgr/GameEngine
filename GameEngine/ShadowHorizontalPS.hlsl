@@ -10,7 +10,7 @@ struct PS_INPUT
 };
 
 Texture2D shaderTexture : TEXTURE : register(t0);
-SamplerState SampleType : register(s1);
+SamplerState SampleType : register(s0);
 
 float4 main(PS_INPUT input) : SV_TARGET
 {

@@ -12,7 +12,7 @@ public:
 	bool LoadModel(const std::string filePath);
 	bool LoadAnimation(const std::string& filePath);
 	void LoadTextures();
-	void Draw(const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix);
+	void Draw(const DirectX::XMMATRIX& worldMatrix, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix, Texture* text = nullptr);
 
 	void Clear();
 private:

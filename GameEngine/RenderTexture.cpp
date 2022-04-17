@@ -32,7 +32,8 @@ bool RenderTexture::Initialize(ID3D11Device* device, int width, int height, bool
 		textureDesc.Height = height;
 		textureDesc.MipLevels = 1;
 		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		//textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		textureDesc.SampleDesc.Count = 1;
 		textureDesc.Usage = D3D11_USAGE_DEFAULT;
 		textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
@@ -138,7 +139,8 @@ bool RenderTexture::Initialize(ID3D11Device* device, ID3D11DeviceContext* device
 		textureDesc.Height = textureHeight;
 		textureDesc.MipLevels = 1;
 		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		//textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		textureDesc.SampleDesc.Count = 1;
 		textureDesc.Usage = D3D11_USAGE_DEFAULT;
 		textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
@@ -245,7 +247,8 @@ bool RenderTexture::InitializeCustom(ID3D11Device* device, int textureWidth, int
 		textureDesc.Height = textureHeight;
 		textureDesc.MipLevels = -1;
 		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		//textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		textureDesc.SampleDesc.Count = 1;
 		textureDesc.Usage = D3D11_USAGE_DEFAULT;
 		textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
@@ -492,7 +495,8 @@ bool RenderTexture::CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* de
 		HRESULT hr;
 
 		D3D11_TEXTURE2D_DESC texElementDesc;
-		texElementDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		texElementDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		//texElementDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		textureViews[0]->GetDesc(&texElementDesc);
 
 
@@ -761,7 +765,8 @@ bool RenderTexture::CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* de
 
 
 		D3D11_TEXTURE2D_DESC texElementDesc;
-		texElementDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		texElementDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		//texElementDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		textureViews[0]->GetDesc(&texElementDesc);
 
 

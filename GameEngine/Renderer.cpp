@@ -194,6 +194,9 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 		pointLights[i].radius = 1.0f;
 	}
 
+	defaultText[0].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/shades-tile_albedo.png");
+	defaultText[1].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/shades-tile_normal-dx.png");
+	defaultText[2].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/shades-tile_metallic-shades-tile_roughness.png");
 }
 
 //****************RENDER ENTITIES***************************************
@@ -217,9 +220,9 @@ void Renderer::RenderDeferred(std::vector<Entity>& entities, std::vector<Light>&
 	sky.scale.z = 200;
 	sky.Draw(gfx11.deviceContext.Get(), camera,gfx11.cb_vs_vertexshader);
 	
-	sky.scale.x = 100;
-	sky.scale.y = 100;
-	sky.scale.z = 100;
+	sky.scale.x = 90;
+	sky.scale.y = 90;
+	sky.scale.z = 90;
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		if (entities[i].model.loadAsync && entities[i].physicsComponent.mass == 0.0f)
@@ -279,7 +282,7 @@ void Renderer::RenderDeferred(std::vector<Entity>& entities, std::vector<Light>&
 					}
 				}
 
-				entities[i].Draw(camera, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+				entities[i].Draw(camera, camera.GetViewMatrix(), camera.GetProjectionMatrix(), defaultText);
 			}
 
 
@@ -561,6 +564,8 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	gfx11.deviceContext->PSSetShaderResources(6, 1, &pbr.brdfTexture.shaderResourceView);
 	gfx11.deviceContext->PSSetShaderResources(7, 1, &pbr.irradianceCubeMap.shaderResourceView);
 	gfx11.deviceContext->PSSetShaderResources(8, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
+	//gfx11.deviceContext->PSSetShaderResources(8, 1, &shadowsRenderer.shadowTexture.shaderResourceView);
+
 	gBuffer.LightPass(gfx11, rect, camera,lights,pointLights,acceptedDist);
 
 	gfx11.deviceContext->OMSetBlendState(nullptr, NULL, 0xFFFFFFFF);
@@ -587,7 +592,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		//gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[5]);
 		//gfx11.deviceContext->PSSetShaderResources(1, 1, &gBuffer.m_shaderResourceViewArray[6]);
 		//gfx11.deviceContext->PSSetShaderResources(2, 1, &postProcess.ssao_noiseTexture.shaderResourceView);
-		postProcess.HbaoPlusRender(gfx11, rect, camera, gBuffer.m_shaderResourceViewArray[4]);
+		postProcess.HbaoPlusRender(gfx11, rect, camera, gBuffer.m_shaderResourceViewArray[4], gBuffer.m_shaderResourceViewArray[1]);
 	}
 	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
 	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
@@ -1168,7 +1173,7 @@ void Renderer::RenderToEnvProbe(EnvironmentProbe& probe,Camera& camera, std::vec
 
 				gfx11.deviceContext->IASetInputLayout(gfx11.testVS.GetInputLayout());
 				gfx11.deviceContext->VSSetShader(gfx11.testVS.GetShader(), nullptr, 0);
-				entities[i].Draw(probe.camera[face], probe.camera[face].GetViewMatrix(), probe.camera[face].GetProjectionMatrix());
+				entities[i].Draw(probe.camera[face], probe.camera[face].GetViewMatrix(), probe.camera[face].GetProjectionMatrix(),defaultText);
 			}
 
 		}
@@ -1218,7 +1223,7 @@ void Renderer::ForwardPass(std::vector<Entity>& entities, Camera& camera, Sky& s
 					}
 				}
 
-				entities[i].Draw(camera, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+				entities[i].Draw(camera, camera.GetViewMatrix(), camera.GetProjectionMatrix(),defaultText);
 			}
 		}
 	}

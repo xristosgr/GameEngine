@@ -4,11 +4,11 @@
 
 PostProcessClass::PostProcessClass()
 {
-	radius = 2.0f;
+	radius = 1.0f;
 	bias = 0.2f;
-	sharpness = 32.f;
+	sharpness = 16.f;
 	powerExponent = 2.f;
-	metersToViewSpaceUnits = 10.0f;
+	metersToViewSpaceUnits = 1.0f;
 }
 
 void PostProcessClass::Initialize(DX11& gfx11, int width, int height)
@@ -71,35 +71,40 @@ void PostProcessClass::HbaoPlusInit(DX11& gfx11, int width, int height)
 	customHeap.delete_ = ::operator delete;
 
 
-
 	status = GFSDK_SSAO_CreateContext_D3D11(gfx11.device.Get(), &pAOContext, &customHeap);
 	assert(status == GFSDK_SSAO_OK);
 }
 
-void PostProcessClass::HbaoPlusRender(DX11& gfx11, RectShape& rect, Camera& camera, ID3D11ShaderResourceView* depthView)
+void PostProcessClass::HbaoPlusRender(DX11& gfx11, RectShape& rect, Camera& camera, ID3D11ShaderResourceView* depthView, ID3D11ShaderResourceView* normalView)
 {
-	GFSDK_SSAO_InputData_D3D11 Input;
-	Input.DepthData.DepthTextureType = GFSDK_SSAO_HARDWARE_DEPTHS;
-	Input.DepthData.pFullResDepthTextureSRV = depthView;
-
-	DirectX::XMMATRIX proj = DirectX::XMMatrixTranspose(camera.GetProjectionMatrix());
-	Input.DepthData.ProjectionMatrix.Data = GFSDK_SSAO_Float4x4((const GFSDK_SSAO_FLOAT*)&proj);
-	Input.DepthData.ProjectionMatrix.Layout = GFSDK_SSAO_COLUMN_MAJOR_ORDER;
-	Input.DepthData.MetersToViewSpaceUnits = metersToViewSpaceUnits;
-	
 	GFSDK_SSAO_Parameters Params;
+	//Params.LargeScaleAO = 2.0f;
+	//Params.SmallScaleAO = 2.0f;
 	Params.Radius = radius;
 	Params.Bias = bias;
 	Params.PowerExponent = powerExponent;
 	Params.Blur.Enable = true;
 	Params.Blur.Radius = GFSDK_SSAO_BlurRadius::GFSDK_SSAO_BLUR_RADIUS_4;
 	Params.Blur.Sharpness = sharpness;
-	Params.DepthStorage = GFSDK_SSAO_FP32_VIEW_DEPTHS;
+	Params.DepthStorage = GFSDK_SSAO_FP16_VIEW_DEPTHS;
+
+	GFSDK_SSAO_InputData_D3D11 Input;
+	Input.DepthData.DepthTextureType = GFSDK_SSAO_DepthTextureType::GFSDK_SSAO_HARDWARE_DEPTHS;
+	Input.DepthData.pFullResDepthTextureSRV = depthView;
+	Input.NormalData.Enable = false;
+
+	DirectX::XMMATRIX proj = camera.GetProjectionMatrix();
+	Input.DepthData.ProjectionMatrix.Data = GFSDK_SSAO_Float4x4((const GFSDK_SSAO_FLOAT*)&proj);
+	Input.DepthData.ProjectionMatrix.Layout = GFSDK_SSAO_ROW_MAJOR_ORDER;
+	Input.DepthData.MetersToViewSpaceUnits = metersToViewSpaceUnits;
+	
+
+	GFSDK_SSAO_RenderMask RenderMask = GFSDK_SSAO_RENDER_AO;
 
 	GFSDK_SSAO_Output_D3D11 Output;
 	Output.pRenderTargetView = hbaoTexture.m_renderTargetView;
 	Output.Blend.Mode = GFSDK_SSAO_OVERWRITE_RGB;
-
-	status = pAOContext->RenderAO(gfx11.deviceContext.Get(), Input, Params, Output);
+	
+	status = pAOContext->RenderAO(gfx11.deviceContext.Get(), Input, Params, Output, RenderMask);
 	assert(status == GFSDK_SSAO_OK);
 }

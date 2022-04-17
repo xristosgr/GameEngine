@@ -119,5 +119,7 @@ private:
 
 	bool bHasFinishedLoading = false;
 
+	Texture defaultText[3];
+
 };
 

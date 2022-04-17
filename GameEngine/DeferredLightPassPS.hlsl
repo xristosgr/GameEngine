@@ -76,19 +76,6 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     Lo = pointLight(input, albedo.rgb, pointdynamicLightPosition.xyz, pointdynamicLightColor.rgb, pointRadiusAndcutOff.y, bumpNormal, roughness, metallic, V, F0, worldPos);
     
-    //float3 F = fresnelSchlickRoughness(max(dot(bumpNormal, V), 0.0f), F0, roughness);
-    //float3 kS = F;
-    //float3 kD = 1.0f - kS;
-    //float3 irradiance = irradianceMap.Sample(objSamplerStateMip, bumpNormal.rgb).rgb;
-    //float3 diffuse = irradiance * albedo.rgb;
-    //float3 R = reflect(-V, bumpNormal);
-    //
-    //const float MAX_REF_LOD = 5.0f;
-    //float3 prefilteredColor = prefilterMap.SampleLevel(objSamplerStateMip, R, roughness * MAX_REF_LOD).rgb;
-    //float2 brdf = brdfTexture.Sample(SampleTypeWrap, float2(max(dot(bumpNormal, V), 0.0), roughness)).rg;
-    //
-    //float3 specular = prefilteredColor * (F * brdf.x + brdf.y);
-    //ambient = (kD * diffuse + specular);
     float3 color = Lo;
     
     color = color / (color + float3(1.0, 1.0f, 1.0f));

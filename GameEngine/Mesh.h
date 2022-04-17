@@ -22,7 +22,7 @@ public:
 
 
 
-	void Draw();
+	void Draw(Texture* text = nullptr);
 	const DirectX::XMMATRIX& GetTranformMatrix();
 
 	VertexBuffer<Vertex> vertexBuffer;

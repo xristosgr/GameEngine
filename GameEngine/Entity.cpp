@@ -112,7 +112,7 @@ void Entity::Update()
 	UpdatePhysics();
 }
 
-void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix)
+void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix, Texture* text)
 {
 
 	DirectX::XMMATRIX matrix_scale;
@@ -220,12 +220,12 @@ void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const Dir
 
 			if (frustum.checkFrustum)
 			{
-				model.Draw(worldMatrix, viewMatrix, projectionMatrix);
+				model.Draw(worldMatrix, viewMatrix, projectionMatrix, text);
 			}
 		}
 		else
 		{
-			model.Draw(worldMatrix, viewMatrix, projectionMatrix);
+			model.Draw(worldMatrix, viewMatrix, projectionMatrix, text);
 		}
 	}
 

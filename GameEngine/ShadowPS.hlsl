@@ -107,10 +107,10 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
         
         //if (dist < acceptedDistShadowAndLight.x)
         //{
-            lightDepthValue = lightDepthValue - 0.00008f;
+            //lightDepthValue = lightDepthValue - 0.00008f;
+            lightDepthValue = lightDepthValue - 0.0005f;
         
-        
-            int PCF_RANGE = 2;
+            int PCF_RANGE = 1;
         
             [unroll(PCF_RANGE*2+1)]
             for (int x = -PCF_RANGE; x <= PCF_RANGE; x++)
