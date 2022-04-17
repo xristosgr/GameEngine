@@ -32,6 +32,7 @@
 <br />
 
 <br />
+
  - Skeletal animation with bone attachments and 3rd person controller
 
   ![ezgif-5-9dbb42043c](https://user-images.githubusercontent.com/32782134/163599871-052728a6-c2d4-4960-9d56-8c7c61915045.gif)
