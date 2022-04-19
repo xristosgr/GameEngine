@@ -61,7 +61,7 @@
  
 <br />
 
-- 3D sounds
+- Omnidirectional sounds
  
   https://user-images.githubusercontent.com/32782134/163604633-0602acde-c0b1-49f5-8550-c7b3fb3c5899.mp4
 
