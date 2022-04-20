@@ -33,7 +33,7 @@ Renderer::Renderer()
 	bAddPointLight = false;
 	bAddCollisionObject = false;
 	bClear = false;
-	bCreateGrid = false;
+	bCreateGrid = true;
 	bRenderNavMesh = false;
 	bRenderNavMeshBounds = false;
 	bConvertCordinates = false;
@@ -74,7 +74,7 @@ bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std:
 
 	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
 	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-	camera.PerspectiveFov(70.0f, static_cast<float>(gfx11.windowWidth / gfx11.windowHeight) * (16.0f / 9.0f), 0.1f, 10000.0f);
+	camera.PerspectiveFov(70.0f, static_cast<float>(gfx11.windowWidth / gfx11.windowHeight) * (16.0f / 9.0f), 0.1f, 1000.0f);
 	gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
 	gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -190,8 +190,8 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 		pointLights[i].lightColor = DirectX::XMFLOAT3(5, 20, 1);
 		pointLights[i].emissionColor = DirectX::XMFLOAT3(1, 2, 1);
 		pointLights[i].scale = DirectX::XMFLOAT3(0.02f, 0.02f, 0.02f);
-		pointLights[i].cutOff = 0.05f;
-		pointLights[i].radius = 1.0f;
+		pointLights[i].cutOff = 0.2f;
+		pointLights[i].radius = 2.0f;
 	}
 
 	defaultText[0].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/shades-tile_albedo.png");

@@ -1,7 +1,7 @@
 mass= 0
-posX= -3.41
-posY= 0.98
-posZ= 3.36
+posX= 4.46
+posY= 2.96
+posZ= 7.69
 rotX= 0
 rotY= 0
 rotZ= 0
@@ -40,5 +40,5 @@ isTransparent= 0
 isTextured= 0
 physicsShape= 0
 animFilesCount= 0
-entityName= Entity113
+entityName= Entity111
 filePath= .//Data/Objects/TestScene/cube.gltf

@@ -66,8 +66,6 @@ Camera* Light::GetCamera()
 
 void Light::DrawGui(std::string name)
 {
-	//ImGui::Begin(name.c_str());
-
 	ImGui::Checkbox("Enable", &isLightEnabled);
 	ImGui::Checkbox("CastShadow", &bShadow);
 
@@ -92,15 +90,6 @@ void Light::DrawGui(std::string name)
 	ImGui::DragFloat("farZ", &farZ, 0.05f);
 	ImGui::DragFloat("fov", &fov, 0.05f);
 	ImGui::DragFloat("dimmensions", &dimensions, 0.05f);
-
-
-
-
-	//ImGui::DragFloat3("coneRotate", &coneRot.x, 0.005f);
-	//ImGui::DragFloat3("coneTranslation", &conePos.x, 0.005f);
-	ImGui::DragFloat3("volumeScale", &volumeScale.x, 0.005f);
-
-	//ImGui::End();
 }
 
 void Light::Draw(Camera& camera)

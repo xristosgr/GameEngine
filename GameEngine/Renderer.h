@@ -96,6 +96,9 @@ public:
 
 
 	DirectX::XMFLOAT3 skyColor;
+
+
+	bool bHasFinishedLoading = false;
 private:
 	int windowWidth, windowHeight;
 	EnvironmentProbe environmentProbe;
@@ -117,7 +120,6 @@ private:
 
 	AppTimer timer;
 
-	bool bHasFinishedLoading = false;
 
 	Texture defaultText[3];
 

@@ -62,19 +62,19 @@ float4 main(PS_INPUT input) : SV_TARGET
         if (i > lightsSize - 1)
             break;
         
-        float distance = length(dynamicLightPosition[i].xyz - input.inWorldPos);
+        //float distance = length(dynamicLightPosition[i].xyz - input.inWorldPos);
         //if (distance < RadiusAndcutOff[i].x)
         //{
             float3 shadows = Shadows(input.lightViewPosition[i], depthMapTextures[i], input.distToCamera, input,i);
             float3 light = float3(albedo.r * 0.5f, albedo.g * 0.5f, albedo.b * 0.5f);
  
             color += shadows;
-        //}
-        //else
-        //{
-        //    color += float3(1, 1, 1);
-        //
-        //}
+       // }
+       // else
+       // {
+       //     color += float3(0, 0, 0);
+       // 
+       // }
         
     }    
     return float4(color, 1.0);
@@ -110,7 +110,7 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
             //lightDepthValue = lightDepthValue - 0.00008f;
             lightDepthValue = lightDepthValue - 0.0005f;
         
-            int PCF_RANGE = 1;
+            int PCF_RANGE = 2;
         
             [unroll(PCF_RANGE*2+1)]
             for (int x = -PCF_RANGE; x <= PCF_RANGE; x++)

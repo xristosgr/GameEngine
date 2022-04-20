@@ -181,6 +181,8 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 
 			outfile << "lightType= " << lights[i].lightType << "\n";
 			outfile << "dimensions= " << lights[i].dimensions << "\n";
+			outfile << "nearZ= " << lights[i].nearZ << "\n";
+			outfile << "farZ= " << lights[i].farZ << "\n";
 			outfile << "fov= " << lights[i].fov << "\n";
 			outfile.close();
 		}
@@ -652,6 +654,14 @@ void SaveSystem::LoadLightData(std::vector<Light>& lights, std::vector<Light>& p
 					if (path == "dimensions=")
 					{
 						lights[i].dimensions = (float)val;
+					}
+					if (path == "nearZ=")
+					{
+						lights[i].nearZ = (float)val;
+					}
+					if (path == "farZ=")
+					{
+						lights[i].farZ = (float)val;
 					}
 					if (path == "fov=")
 					{

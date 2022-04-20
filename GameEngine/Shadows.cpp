@@ -34,18 +34,26 @@ void Shadows::RenderShadowEntities(DX11& gfx11, std::vector<Entity>& entities, L
 
 		if (dist < renderDistance)
 		{
-			if (entities[i].model.isAnimated)
-			{
-				gfx11.deviceContext->IASetInputLayout(gfx11.depthAnimVS.GetInputLayout());
-				gfx11.deviceContext->VSSetShader(gfx11.depthAnimVS.GetShader(), nullptr, 0);
-			}
-			else
-			{
-				gfx11.deviceContext->IASetInputLayout(gfx11.depthVS.GetInputLayout());
-				gfx11.deviceContext->VSSetShader(gfx11.depthVS.GetShader(), nullptr, 0);
-			}
+			//DirectX::XMFLOAT3 lightDiff = DirectX::XMFLOAT3(light.pos.x - entities[i].pos.x, light.pos.y - entities[i].pos.y, light.pos.z - entities[i].pos.z);
+			//physx::PxVec3 lightDiffVec = physx::PxVec3(lightDiff.x, lightDiff.y, lightDiff.z);
+			//float lightDist = lightDiffVec.dot(lightDiffVec);
+			//
+			//if (lightDist < light.lightDist)
+			//{
+				if (entities[i].model.isAnimated)
+				{
+					gfx11.deviceContext->IASetInputLayout(gfx11.depthAnimVS.GetInputLayout());
+					gfx11.deviceContext->VSSetShader(gfx11.depthAnimVS.GetShader(), nullptr, 0);
+				}
+				else
+				{
+					gfx11.deviceContext->IASetInputLayout(gfx11.depthVS.GetInputLayout());
+					gfx11.deviceContext->VSSetShader(gfx11.depthVS.GetShader(), nullptr, 0);
+				}
 
-			entities[i].Draw(camera, viewMatrix, projectionMatrix);
+				entities[i].Draw(camera, viewMatrix, projectionMatrix);
+			//}
+			
 		}
 	}
 }
@@ -75,6 +83,7 @@ void Shadows::RenderEntities(DX11& gfx11, std::vector<Entity>& entities, std::ve
 		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
 		float dist = diffVec.dot(diffVec);
 
+		
 		if (entities[i].model.isAnimated)
 		{
 			gfx11.deviceContext->IASetInputLayout(gfx11.animVS.GetInputLayout());

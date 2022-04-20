@@ -8,6 +8,7 @@ TpsController::TpsController()
 	currRotation = RotationEnum::UP;
 	vPrevLookAt = DirectX::XMVECTOR{ 0,0,0 };
 	CharacterRotY = 0.0f;
+	zoom = 2.3f;
 }
 
 void TpsController::Intitialize()
@@ -17,7 +18,7 @@ void TpsController::Intitialize()
 
 void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard, Mouse& mouse, Camera& camera)
 {
-	const float cameraSpeed = 0.05f;
+	const float cameraSpeed = 0.07f;
 
 	DirectX::XMFLOAT4 rightFloat4;
 	DirectX::XMStoreFloat4(&rightFloat4, camera.GetRightVector());
@@ -60,12 +61,12 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 
 		if (mouse.IsRightDown())
 		{
-			if (zoom > 2.0f)
+			if (zoom > 1.8f)
 				zoom -= 0.2f;
 		}
 		else
 		{
-			if (zoom < 3.4f)
+			if (zoom < 2.8f)
 				zoom += 0.2f;
 		}
 

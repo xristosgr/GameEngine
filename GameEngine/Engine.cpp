@@ -446,69 +446,74 @@ void Engine::ObjectsHandler(float& dt)
 void Engine::AIHandler(float& dt)
 {
 	grid.SetupGridBounds();
-	if (renderer.bCreateGrid)
-	{
-		renderer.bCreateGrid = false;
-		grid.bCreateMesh = true;
-	}
 
-	if (grid.bCreateMesh)
+	if (renderer.bHasFinishedLoading)
 	{
-		AIEntities.clear();
-		for (int i = 0; i < entities.size(); ++i)
+		if (renderer.bCreateGrid)
 		{
-			if (entities[i].isAI)
-			{
-				AIEntities.push_back(&entities[i]);
-			
-			}
+			renderer.bCreateGrid = false;
+			grid.bCreateMesh = true;
 		}
-		isNavMeshCreated = false;
-		grid.isReady = false;
 
-		grid.nodes.clear();
-		navMeshes.clear();
-		async_navMesh.clear();
-		navMeshes.resize(AIEntities.size());
-		async_navMesh.resize(AIEntities.size());
-		grid.Initialize(renderer.gfx11.device, renderer.gfx11.deviceContext, DirectX::XMMatrixIdentity(), renderer.gfx11.cb_vs_vertexshader);
-		grid.bCreateMesh = false;
-	}
-	if (!isNavMeshCreated && grid.isReady)
-	{
-		physicsHandler.NavMeshRayCast(grid, entities, collisionObjects);
-		
-		for (int i = 0; i < navMeshes.size(); ++i)
+		if (grid.bCreateMesh)
 		{
-			async_navMesh[i] = std::async(std::launch::async, &GridClass::CreatePathGrid, &grid, std::ref(navMeshes[i].validNodes));
-		}
-		isNavMeshCreated = true;
-	}
-
-	if (renderer.runPhysics)
-	{
-		for (int i = 0; i < AIEntities.size(); ++i)
-		{
-			if (AIEntities[i])
+			AIEntities.clear();
+			for (int i = 0; i < entities.size(); ++i)
 			{
-				if (AIEntities[i]->physicsComponent.aActor)
+				if (entities[i].isAI)
 				{
-					float gravity = physicsHandler.aScene->getGravity().y;
-					physicsHandler.FallCheck(AIEntities[i]);
-					physicsHandler.LineOfSightToPlayer(AIEntities[i], player);
-					if (isNavMeshCreated)
-					{
-						//async_navMesh.clear();
-						navMeshes[i].CalculatePath(dt, AIEntities[i], player, enemyController, grid, gravity);
-					}
-					
-						
+					AIEntities.push_back(&entities[i]);
+
 				}
 			}
-		}
-		
+			isNavMeshCreated = false;
+			grid.isReady = false;
 
+			grid.nodes.clear();
+			navMeshes.clear();
+			async_navMesh.clear();
+			navMeshes.resize(AIEntities.size());
+			async_navMesh.resize(AIEntities.size());
+			grid.Initialize(renderer.gfx11.device, renderer.gfx11.deviceContext, DirectX::XMMatrixIdentity(), renderer.gfx11.cb_vs_vertexshader);
+			grid.bCreateMesh = false;
+		}
+		if (!isNavMeshCreated && grid.isReady)
+		{
+			physicsHandler.NavMeshRayCast(grid, entities, collisionObjects);
+
+			for (int i = 0; i < navMeshes.size(); ++i)
+			{
+				async_navMesh[i] = std::async(std::launch::async, &GridClass::CreatePathGrid, &grid, std::ref(navMeshes[i].validNodes));
+			}
+			isNavMeshCreated = true;
+		}
+
+		if (renderer.runPhysics)
+		{
+			for (int i = 0; i < AIEntities.size(); ++i)
+			{
+				if (AIEntities[i])
+				{
+					if (AIEntities[i]->physicsComponent.aActor)
+					{
+						float gravity = physicsHandler.aScene->getGravity().y;
+						physicsHandler.FallCheck(AIEntities[i]);
+						physicsHandler.LineOfSightToPlayer(AIEntities[i], player);
+						if (isNavMeshCreated)
+						{
+							//async_navMesh.clear();
+							navMeshes[i].CalculatePath(dt, AIEntities[i], player, enemyController, grid, gravity);
+						}
+
+
+					}
+				}
+			}
+
+
+		}
 	}
+
 }
 
 void Engine::CopyPasteEntity()
