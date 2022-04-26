@@ -18,7 +18,7 @@ void TpsController::Intitialize()
 
 void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard, Mouse& mouse, Camera& camera)
 {
-	const float cameraSpeed = 0.07f;
+	const float cameraSpeed = 0.055f;
 
 	DirectX::XMFLOAT4 rightFloat4;
 	DirectX::XMStoreFloat4(&rightFloat4, camera.GetRightVector());
@@ -40,7 +40,7 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 			{
 				//OutputDebugStringA(("Y= " + std::to_string(me.GetPosX()) + "\n").c_str());
 				CharacterRotY += static_cast<float>(me.GetPosY()) * cameraSpeed * 0.15f;
-				CharacterRotY = std::clamp(CharacterRotY, -2.0f, 2.0f);
+				CharacterRotY = std::clamp(CharacterRotY, -2.f, 2.8f);
 
 				CharacterRotX = me.GetPosX();
 				//camera.AdjustPosition(rightFloat4.x * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f), 0, rightFloat4.z * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f));
@@ -61,15 +61,15 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 
 		if (mouse.IsRightDown())
 		{
-			if (zoom > 1.8f)
-				zoom -= 0.2f;
+			//if (zoom > 1.5f)
+			zoom -= 0.2f;
 		}
 		else
 		{
-			if (zoom < 2.8f)
-				zoom += 0.2f;
+			//if (zoom < 2.5f)
+			zoom += 0.2f;
 		}
-
+		zoom = std::clamp(zoom, 1.5f, 2.5f);
 
 		camera.SetPosition(entity.pos.x + (-zoom * std::sin(camera.yaw)), entity.pos.y + CharacterRotY, entity.pos.z + (-zoom * std::cos(camera.yaw)));
 

@@ -454,18 +454,18 @@ bool RenderTexture::RenderCubeMapFaces(ID3D11Device* device, ID3D11DeviceContext
 		//color[3] = 1.0f;
 
 
-		if (bSave)
-		{
-
-			ID3D11Resource* resource;
-			m_renderTargetViews[index]->GetResource(&resource);
-			std::string str = "probeMap" + std::to_string(index) + ".jpg";
-			std::wstring fileName = std::wstring(str.begin(), str.end());
-			const wchar_t* wFileName = fileName.c_str();
-			//hr = DirectX::SaveDDSTextureToFile(deviceContext,resource, wFileName);
-			hr = DirectX::SaveWICTextureToFile(deviceContext, resource, GUID_ContainerFormatJpeg, wFileName, nullptr, nullptr, true);
-			COM_ERROR_IF_FAILED(hr, "Failed to create SaveWICTextureToFile");
-		}
+		//if (bSave)
+		//{
+		//
+		//	ID3D11Resource* resource;
+		//	m_renderTargetViews[index]->GetResource(&resource);
+		//	std::string str = "probeMap" + std::to_string(index) + ".jpg";
+		//	std::wstring fileName = std::wstring(str.begin(), str.end());
+		//	const wchar_t* wFileName = fileName.c_str();
+		//	//hr = DirectX::SaveDDSTextureToFile(deviceContext,resource, wFileName);
+		//	hr = DirectX::SaveWICTextureToFile(deviceContext, resource, GUID_ContainerFormatJpeg, wFileName, nullptr, nullptr, true);
+		//	COM_ERROR_IF_FAILED(hr, "Failed to create SaveWICTextureToFile");
+		//}
 
 		deviceContext->ClearRenderTargetView(m_renderTargetViews[index], rgba);
 		if (copyDepth)
