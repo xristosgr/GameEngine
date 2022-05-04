@@ -4,11 +4,17 @@
 
 PostProcessClass::PostProcessClass()
 {
-	radius = 0.01f;
-	bias = 0.5f;
+	//radius = 0.01f;
+	//bias = 0.5f;
+	//sharpness = 16.f;
+	//powerExponent = 4.f;
+	//metersToViewSpaceUnits = 1.0f;
+
+	radius = 1.0f;
+	bias = 1.0f;
 	sharpness = 16.f;
-	powerExponent = 4.f;
-	metersToViewSpaceUnits = 1.0f;
+	powerExponent = 2.f;
+	metersToViewSpaceUnits = 0.015f;
 }
 
 void PostProcessClass::Initialize(DX11& gfx11, int width, int height)
@@ -92,10 +98,10 @@ void PostProcessClass::HbaoPlusRender(DX11& gfx11, RectShape& rect, Camera& came
 	Input.DepthData.DepthTextureType = GFSDK_SSAO_DepthTextureType::GFSDK_SSAO_HARDWARE_DEPTHS;
 	Input.DepthData.pFullResDepthTextureSRV = depthView;
 	Input.NormalData.Enable = true;
-	Input.NormalData.DecodeBias = bias;
-	Input.NormalData.DecodeScale = radius;
+	Input.NormalData.DecodeBias = 1;
+	Input.NormalData.DecodeScale = 1;
 	Input.NormalData.pFullResNormalTextureSRV = normalView;
-	DirectX::XMMATRIX worldMat = DirectX::XMMatrixRotationRollPitchYawFromVector(camera.GetRotationVector()) * DirectX::XMMatrixTranslationFromVector(camera.GetPositionVector());
+	DirectX::XMMATRIX worldMat =  DirectX::XMMatrixTranslationFromVector(camera.GetPositionVector()) * DirectX::XMMatrixRotationRollPitchYawFromVector(camera.GetRotationVector());
 	DirectX::XMMATRIX worldView = DirectX::XMMatrixTranspose(camera.GetViewMatrix()) * DirectX::XMMatrixTranspose(worldMat);
 	Input.NormalData.WorldToViewMatrix.Layout = GFSDK_SSAO_COLUMN_MAJOR_ORDER;
 	Input.NormalData.WorldToViewMatrix.Data = GFSDK_SSAO_Float4x4((const GFSDK_SSAO_FLOAT*)&worldView);

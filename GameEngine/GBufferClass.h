@@ -2,7 +2,7 @@
 
 #include"DX11.h"
 #include "Light.h"
-const int BUFFER_COUNT = 7;
+const int BUFFER_COUNT = 5;
 
 class GBufferClass
 {
@@ -18,7 +18,6 @@ private:
 
 public:
 	RenderTexture albedoTexture, normalTexture, metallicRoughnessTexture, worldPositionTexture, depthTexture;
-	RenderTexture viewNormalTexture, viewPositionTexture;
 
 	ID3D11Texture2D* m_renderTargetTextureArray[BUFFER_COUNT];
 	ID3D11RenderTargetView* m_renderTargetViewArray[BUFFER_COUNT];
