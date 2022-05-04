@@ -111,8 +111,8 @@ private:
 
 	Texture brdfText;
 
-	float bloomBrightness = 0.65f;
-	float bloomStrengh = 4.0f;
+	float bloomBrightness;
+	float bloomStrengh;
 	float gamma;
 	bool bRenderCollision;
 

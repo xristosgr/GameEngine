@@ -7,7 +7,7 @@ Sky::Sky()
 	rot = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
 
 	//color = DirectX::XMFLOAT3(0.f, 0.f, 0.f);
-	color = DirectX::XMFLOAT3(0.6f, 0.7f, 1.0f);
+	color = DirectX::XMFLOAT3(1.67f, 1.29f, 3.0f);
 }
 
 void Sky::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)

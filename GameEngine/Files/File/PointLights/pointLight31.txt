@@ -1,9 +1,9 @@
 posX= 10.9551
 posY= 0.89
 posZ= -16.8076
-scaleX= 0.02
-scaleY= 0.02
-scaleZ= 0.02
+scaleX= 0.01
+scaleY= 0.01
+scaleZ= 0.01
 colorX= 5
 colorY= 20
 colorZ= 1

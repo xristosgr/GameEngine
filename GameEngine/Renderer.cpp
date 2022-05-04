@@ -50,6 +50,8 @@ Renderer::Renderer()
 	renderShadowDistance = 2700.0f;
 	shadowDist = 5.5f;
 	acceptedDist = 2000.0f;
+	bloomBrightness = 0.65f;
+	bloomStrengh = 4.0f;
 }
 
 bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights)
@@ -189,7 +191,7 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 		pointLights[i].pos.z = z;
 		pointLights[i].lightColor = DirectX::XMFLOAT3(5, 20, 1);
 		pointLights[i].emissionColor = DirectX::XMFLOAT3(1, 2, 1);
-		pointLights[i].scale = DirectX::XMFLOAT3(0.02f, 0.02f, 0.02f);
+		pointLights[i].scale = DirectX::XMFLOAT3(0.01f, 0.01f, 0.01f);
 		pointLights[i].cutOff = 0.2f;
 		pointLights[i].radius = 2.0f;
 	}
@@ -941,6 +943,18 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			}
 			ImGui::ListBox("Objects", &listbox_item_current, objNames.data(), objNames.size());
 
+			//if (listbox_item_current > -1)
+			//{
+			//	for (int i = 0; i < entities.size(); ++i)
+			//	{
+			//		if (entities[i].entityName == objNames[listbox_item_current])
+			//		{
+			//			entities[i].DrawGui(*physicsHandler.aScene, entities);
+			//		}
+			//	}
+			//}
+
+
 			if (listbox_item_current > -1)
 			{
 				for (int i = 0; i < entities.size(); ++i)
@@ -955,8 +969,8 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 								entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
 								if (_shape)
 									_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
-
-
+			
+			
 							}
 							else if (entities[i].physicsComponent.aStaticActor)
 							{

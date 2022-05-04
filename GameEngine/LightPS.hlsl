@@ -27,6 +27,7 @@ float4 main(PS_INPUT input) : SV_TARGET
         if (dist < depth)
             discard;
     }
-  
-    return float4(color, 1.0);
+    float3 _color = color / (color + float3(1.0, 1.0f, 1.0f));
+    _color = pow(_color, float3(1.0f / 1.0f, 1.0f / 1.0f, 1.0f / 1.0f));
+    return float4(_color, 1.0);
 }

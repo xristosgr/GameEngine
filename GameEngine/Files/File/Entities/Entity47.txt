@@ -40,5 +40,5 @@ isTransparent= 0
 isTextured= 0
 physicsShape= 0
 animFilesCount= 0
-entityName= Entity48
+entityName= Entity47
 filePath= .//Data/Objects/TestScene/cube.gltf

@@ -7,6 +7,7 @@ Engine::Engine()
 {
 	player = nullptr;
 }
+
 template<class T>
 inline Engine::Engine(T& lhs, T& rhs)
 {

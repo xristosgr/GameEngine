@@ -40,5 +40,5 @@ isTransparent= 0
 isTextured= 1
 physicsShape= 5
 animFilesCount= 0
-entityName= Entity1
+entityName= Entity0
 filePath= .//Data/Objects/TestScene/floor.gltf

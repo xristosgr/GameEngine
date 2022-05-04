@@ -509,7 +509,7 @@ void SaveSystem::LoadEntityData(std::vector<Entity>& entities)
 				{
 					if (path == "entityName=")
 					{
-						entities[i].entityName = str;
+						entities[i].entityName = "Entity"+std::to_string(i);
 					}
 					if (path == "attachedEntityName=")
 					{
