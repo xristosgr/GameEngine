@@ -4,17 +4,15 @@
 
 PostProcessClass::PostProcessClass()
 {
-	//radius = 0.01f;
-	//bias = 0.5f;
-	//sharpness = 16.f;
-	//powerExponent = 4.f;
-	//metersToViewSpaceUnits = 1.0f;
-
-	radius = 1.0f;
-	bias = 1.0f;
+	radius = 0.01f;
+	bias = 0.5f;
 	sharpness = 16.f;
-	powerExponent = 2.f;
-	metersToViewSpaceUnits = 0.015f;
+	powerExponent = 4.f;
+	metersToViewSpaceUnits = 1.0f;
+	largeScaleAO = 1.5f;
+	smallScaleAO = 1.5f;
+	decodeBias = 1.0f;
+	decodeScale = 1.0f;
 }
 
 void PostProcessClass::Initialize(DX11& gfx11, int width, int height)
@@ -84,8 +82,10 @@ void PostProcessClass::HbaoPlusInit(DX11& gfx11, int width, int height)
 void PostProcessClass::HbaoPlusRender(DX11& gfx11, RectShape& rect, Camera& camera, ID3D11ShaderResourceView* depthView, ID3D11ShaderResourceView* normalView)
 {
 	GFSDK_SSAO_Parameters Params;
-	//Params.LargeScaleAO = 2.0f;
-	//Params.SmallScaleAO = 2.0f;
+	Params.LargeScaleAO = largeScaleAO;
+	Params.SmallScaleAO = smallScaleAO;
+	//Params.StepCount = GFSDK_SSAO_STEP_COUNT_4;
+	//Params.DepthClampMode = GFSDK_SSAO_DepthClampMode::GFSDK_SSAO_CLAMP_TO_EDGE;
 	Params.Radius = radius;
 	Params.Bias = bias;
 	Params.PowerExponent = powerExponent;
@@ -98,25 +98,28 @@ void PostProcessClass::HbaoPlusRender(DX11& gfx11, RectShape& rect, Camera& came
 	Input.DepthData.DepthTextureType = GFSDK_SSAO_DepthTextureType::GFSDK_SSAO_HARDWARE_DEPTHS;
 	Input.DepthData.pFullResDepthTextureSRV = depthView;
 	Input.NormalData.Enable = true;
-	Input.NormalData.DecodeBias = 1;
-	Input.NormalData.DecodeScale = 1;
+
+	Input.NormalData.DecodeBias = decodeBias;
+	Input.NormalData.DecodeScale = decodeScale;
 	Input.NormalData.pFullResNormalTextureSRV = normalView;
-	DirectX::XMMATRIX worldMat =  DirectX::XMMatrixTranslationFromVector(camera.GetPositionVector()) * DirectX::XMMatrixRotationRollPitchYawFromVector(camera.GetRotationVector());
-	DirectX::XMMATRIX worldView = DirectX::XMMatrixTranspose(camera.GetViewMatrix()) * DirectX::XMMatrixTranspose(worldMat);
-	Input.NormalData.WorldToViewMatrix.Layout = GFSDK_SSAO_COLUMN_MAJOR_ORDER;
+	DirectX::XMMATRIX worldMat =  DirectX::XMMatrixRotationRollPitchYawFromVector(camera.GetRotationVector());
+	DirectX::XMMATRIX worldView = (camera.GetViewMatrix()) * (worldMat);
+	Input.NormalData.WorldToViewMatrix.Layout = GFSDK_SSAO_ROW_MAJOR_ORDER;
 	Input.NormalData.WorldToViewMatrix.Data = GFSDK_SSAO_Float4x4((const GFSDK_SSAO_FLOAT*)&worldView);
-	DirectX::XMMATRIX proj = DirectX::XMMatrixTranspose( camera.GetProjectionMatrix());
+	DirectX::XMMATRIX proj = camera.GetProjectionMatrix();
 	Input.DepthData.ProjectionMatrix.Data = GFSDK_SSAO_Float4x4((const GFSDK_SSAO_FLOAT*)&proj);
-	Input.DepthData.ProjectionMatrix.Layout = GFSDK_SSAO_COLUMN_MAJOR_ORDER;
+	Input.DepthData.ProjectionMatrix.Layout = GFSDK_SSAO_ROW_MAJOR_ORDER;
 	Input.DepthData.MetersToViewSpaceUnits = metersToViewSpaceUnits;
 	
 
-	GFSDK_SSAO_RenderMask RenderMask = GFSDK_SSAO_RENDER_AO;
+	GFSDK_SSAO_RenderMask RenderMask = GFSDK_SSAO_RenderMask::GFSDK_SSAO_RENDER_AO;
 
 	GFSDK_SSAO_Output_D3D11 Output;
 	Output.pRenderTargetView = hbaoTexture.m_renderTargetView;
 	Output.Blend.Mode = GFSDK_SSAO_OVERWRITE_RGB;
-	
+	//Output.Blend.CustomState.pBlendState = gfx11.blendState.Get();
+	//const GFSDK_SSAO_FLOAT pBlendFactor = 1.0f;
+	//Output.Blend.CustomState.pBlendFactor = &pBlendFactor;
 	status = pAOContext->RenderAO(gfx11.deviceContext.Get(), Input, Params, Output, RenderMask);
 	assert(status == GFSDK_SSAO_OK);
 }

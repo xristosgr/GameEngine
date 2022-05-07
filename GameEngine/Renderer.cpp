@@ -594,7 +594,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		//gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[5]);
 		//gfx11.deviceContext->PSSetShaderResources(1, 1, &gBuffer.m_shaderResourceViewArray[6]);
 		//gfx11.deviceContext->PSSetShaderResources(2, 1, &postProcess.ssao_noiseTexture.shaderResourceView);
-		postProcess.HbaoPlusRender(gfx11, rect, camera, gBuffer.m_shaderResourceViewArray[4], gBuffer.m_shaderResourceViewArray[1]);
+		postProcess.HbaoPlusRender(gfx11, rect, camera, gBuffer.m_shaderResourceViewArray[4], gBuffer.m_shaderResourceViewArray[5]);
 	}
 	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
 	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
@@ -855,6 +855,10 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			ImGui::DragFloat("Sharpness", &postProcess.sharpness, 1.0f, 0.0f, 100.0f);
 			ImGui::DragFloat("powerExponent", &postProcess.powerExponent, 1.0f, 1.0f, 10.0f);
 			ImGui::DragFloat("metersToViewSpaceUnits", &postProcess.metersToViewSpaceUnits, 1.0f, 1.0f, 100.0f);
+			ImGui::DragFloat("smallScaleAO", &postProcess.smallScaleAO, 0.1f, 0.0f, 2.0f);
+			ImGui::DragFloat("largeScaleAO", &postProcess.largeScaleAO, 0.1f, 0.0f, 2.0f);
+			ImGui::DragFloat("decodeBias", &postProcess.decodeBias, 0.1f, 0.0f, 2.0f);
+			ImGui::DragFloat("decodeScale", &postProcess.decodeScale, 0.1f, 0.0f, 2.0f);
 		}
 
 		if (ImGui::CollapsingHeader("Sky"))

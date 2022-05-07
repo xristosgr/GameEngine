@@ -26,6 +26,7 @@ struct PS_OUTPUT
     float4 roughnessMetalic : SV_Target2;
     float4 worldPosition : SV_Target3;
     float4 depth : SV_TARGET4;
+    float4 ssao_normal : SV_Target5;
 };
 
 Texture2D albedoTexture : TEXTURE : register(t0);
@@ -49,14 +50,15 @@ PS_OUTPUT main(PS_INPUT input) : SV_TARGET
             discard;
         }
        
-        output.normal = normalTexture.Sample(SampleTypeWrap, input.inTexCoord);
+       output.normal = normalTexture.Sample(SampleTypeWrap, input.inTexCoord);
 
-        output.normal = (output.normal * 2.0f) - 1.0f;
-        float3 bumpNormal = (output.normal.x * input.inTangent) + (output.normal.y * input.inBinormal) + (output.normal.z * input.inNormal);
-        bumpNormal = normalize(bumpNormal);
-        output.normal = float4(bumpNormal, 1.0f);
+       output.normal = (output.normal * 2.0f) - 1.0f;
+       output.ssao_normal = output.normal;
+       float3 bumpNormal = (output.normal.x * input.inTangent) + (output.normal.y * input.inBinormal) + (output.normal.z * input.inNormal);
+       bumpNormal = normalize(bumpNormal);
+       output.normal = float4(bumpNormal, 1.0f);
     
-        output.roughnessMetalic = roughnessMetalicTexture.Sample(SampleTypeWrap, input.inTexCoord);
+       output.roughnessMetalic = roughnessMetalicTexture.Sample(SampleTypeWrap, input.inTexCoord);
     }
     else if(bEmissive == 1.0f)
     {

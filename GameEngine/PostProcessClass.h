@@ -24,6 +24,10 @@ public:
 	float sharpness;
 	float powerExponent;
 	float metersToViewSpaceUnits;
+	float largeScaleAO;
+	float smallScaleAO;
+	float decodeBias;
+	float decodeScale;
 private:
 	GFSDK_SSAO_Status status;
 	GFSDK_SSAO_Context_D3D11* pAOContext;
