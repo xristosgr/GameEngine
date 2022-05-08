@@ -32,8 +32,8 @@ void Shadows::RenderShadowEntities(DX11& gfx11, std::vector<Entity>& entities, L
 		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
 		float dist = diffVec.dot(diffVec);
 
-		if (dist < renderDistance)
-		{
+		//if (dist < renderDistance)
+		//{
 			//DirectX::XMFLOAT3 lightDiff = DirectX::XMFLOAT3(light.pos.x - entities[i].pos.x, light.pos.y - entities[i].pos.y, light.pos.z - entities[i].pos.z);
 			//physx::PxVec3 lightDiffVec = physx::PxVec3(lightDiff.x, lightDiff.y, lightDiff.z);
 			//float lightDist = lightDiffVec.dot(lightDiffVec);
@@ -51,10 +51,13 @@ void Shadows::RenderShadowEntities(DX11& gfx11, std::vector<Entity>& entities, L
 					gfx11.deviceContext->VSSetShader(gfx11.depthVS.GetShader(), nullptr, 0);
 				}
 
-				entities[i].Draw(camera, viewMatrix, projectionMatrix);
+				if(light.lightType == 2.0f)
+					entities[i].Draw(camera, viewMatrix, projectionMatrix,nullptr, false);
+				else
+					entities[i].Draw(camera, viewMatrix, projectionMatrix, nullptr, true);
 			//}
 			
-		}
+		//}
 	}
 }
 
@@ -79,9 +82,9 @@ void Shadows::RenderEntities(DX11& gfx11, std::vector<Entity>& entities, std::ve
 	gfx11.deviceContext->PSSetShaderResources(4, ShadowTextures.size(), ShadowTextures.data());
 	for (int i = 0; i < entities.size(); ++i)
 	{
-		DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - entities[i].pos.x, camera.GetPositionFloat3().y - entities[i].pos.y, camera.GetPositionFloat3().z - entities[i].pos.z);
-		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
-		float dist = diffVec.dot(diffVec);
+		//DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - entities[i].pos.x, camera.GetPositionFloat3().y - entities[i].pos.y, camera.GetPositionFloat3().z - entities[i].pos.z);
+		//physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
+		//float dist = diffVec.dot(diffVec);
 
 		
 		if (entities[i].model.isAnimated)

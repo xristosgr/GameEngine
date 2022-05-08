@@ -112,7 +112,7 @@ void Entity::Update()
 	UpdatePhysics();
 }
 
-void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix, Texture* text)
+void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix, Texture* text,bool bCheckFrustum)
 {
 
 	DirectX::XMMATRIX matrix_scale;
@@ -211,22 +211,30 @@ void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const Dir
 		DirectX::XMMATRIX proj = projectionMatrix;
 		frustum.ConstructFrustum(100, view, proj);
 
-		if (isfrustumEnabled)
+		if (!bCheckFrustum)
 		{
-			if (physicsComponent.aActor || physicsComponent.aStaticActor)
-				frustum.checkFrustum = frustum.CheckRect(physicsComponent.trans.p.x, physicsComponent.trans.p.y, physicsComponent.trans.p.z, scale.x + frustumScale.x, scale.y + frustumScale.x, scale.z + frustumScale.z);
-			else
-				frustum.checkFrustum = frustum.CheckRect(pos.x, pos.y, pos.z, scale.x + frustumScale.x, scale.y + frustumScale.y, scale.z + frustumScale.z);
+			model.Draw(worldMatrix, viewMatrix, projectionMatrix, text);
+		}
+		else
+		{
+			if (isfrustumEnabled)
+			{
+				if (physicsComponent.aActor || physicsComponent.aStaticActor)
+					frustum.checkFrustum = frustum.CheckRect(physicsComponent.trans.p.x, physicsComponent.trans.p.y, physicsComponent.trans.p.z, scale.x + frustumScale.x, scale.y + frustumScale.x, scale.z + frustumScale.z);
+				else
+					frustum.checkFrustum = frustum.CheckRect(pos.x, pos.y, pos.z, scale.x + frustumScale.x, scale.y + frustumScale.y, scale.z + frustumScale.z);
 
-			if (frustum.checkFrustum)
+				if (frustum.checkFrustum)
+				{
+					model.Draw(worldMatrix, viewMatrix, projectionMatrix, text);
+				}
+			}
+			else
 			{
 				model.Draw(worldMatrix, viewMatrix, projectionMatrix, text);
 			}
 		}
-		else
-		{
-			model.Draw(worldMatrix, viewMatrix, projectionMatrix, text);
-		}
+		
 	}
 
 }

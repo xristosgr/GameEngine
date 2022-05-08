@@ -62,6 +62,7 @@ float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(float3 N, float3 V, float3 L, float roughness);
 float3 pointLight(PS_INPUT input, float3 albedo, float3 pos, float3 color, float4 _cutOff, float3 bumpNormal, float roughness, float metallic, float3 V, float3 F0, float3 worldPos);
 float3 spotLight(PS_INPUT input, float3 albedo, float3 bumpNormal, float roughness, float metallic, float3 V, float3 F0, float3 worldPos, int index);
+float3 dirLight(PS_INPUT input, float3 albedo, float3 bumpNormal, float roughness, float metallic, float3 V, float3 F0, float3 worldPos, int index);
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
@@ -102,6 +103,10 @@ float4 main(PS_INPUT input) : SV_TARGET
                 else if (lightType[i].x == 1.0)
                 {
                     Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i);
+                }
+                else if (lightType[i].x == 2.0)
+                {
+                    Lo += dirLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i);
                 }
 
             }
@@ -225,6 +230,33 @@ float3 spotLight(PS_INPUT input, float3 albedo, float3 bumpNormal, float roughne
     float distance = length(dynamicLightPosition[index].xyz - worldPos.xyz);
     float attenuation = 1.0f / (distance * distance) * intensity;
     float3 radiance = dynamicLightColor[index].xyz * attenuation;
+
+        
+    float NDF = DistributionGGX(bumpNormal, H, roughness);
+    float G = GeometrySmith(bumpNormal, V, L, roughness);
+    float3 F = fresnelSchlick(max(dot(H, V), 0.0f), F0);
+    //float3 F = fresnelSchlickRoughness(max(dot(bumpNormal, V), 0.0f), F0, roughness);
+
+        
+    float3 nominator = NDF * G * F;
+    float denominator = 4 * max(dot(bumpNormal, V), 0.0f) * max(dot(bumpNormal, L), 0.0f) + 0.001;
+    float3 specular = (nominator / denominator);
+        
+    float3 kS = F;
+    float3 kD = float3(1.0f, 1.0f, 1.0f) - kS;
+    kD *= 1.0f - metallic;
+        
+    float NdotL = max(dot(bumpNormal, L), 0.0f);
+    return (kD * albedo / PI + specular) * radiance * NdotL;
+}
+
+float3 dirLight(PS_INPUT input, float3 albedo, float3 bumpNormal, float roughness, float metallic, float3 V, float3 F0, float3 worldPos, int index)
+{
+    float3 L = normalize(-SpotlightDir[index].xyz);
+  
+    float3 H = normalize(V + L);
+        
+    float3 radiance = dynamicLightColor[index].xyz;
 
         
     float NDF = DistributionGGX(bumpNormal, H, roughness);

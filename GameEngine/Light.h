@@ -67,6 +67,8 @@ public:
 
 	ModelLoader sphere;
 private:
+	int m_screenWidth, m_screenHeight;
+
 	ID3D11DeviceContext* deviceContext;
 	ID3D11Device* device;
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;

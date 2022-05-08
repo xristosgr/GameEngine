@@ -4,13 +4,13 @@
 
 PostProcessClass::PostProcessClass()
 {
-	radius = 0.01f;
+	radius = 0.005f;
 	bias = 0.5f;
 	sharpness = 16.f;
-	powerExponent = 4.f;
+	powerExponent = 3.f;
 	metersToViewSpaceUnits = 1.0f;
-	largeScaleAO = 1.5f;
-	smallScaleAO = 1.5f;
+	largeScaleAO = 1.0f;
+	smallScaleAO = 1.0f;
 	decodeBias = 1.0f;
 	decodeScale = 1.0f;
 }

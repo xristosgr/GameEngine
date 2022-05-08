@@ -110,21 +110,41 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
             //lightDepthValue = lightDepthValue - 0.00008f;
             lightDepthValue = lightDepthValue - 0.0005f;
         
-            int PCF_RANGE = 2;
+        int PCF_RANGE = 2;
+        int SUN_PCF = 8;
         
+        if(lightType[index].x == 2.0f)
+        {
+            [unroll(SUN_PCF*2+1)]
+            for (int x = -PCF_RANGE; x <= PCF_RANGE; x++)
+            {
+           [unroll(SUN_PCF*2+1)]
+                for (int y = -SUN_PCF; y <= SUN_PCF; y++)
+                {
+                    float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projectTexCoord + float2(x, y) * texelSize).r;
+            
+       
+                    shadow += lightDepthValue > pcfDepth ? 0.0f : 1.0f;
+                }
+            }
+            shadow /= ((SUN_PCF * 2 + 1) * (SUN_PCF * 2 + 1));
+        }
+        else
+        {
             [unroll(PCF_RANGE*2+1)]
             for (int x = -PCF_RANGE; x <= PCF_RANGE; x++)
             {
-               [unroll(PCF_RANGE*2+1)]
+           [unroll(PCF_RANGE*2+1)]
                 for (int y = -PCF_RANGE; y <= PCF_RANGE; y++)
                 {
                     float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projectTexCoord + float2(x, y) * texelSize).r;
-                
-        
+            
+       
                     shadow += lightDepthValue > pcfDepth ? 0.0f : 1.0f;
                 }
             }
             shadow /= ((PCF_RANGE * 2 + 1) * (PCF_RANGE * 2 + 1));
+        }
         //}
         //else
         //{
@@ -136,7 +156,8 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
     }
     else
     {
-        //shadow = 1.0f;
+        if (lightType[index].x == 2.0f)
+            shadow = 1.0f;
         //color = float3(1, 1, 1);
     }
     return float3(shadow, shadow, shadow);

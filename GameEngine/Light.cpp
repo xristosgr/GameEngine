@@ -39,9 +39,15 @@ void Light::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext,
 
 void Light::SetupCamera(int windowWidth, int windowHeight)
 {
+	m_screenWidth = windowWidth;
+	m_screenHeight = windowHeight;
 	camera->SetPosition(pos.x, pos.y, pos.z);
 	camera->SetLookAtPos(direction);
-	camera->PerspectiveFov(90.0f, 1, 0.1f, 60.0f);
+
+	if (lightType == 2.0f)
+		camera->OrthographicFov(windowWidth, windowHeight, nearZ, farZ);
+	else
+		camera->PerspectiveFov(90.0f, 1, 0.1f, 60.0f);
 
 	lightViewMatrix = camera->GetViewMatrix();
 	lightProjectionMatrix = camera->GetProjectionMatrix();
@@ -51,9 +57,18 @@ void Light::UpdateCamera()
 {
 	camera->SetPosition(pos);
 	//camera[i].pos = pos;
-	camera->PerspectiveFov(fov, dimensions, nearZ, farZ);
-	//camera.SetLookAtPos(XMFLOAT3(direction.x + pos.x, direction.y + pos.y, direction.z + pos.z));
-	camera->SetLookAtPos(direction);
+	if (lightType == 2.0f)
+	{
+		camera->OrthographicFov(m_screenWidth / 30, m_screenHeight / 30, nearZ, farZ);
+		camera->SetLookAtPos(DirectX::XMFLOAT3(direction.x + pos.x, direction.y + pos.y, direction.z + pos.z));
+	}
+	else 
+	{
+		camera->PerspectiveFov(fov, dimensions, nearZ, farZ);
+		camera->SetLookAtPos(direction);
+	}
+
+
 	//camera[i].SetPosition(pos.x, pos.y, pos.z);
 	lightViewMatrix = camera->GetViewMatrix();
 	lightProjectionMatrix = camera->GetProjectionMatrix();
