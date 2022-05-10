@@ -1,4 +1,4 @@
-#define NO_LIGHTS 4
+#define NO_LIGHTS 24
 
 cbuffer lightBuffer : register(b0)
 {
@@ -57,24 +57,18 @@ float4 main(PS_INPUT input) : SV_TARGET
 {
     float4 albedo = objTexture.Sample(SampleTypeWrap, input.inTexCoord);
     float3 color = float3(0, 0, 0);
+    
+
     for (int i = 0; i < NO_LIGHTS; ++i)
     {
         if (i > lightsSize - 1)
             break;
-        
-        //float distance = length(dynamicLightPosition[i].xyz - input.inWorldPos);
-        //if (distance < RadiusAndcutOff[i].x)
-        //{
-            float3 shadows = Shadows(input.lightViewPosition[i], depthMapTextures[i], input.distToCamera, input,i);
-            float3 light = float3(albedo.r * 0.5f, albedo.g * 0.5f, albedo.b * 0.5f);
- 
-            color += shadows;
-       // }
-       // else
-       // {
-       //     color += float3(0, 0, 0);
-       // 
-       // }
+       
+         float3 shadows = Shadows(input.lightViewPosition[i], depthMapTextures[i], input.distToCamera, input,i);
+         float3 light = float3(albedo.r * 0.5f, albedo.g * 0.5f, albedo.b * 0.5f);
+            
+         color += shadows;
+
         
     }    
     return float4(color, 1.0);
@@ -111,7 +105,7 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
             lightDepthValue = lightDepthValue - 0.0005f;
         
         int PCF_RANGE = 2;
-        int SUN_PCF = 8;
+        int SUN_PCF = 4;
         
         if(lightType[index].x == 2.0f)
         {
@@ -123,7 +117,7 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
                 {
                     float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projectTexCoord + float2(x, y) * texelSize).r;
             
-       
+        
                     shadow += lightDepthValue > pcfDepth ? 0.0f : 1.0f;
                 }
             }

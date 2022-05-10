@@ -394,6 +394,8 @@ bool DX11::InitializeShaders()
 	initPSShader(&shadowHorizontalBlurPS, device, L"ShadowHorizontalPS.cso");
 	initPSShader(&shadowVerticalBlurPS, device, L"ShadowVerticalPS.cso");
 	initPSShader(&ssaoPS, device, L"SsaoPS.cso");
+	initPSShader(&skyPS, device, L"SkyPS.cso");
+
 	return true;
 }
 

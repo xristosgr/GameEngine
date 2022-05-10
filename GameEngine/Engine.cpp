@@ -304,7 +304,9 @@ void Engine::RenderFrame(float& dt,float& fps)
 	GameThread(dt);
 
 
-	sky.cube.pos = camera.pos;
+	sky.pos.x = camera.pos.x;
+	sky.pos.y = camera.pos.y;
+	sky.pos.z = camera.pos.z;
 	renderer.Render(camera, entities, physicsHandler, lights, pointlights, collisionObjects, grid, navMeshes, sounds,sky);
 
 	

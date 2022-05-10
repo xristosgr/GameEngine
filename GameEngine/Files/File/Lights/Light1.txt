@@ -1,5 +1,5 @@
 posX= 8
-posY= 4.85
+posY= 4.835
 posZ= 14.015
 scaleX= 0.01
 scaleY= 0.01

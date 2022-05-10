@@ -103,6 +103,7 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	hr = gfx11.cb_ps_ssaoBuffer.Initialize(gfx11.device, gfx11.deviceContext);
 	hr = gfx11.cb_ps_pointLightCull.Initialize(gfx11.device, gfx11.deviceContext);
 	hr = gfx11.cb_ps_pointLightsShader.Initialize(gfx11.device, gfx11.deviceContext);
+	hr = gfx11.cb_ps_skyBuffer.Initialize(gfx11.device, gfx11.deviceContext);
 
 	gfx11.deviceContext->VSSetConstantBuffers(0, 1, gfx11.cb_vs_vertexshader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->VSSetConstantBuffers(1, 1, gfx11.cb_vs_lightsShader.GetBuffer().GetAddressOf());
@@ -116,7 +117,7 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	gfx11.deviceContext->PSSetConstantBuffers(5, 1, gfx11.cb_ps_materialBuffer.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->PSSetConstantBuffers(6, 1, gfx11.cb_ps_pointLightsShader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->PSSetConstantBuffers(7, 1, gfx11.cb_ps_pointLightCull.GetBuffer().GetAddressOf());
-	
+	gfx11.deviceContext->PSSetConstantBuffers(8, 1, gfx11.cb_ps_skyBuffer.GetBuffer().GetAddressOf());
 	//////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////
 	
@@ -207,6 +208,10 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 //****************RENDER ENTITIES***************************************
 void Renderer::RenderDeferred(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera, Sky& sky)
 {
+	//sky.cube.pos.x = camera.pos.x;
+	//sky.cube.pos.y = camera.pos.y;
+	//sky.cube.pos.z = camera.pos.z;
+
 	gfx11.deviceContext->VSSetConstantBuffers(0, 1, gfx11.cb_vs_vertexshader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 
@@ -217,17 +222,21 @@ void Renderer::RenderDeferred(std::vector<Entity>& entities, std::vector<Light>&
 	gfx11.cb_ps_materialBuffer.data.emissiveColor = DirectX::XMFLOAT3(0,0,0);
 	gfx11.cb_ps_materialBuffer.data.bEmissive = 1.0f;
 	gfx11.cb_ps_materialBuffer.UpdateBuffer();
-	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
-	//gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
-	//gfx11.deviceContext->RSSetState(gfx11.rasterizerStateFront.Get());
-	sky.scale.x = 200;
-	sky.scale.y = 200;
-	sky.scale.z = 200;
-	sky.Draw(gfx11.deviceContext.Get(), camera,gfx11.cb_vs_vertexshader);
 	
-	sky.scale.x = 90;
-	sky.scale.y = 90;
-	sky.scale.z = 90;
+	//gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
+	gfx11.deviceContext->RSSetState(gfx11.rasterizerStateFront.Get());
+
+	camera.PerspectiveFov(70.0f, static_cast<float>(gfx11.windowWidth / gfx11.windowHeight) * (16.0f / 9.0f), 0.1f, 100000000.0f);
+	sky.scale.x = 10000000;
+	sky.scale.y = 10000000;
+	sky.scale.z = 10000000;
+	sky.Draw(gfx11.deviceContext.Get(), camera,gfx11.cb_vs_vertexshader);
+	sky.scale.x = 100;
+	sky.scale.y = 100;
+	sky.scale.z = 100;
+	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
+
+	camera.PerspectiveFov(70.0f, static_cast<float>(gfx11.windowWidth / gfx11.windowHeight) * (16.0f / 9.0f), 0.1f, 1000.0f);
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		if (entities[i].model.loadAsync && entities[i].physicsComponent.mass == 0.0f)
@@ -425,6 +434,7 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 	gfx11.cb_ps_materialBuffer.UpdateBuffer();
 	gfx11.cb_ps_pointLightsShader.UpdateBuffer();
 	gfx11.cb_ps_pointLightCull.UpdateBuffer();
+	gfx11.cb_ps_skyBuffer.UpdateBuffer();
 }
 
 //********************************PBR*********************************
@@ -615,7 +625,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		gfx11.deviceContext->PSSetShader(gfx11.testPS.GetShader(), nullptr, 0);
 		rectSmall.pos = DirectX::XMFLOAT3(2.88, -1.56, 2.878);
 		gfx11.deviceContext->PSSetShaderResources(0, 1, &lights[3].m_shadowMap.shaderResourceView);
-		//gfx11.deviceContext->PSSetShaderResources(0, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
+		gfx11.deviceContext->PSSetShaderResources(0, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
 		//gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[4]);
 		//gfx11.deviceContext->PSSetShaderResources(0, 1, &postProcess.hbaoTexture.shaderResourceView);
 		gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState2D.Get(), 0);
@@ -1137,14 +1147,21 @@ void Renderer::RenderToEnvProbe(EnvironmentProbe& probe,Camera& camera, std::vec
 	
 		environmentProbe.environmentCubeMap.RenderCubeMapFaces(gfx11.device.Get(), gfx11.deviceContext.Get(), face, gfx11.depthStencilView.Get(), rgb,false);
 
-		gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
+		gfx11.deviceContext->PSSetShader(gfx11.skyPS.GetShader(), nullptr, 0);
 		gfx11.cb_ps_materialBuffer.data.emissiveColor = sky.color;
 		gfx11.cb_ps_materialBuffer.data.bEmissive = 0.0f;
 		gfx11.cb_ps_materialBuffer.UpdateBuffer();
 		gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
-		gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
+		gfx11.deviceContext->RSSetState(gfx11.rasterizerStateFront.Get());
+
+
+		gfx11.cb_ps_skyBuffer.data.apexColor = sky.apexColor;
+		gfx11.cb_ps_skyBuffer.data.centerColor = sky.centerColor;
+
+		gfx11.cb_ps_skyBuffer.UpdateBuffer();
+
 		sky.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
-		//gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
+		gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 
 		for (int i = 0; i < entities.size(); ++i)
 		{
@@ -1220,12 +1237,19 @@ void Renderer::ForwardPass(std::vector<Entity>& entities, Camera& camera, Sky& s
 	gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[4]);
 	gfx11.deviceContext->IASetInputLayout(gfx11.testVS.GetInputLayout());
 	gfx11.deviceContext->VSSetShader(gfx11.testVS.GetShader(), nullptr, 0);
-	gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
+	gfx11.deviceContext->PSSetShader(gfx11.skyPS.GetShader(), nullptr, 0);
 	gfx11.cb_ps_materialBuffer.data.emissiveColor = sky.color;
 	//gfx11.cb_ps_materialBuffer.data.bEmissive = 1.0f;
+
+
+	gfx11.cb_ps_skyBuffer.data.apexColor = sky.apexColor;
+	gfx11.cb_ps_skyBuffer.data.centerColor = sky.centerColor;
+
+	gfx11.cb_ps_skyBuffer.UpdateBuffer();
 	gfx11.cb_ps_materialBuffer.UpdateBuffer();
-	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
+
 	//gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
-	//gfx11.deviceContext->RSSetState(gfx11.rasterizerStateFront.Get());
+	gfx11.deviceContext->RSSetState(gfx11.rasterizerStateFront.Get());
 	sky.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
+	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 }

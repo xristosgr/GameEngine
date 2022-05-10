@@ -14,14 +14,14 @@ INT WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	const int w = 1600;
 	const int h = 900;
 	Engine engine;
-	if (engine.Initialize(hInstance, "DXEngine", "MyWindowClass", w, h))
+	if (engine.Initialize(hInstance, "DXEngine", "Window", w, h))
 	{
 		while (engine.ProcessMessages() == true)
 		{
 			engine.Update(w, h);
 		}
-
+		ClipCursor(NULL);
 	}
-	ClipCursor(NULL);
+	
 	return 0;
 }

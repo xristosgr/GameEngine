@@ -2,8 +2,7 @@
 
 #include <DirectXMath.h>
 
-#define NO_LIGHTS 4
-#define NO_POINT_LIGHTS 2000
+#define NO_LIGHTS 24
 
 struct CB_VS_vertexshader
 {
@@ -38,12 +37,6 @@ struct CB_PS_lightsShader
 	unsigned int lightsSize;
 };
 
-//struct CB_PS_pointLightsShader
-//{
-//	DirectX::XMFLOAT4 dynamicLightPosition[NO_POINT_LIGHTS];
-//	DirectX::XMFLOAT4 dynamicLightColor[NO_POINT_LIGHTS];
-//	unsigned int pointLightsSize;
-//};
 
 struct CB_PS_pointLightsShader
 {
@@ -61,11 +54,6 @@ struct CB_PS_lightCull
 {
 	DirectX::XMFLOAT4 RadiusAndcutOff[NO_LIGHTS];
 };
-
-//struct CB_PS_pointLightCull
-//{
-//	DirectX::XMFLOAT4 RadiusAndcutOff[NO_POINT_LIGHTS];
-//};
 
 struct CB_PS_screenEffectBuffer
 {
@@ -90,4 +78,10 @@ struct CB_PS_ssaoBuffer
 	DirectX::XMMATRIX projectionMatrix;
 	DirectX::XMMATRIX viewMatrix;
 	DirectX::XMFLOAT4 ssaoKernel[48];
+};
+
+struct CB_PS_skyBuffer
+{
+	DirectX::XMFLOAT4 apexColor;
+	DirectX::XMFLOAT4 centerColor;
 };

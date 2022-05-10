@@ -100,6 +100,7 @@ void GBufferClass::LightPass(DX11& gfx11, RectShape& rect, Camera& camera, std::
 			pointLights[i].DrawVolume(camera);
 		}
 	}
+
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 	gfx11.deviceContext->PSSetShader(gfx11.pbrPS.GetShader(), nullptr, 0);
 	gfx11.deviceContext->IASetInputLayout(gfx11.pbrVS.GetInputLayout());

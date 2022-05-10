@@ -10,12 +10,14 @@ public:
 	void DrawGui(std::string name);
 	void Draw(ID3D11DeviceContext* deviceContext, Camera& camera, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader);
 
-	CubeShape cube;
-
+	//CubeShape cube;
+	ModelLoader model;
 	DirectX::XMFLOAT3 pos;
 	DirectX::XMFLOAT3 rot;
 	DirectX::XMFLOAT3 scale;
 
 	DirectX::XMFLOAT3 color;
+	DirectX::XMFLOAT4 apexColor;
+	DirectX::XMFLOAT4 centerColor;
 };
 

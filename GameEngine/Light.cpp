@@ -59,7 +59,7 @@ void Light::UpdateCamera()
 	//camera[i].pos = pos;
 	if (lightType == 2.0f)
 	{
-		camera->OrthographicFov(m_screenWidth / 30, m_screenHeight / 30, nearZ, farZ);
+		camera->OrthographicFov(m_screenWidth / 20, m_screenHeight / 20, nearZ, farZ);
 		camera->SetLookAtPos(DirectX::XMFLOAT3(direction.x + pos.x, direction.y + pos.y, direction.z + pos.z));
 	}
 	else 

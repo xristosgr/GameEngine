@@ -97,6 +97,7 @@ public:
 	PixelShader deferredLightPassPS;
 	PixelShader deferredSpotLightPS;
 	PixelShader ssaoPS;
+	PixelShader skyPS;
 
 	VertexBuffer<Vertex> vertexBuffer;
 
@@ -115,6 +116,7 @@ public:
 	ConstantBuffer<CB_PS_pbrBuffer> cb_ps_pbrBuffer;
 	ConstantBuffer<CB_PS_materialBuffer> cb_ps_materialBuffer;
 	ConstantBuffer<CB_PS_ssaoBuffer> cb_ps_ssaoBuffer;
+	ConstantBuffer<CB_PS_skyBuffer> cb_ps_skyBuffer;
 
 	RenderTexture renderTexture;
 	//RenderTexture shadowTexture;
