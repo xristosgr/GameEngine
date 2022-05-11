@@ -4,11 +4,11 @@ Shadows::Shadows()
 {
 }
 
-void Shadows::Initialize(DX11& gfx11)
+void Shadows::Initialize(DX11& gfx11, int& screen_width, int& screen_height)
 {
-	shadowTexture.Initialize(gfx11.device.Get(), 1024, 1024);
-	shadowHorizontalBlurTexture.Initialize(gfx11.device.Get(), 1024 / 2, 1024 / 2);
-	shadowVerticalBlurTexture.Initialize(gfx11.device.Get(), 1024 / 2, 1024 / 2);
+	shadowTexture.Initialize(gfx11.device.Get(), screen_width, screen_height);
+	shadowHorizontalBlurTexture.Initialize(gfx11.device.Get(), screen_width/2, screen_height/2);
+	shadowVerticalBlurTexture.Initialize(gfx11.device.Get(), screen_width/2, screen_height/2);
 }
 
 void Shadows::RenderToTexture(DX11& gfx11, std::vector<Entity>& entities, Camera& camera, RenderTexture& shadowMap, Light& light, float& renderDistance)
@@ -32,32 +32,24 @@ void Shadows::RenderShadowEntities(DX11& gfx11, std::vector<Entity>& entities, L
 		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
 		float dist = diffVec.dot(diffVec);
 
-		//if (dist < renderDistance)
-		//{
-			//DirectX::XMFLOAT3 lightDiff = DirectX::XMFLOAT3(light.pos.x - entities[i].pos.x, light.pos.y - entities[i].pos.y, light.pos.z - entities[i].pos.z);
-			//physx::PxVec3 lightDiffVec = physx::PxVec3(lightDiff.x, lightDiff.y, lightDiff.z);
-			//float lightDist = lightDiffVec.dot(lightDiffVec);
-			//
-			//if (lightDist < light.lightDist)
-			//{
-				if (entities[i].model.isAnimated)
-				{
-					gfx11.deviceContext->IASetInputLayout(gfx11.depthAnimVS.GetInputLayout());
-					gfx11.deviceContext->VSSetShader(gfx11.depthAnimVS.GetShader(), nullptr, 0);
-				}
-				else
-				{
-					gfx11.deviceContext->IASetInputLayout(gfx11.depthVS.GetInputLayout());
-					gfx11.deviceContext->VSSetShader(gfx11.depthVS.GetShader(), nullptr, 0);
-				}
+		if (dist < renderDistance)
+		{
+			if (entities[i].model.isAnimated)
+			{
+				gfx11.deviceContext->IASetInputLayout(gfx11.depthAnimVS.GetInputLayout());
+				gfx11.deviceContext->VSSetShader(gfx11.depthAnimVS.GetShader(), nullptr, 0);
+			}
+			else
+			{
+				gfx11.deviceContext->IASetInputLayout(gfx11.depthVS.GetInputLayout());
+				gfx11.deviceContext->VSSetShader(gfx11.depthVS.GetShader(), nullptr, 0);
+			}
 
-				if(light.lightType == 2.0f)
-					entities[i].Draw(camera, viewMatrix, projectionMatrix,nullptr, false);
-				else
-					entities[i].Draw(camera, viewMatrix, projectionMatrix, nullptr, true);
-			//}
-			
-		//}
+			if(light.lightType == 2.0f)
+				entities[i].Draw(camera, viewMatrix, projectionMatrix,nullptr, false);
+			else
+				entities[i].Draw(camera, viewMatrix, projectionMatrix, nullptr, true);
+		}
 	}
 }
 
@@ -82,11 +74,6 @@ void Shadows::RenderEntities(DX11& gfx11, std::vector<Entity>& entities, std::ve
 	gfx11.deviceContext->PSSetShaderResources(4, ShadowTextures.size(), ShadowTextures.data());
 	for (int i = 0; i < entities.size(); ++i)
 	{
-		//DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - entities[i].pos.x, camera.GetPositionFloat3().y - entities[i].pos.y, camera.GetPositionFloat3().z - entities[i].pos.z);
-		//physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
-		//float dist = diffVec.dot(diffVec);
-
-		
 		if (entities[i].model.isAnimated)
 		{
 			gfx11.deviceContext->IASetInputLayout(gfx11.animVS.GetInputLayout());

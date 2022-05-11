@@ -300,16 +300,19 @@ void Engine::RenderFrame(float& dt,float& fps)
 		AddCollisionObject();
 		renderer.bAddCollisionObject = false;
 	}
-	
-	GameThread(dt);
 
+	
 
 	sky.pos.x = camera.pos.x;
 	sky.pos.y = camera.pos.y;
 	sky.pos.z = camera.pos.z;
+
+	ObjectsHandler(dt);
+	AIHandler(dt);
+	PlayerLogic(dt);
+	SoundLogic();
 	renderer.Render(camera, entities, physicsHandler, lights, pointlights, collisionObjects, grid, navMeshes, sounds,sky);
 
-	
 	if (physicsHandler.advance(dt, fps, camera))
 	{
 		//PlayerLogic(dt);
@@ -724,15 +727,6 @@ void Engine::CopyPastePointLight()
 
 }
 
-void Engine::GameThread(float& dt)
-{
-	ObjectsHandler(dt);
-	AIHandler(dt);
-	PlayerLogic(dt);
-	SoundLogic();
-
-}
-
 void Engine::PlayerLogic(float& dt)
 {
 	if (player)
@@ -756,8 +750,9 @@ void Engine::PlayerLogic(float& dt)
 
 void Engine::SoundLogic()
 {
-	backGroundSound.Update();
 	backGroundSound.UpdatePos(camera.GetPositionFloat3(), camera.GetForwardVector(), camera.upDir);
+	backGroundSound.Update();
+
 	bool fResult;
 	backGroundSound.channel->isPlaying(&fResult);
 	if (!fResult)

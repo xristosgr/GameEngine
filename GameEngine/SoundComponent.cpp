@@ -31,7 +31,7 @@ bool SoundComponent::Initialize(const char* filePath, bool is3D, ID3D11Device* d
     {
         return false;
     }
-    if(is3D)
+    if (is3D)
         result = mpSystem->createSound(filePath, FMOD_3D, nullptr, &sound);
     else
         result = mpSystem->createSound(filePath, FMOD_DEFAULT, nullptr, &sound);
@@ -62,21 +62,21 @@ void SoundComponent::Update()
     mpSystem->update();
 }
 
-void SoundComponent::UpdatePos(const DirectX::XMFLOAT3& destPos, const DirectX::XMVECTOR& forwardVec,const DirectX::XMVECTOR& upVec)
+void SoundComponent::UpdatePos(const DirectX::XMFLOAT3& destPos, const DirectX::XMVECTOR& forwardVec, const DirectX::XMVECTOR& upVec)
 {
     DirectX::XMFLOAT3 forwardFloat3;
     DirectX::XMStoreFloat3(&forwardFloat3, forwardVec);
-  
+
     DirectX::XMFLOAT3 upFloat3;
     DirectX::XMStoreFloat3(&upFloat3, upVec);
 
     this->position = FMOD_VECTOR{ cube.pos.x,cube.pos.y,cube.pos.z };
     channel->set3DAttributes(&this->position, nullptr);
     channel->set3DMinMaxDistance(4.0f, 10000.0f);
-    FMOD_VECTOR pos{ destPos.x,destPos.y,destPos.z};
-    FMOD_VECTOR forward = { forwardFloat3.x,forwardFloat3.y,forwardFloat3.z};
+    FMOD_VECTOR pos{ destPos.x,destPos.y,destPos.z };
+    FMOD_VECTOR forward = { forwardFloat3.x,forwardFloat3.y,forwardFloat3.z };
     FMOD_VECTOR up = { upFloat3.x, upFloat3.y, upFloat3.z };
-    
+
     mpSystem->set3DListenerAttributes(0, &pos, nullptr, &forward, &up);
 }
 

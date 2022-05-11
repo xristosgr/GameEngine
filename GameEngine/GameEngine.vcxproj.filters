@@ -276,9 +276,6 @@
     <ClCompile Include="ImGui\ImGuizmo.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="SoundComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PostProcessClass.cpp">
       <Filter>GFX\Source Files</Filter>
     </ClCompile>
@@ -292,6 +289,9 @@
       <Filter>GFX\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Sky.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -500,9 +500,6 @@
     <ClInclude Include="ImGui\ImGradient.h">
       <Filter>ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="SoundComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PostProcessClass.h">
       <Filter>GFX\Header Files</Filter>
     </ClInclude>
@@ -516,6 +513,9 @@
       <Filter>GFX\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Sky.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

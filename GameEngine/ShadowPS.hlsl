@@ -55,21 +55,15 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    float4 albedo = objTexture.Sample(SampleTypeWrap, input.inTexCoord);
     float3 color = float3(0, 0, 0);
     
-
     for (int i = 0; i < NO_LIGHTS; ++i)
     {
         if (i > lightsSize - 1)
             break;
        
          float3 shadows = Shadows(input.lightViewPosition[i], depthMapTextures[i], input.distToCamera, input,i);
-         float3 light = float3(albedo.r * 0.5f, albedo.g * 0.5f, albedo.b * 0.5f);
-            
          color += shadows;
-
-        
     }    
     return float4(color, 1.0);
 
@@ -105,54 +99,26 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
             lightDepthValue = lightDepthValue - 0.0005f;
         
         int PCF_RANGE = 2;
-        int SUN_PCF = 4;
         
-        if(lightType[index].x == 2.0f)
+        [unroll(PCF_RANGE*2+1)]
+        for (int x = -PCF_RANGE; x <= PCF_RANGE; x++)
         {
-            [unroll(SUN_PCF*2+1)]
-            for (int x = -PCF_RANGE; x <= PCF_RANGE; x++)
-            {
-           [unroll(SUN_PCF*2+1)]
-                for (int y = -SUN_PCF; y <= SUN_PCF; y++)
-                {
-                    float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projectTexCoord + float2(x, y) * texelSize).r;
-            
-        
-                    shadow += lightDepthValue > pcfDepth ? 0.0f : 1.0f;
-                }
-            }
-            shadow /= ((SUN_PCF * 2 + 1) * (SUN_PCF * 2 + 1));
-        }
-        else
-        {
-            [unroll(PCF_RANGE*2+1)]
-            for (int x = -PCF_RANGE; x <= PCF_RANGE; x++)
-            {
            [unroll(PCF_RANGE*2+1)]
-                for (int y = -PCF_RANGE; y <= PCF_RANGE; y++)
-                {
-                    float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projectTexCoord + float2(x, y) * texelSize).r;
+            for (int y = -PCF_RANGE; y <= PCF_RANGE; y++)
+            {
+                float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projectTexCoord + float2(x, y) * texelSize).r;
             
        
-                    shadow += lightDepthValue > pcfDepth ? 0.0f : 1.0f;
-                }
+                shadow += lightDepthValue > pcfDepth ? 0.0f : 1.0f;
             }
-            shadow /= ((PCF_RANGE * 2 + 1) * (PCF_RANGE * 2 + 1));
         }
-        //}
-        //else
-        //{
-        //    lightDepthValue = lightDepthValue - bias;
-        //
-        //    float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projectTexCoord).r;
-        //    shadow += lightDepthValue > pcfDepth ? 0.0f : 1.0f;
-        //}
+        shadow /= ((PCF_RANGE * 2 + 1) * (PCF_RANGE * 2 + 1));
+       
     }
     else
     {
         if (lightType[index].x == 2.0f)
             shadow = 1.0f;
-        //color = float3(1, 1, 1);
     }
     return float3(shadow, shadow, shadow);
 }

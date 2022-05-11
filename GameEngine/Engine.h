@@ -11,10 +11,11 @@
 #include "GridClass.h"
 #include <thread>
 #include "NavMeshClass.h"
-#include "SoundComponent.h"
+
 #include <algorithm>
 #include "Camera.h"
 #include "Sky.h"
+#include"SoundComponent.h"
 
 class Engine : virtual WindowContainer
 {
@@ -40,7 +41,6 @@ private:
 	void CopyPasteLight();
 	void CopyPastePointLight();
 
-	void GameThread(float& dt);
 	void PlayerLogic(float& dt);
 	void SoundLogic();
 

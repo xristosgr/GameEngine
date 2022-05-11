@@ -185,7 +185,7 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 
 	pbr.Initialize(gfx11);
 	gBuffer.Initialize(gfx11);
-	shadowsRenderer.Initialize(gfx11);
+	shadowsRenderer.Initialize(gfx11, windowWidth, windowHeight);
 
 	for (int i = 0; i < pointLights.size(); ++i)
 	{
@@ -624,10 +624,10 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	{
 		gfx11.deviceContext->PSSetShader(gfx11.testPS.GetShader(), nullptr, 0);
 		rectSmall.pos = DirectX::XMFLOAT3(2.88, -1.56, 2.878);
-		gfx11.deviceContext->PSSetShaderResources(0, 1, &lights[3].m_shadowMap.shaderResourceView);
-		gfx11.deviceContext->PSSetShaderResources(0, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
+		//gfx11.deviceContext->PSSetShaderResources(0, 1, &lights[3].m_shadowMap.shaderResourceView);
+		//gfx11.deviceContext->PSSetShaderResources(0, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
 		//gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[4]);
-		//gfx11.deviceContext->PSSetShaderResources(0, 1, &postProcess.hbaoTexture.shaderResourceView);
+		gfx11.deviceContext->PSSetShaderResources(0, 1, &postProcess.hbaoTexture.shaderResourceView);
 		gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState2D.Get(), 0);
 		gfx11.deviceContext->IASetInputLayout(gfx11.vs2D.GetInputLayout());
 		gfx11.deviceContext->VSSetShader(gfx11.vs2D.GetShader(), nullptr, 0);
