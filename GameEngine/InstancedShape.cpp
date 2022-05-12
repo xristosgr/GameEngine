@@ -9,8 +9,9 @@ float random_between_two_float(float min, float max)
 
 void InstancedShape::Initialize(ID3D11Device* device)
 {
+	timer.Start();
 
-	scale = DirectX::XMFLOAT3(5.f, 5.0f, 5.0f);
+	scale = DirectX::XMFLOAT3(0.005f, 0.005f, 0.005f);
 	rot = DirectX::XMFLOAT3(0, 0, 0);
 	pos = DirectX::XMFLOAT3(0, 0, 0);
 
@@ -21,8 +22,8 @@ void InstancedShape::Initialize(ID3D11Device* device)
     D3D11_SUBRESOURCE_DATA vertexData, instanceData;
     HRESULT result;
 
-	std::vector<Vertex> vertices;
-
+	//std::vector<Vertex> vertices;
+	//
 	//vertices.push_back(Vertex(-1.0f, -1.0f, -1.0f, 0.0f, 0.0f));	 // bottom-left
 	//vertices.push_back(Vertex(1.0f, 1.0f, -1.0f, 1.0f, 1.0f));		// top-right
 	//vertices.push_back(Vertex(1.0f, -1.0f, -1.0f, 1.0f, 0.0f));		 // bottom-right         
@@ -43,14 +44,14 @@ void InstancedShape::Initialize(ID3D11Device* device)
 	//vertices.push_back(Vertex(-1.0f, -1.0f, -1.0f, 0.0f, 1.0f));		// bottom-left
 	//vertices.push_back(Vertex(-1.0f, -1.0f, 1.0f, 0.0f, 0.0f));	// bottom-right
 	//vertices.push_back(Vertex(-1.0f, 1.0f, 1.0f, 1.0f, 0.0f));	// top-right
-										// right face
-	vertices.push_back(Vertex(1.0f, 1.0f, 1.0f, 1.0f, 0.0f));// top-left
-	vertices.push_back(Vertex(1.0f, -1.0f, -1.0f, 0.0f, 1.0f));	// bottom-right
-	vertices.push_back(Vertex(1.0f, 1.0f, -1.0f, 1.0f, 1.0f));	// top-right         
-	vertices.push_back(Vertex(1.0f, -1.0f, -1.0f, 0.0f, 1.0f));	 // bottom-right
-	vertices.push_back(Vertex(1.0f, 1.0f, 1.0f, 1.0f, 0.0f));	 // top-left
-	vertices.push_back(Vertex(1.0f, -1.0f, 1.0f, 0.0f, 0.0f));	// bottom-left     
-									  // bottom face
+	//									// right face
+	//vertices.push_back(Vertex(1.0f, 1.0f, 1.0f, 1.0f, 0.0f));// top-left
+	//vertices.push_back(Vertex(1.0f, -1.0f, -1.0f, 0.0f, 1.0f));	// bottom-right
+	//vertices.push_back(Vertex(1.0f, 1.0f, -1.0f, 1.0f, 1.0f));	// top-right         
+	//vertices.push_back(Vertex(1.0f, -1.0f, -1.0f, 0.0f, 1.0f));	 // bottom-right
+	//vertices.push_back(Vertex(1.0f, 1.0f, 1.0f, 1.0f, 0.0f));	 // top-left
+	//vertices.push_back(Vertex(1.0f, -1.0f, 1.0f, 0.0f, 0.0f));	// bottom-left     
+	//								  // bottom face
 	//vertices.push_back(Vertex(-1.0f, -1.0f, -1.0f, 0.0f, 1.0f));	 // top-right
 	//vertices.push_back(Vertex(1.0f, -1.0f, -1.0f, 1.0f, 1.0f));	// top-left
 	//vertices.push_back(Vertex(1.0f, -1.0f, 1.0f, 1.0f, 0.0f));	// bottom-left
@@ -66,11 +67,67 @@ void InstancedShape::Initialize(ID3D11Device* device)
 	//vertices.push_back(Vertex(-1.0f, 1.0f, 1.0f, 0.0f, 0.0f));		// bottom-left    
 
 
+	Vertex vertices[] =
+	{
+		Vertex(-1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f), // +Y (top face)
+		Vertex(1.0f, 1.0f, -1.0f,0.0f, 1.0f, 0.0f, 1.0f, 0.0f),
+		Vertex(1.0f, 1.0f,  1.0f,0.0f, 1.0f, 0.0f, 1.0f, 1.0f),
+		Vertex(-1.0f, 1.0f,  1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
 
-	HRESULT hr = this->vertexBuffer.Initialize(device, vertices.data(), vertices.size());
+		Vertex(-1.0f, -1.0f,  1.0f,0.0f, -1.0f, 0.0f, 0.0f, 0.0f), // -Y (bottom face)
+		Vertex(1.0f, -1.0f,  1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f),
+		Vertex(1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f),
+		Vertex(-1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f,0.0f, 1.0f),
+
+		Vertex(1.0f,  1.0f,  1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f), // +X (right face)
+		Vertex(1.0f,  1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
+		Vertex(1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
+		Vertex(1.0f, -1.0f,  1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
+
+		Vertex(-1.0f,  1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f), // -X (left face)
+		Vertex(-1.0f,  1.0f,  1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
+		Vertex(-1.0f, -1.0f,  1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
+		Vertex(-1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
+
+		Vertex(-1.0f,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f), // +Z (front face)
+		Vertex(1.0f,  1.0f, 1.0f , 0.0f, 0.0f, 1.0f, 1.0f, 0.0f),
+		Vertex(1.0f, -1.0f, 1.0f , 0.0f, 0.0f, 1.0f, 1.0f, 1.0f),
+		Vertex(-1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f),
+
+		Vertex(1.0f,  1.0f, -1.0f ,  0.0f, 0.0f, -1.0f, 0.0f, 0.0f), // -Z (back face)
+		Vertex(-1.0f,  1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f),
+		Vertex(-1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f),
+		Vertex(1.0f, -1.0f, -1.0f ,  0.0f, 0.0f, -1.0f, 0.0f, 1.0f),
+	};
+
+	DWORD indices[] =
+	{
+		0, 1, 2,
+		0, 2, 3,
+
+		4, 5, 6,
+		4, 6, 7,
+
+		8, 9, 10,
+		8, 10, 11,
+
+		12, 13, 14,
+		12, 14, 15,
+
+		16, 17, 18,
+		16, 18, 19,
+
+		20, 21, 22,
+		20, 22, 23
+	};
+
+	HRESULT hr = this->vertexBuffer.Initialize(device, vertices, ARRAYSIZE(vertices));
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize vertex buffer for mesh.");
 
-	m_instanceCount = 10000000;
+	hr = this->indexBuffer.Initialize(device, indices, ARRAYSIZE(indices));
+	COM_ERROR_IF_FAILED(hr, "Failed to initialize index buffer for mesh.");
+
+	m_instanceCount = 4000;
 
 	instances = new InstanceType[m_instanceCount];
 	if (!instances)
@@ -79,17 +136,12 @@ void InstancedShape::Initialize(ID3D11Device* device)
 	}
 
 
-	//std::random_device dev;
-	//std::mt19937 rng(dev());
-	//std::uniform_int_distribution<std::mt19937::result_type> randVal(-50000.0f, 50000.0f);
-
-
 	srand(time(NULL));
 	for (int i = 0; i < m_instanceCount; ++i)
 	{
-		float r1 = random_between_two_float(-10000.0f, 10000.0f);
-		float r2 = random_between_two_float(-10000.0f, 10000.0f);
-		float r3 = random_between_two_float(-10000.0f, 10000.0f);
+		float r1 = random_between_two_float(-2500.0f, 2500.0f);
+		float r2 = random_between_two_float(0.0f, 1000.0f);
+		float r3 = random_between_two_float(-2500.0f, 2500.0f);
 		instances[i].position = DirectX::XMFLOAT3(r1, r2, r3);
 	}
 
@@ -106,6 +158,7 @@ void InstancedShape::Initialize(ID3D11Device* device)
 	instanceData.SysMemSlicePitch = 0;
 
 	// Create the instance buffer.
+
 	result = device->CreateBuffer(&instanceBufferDesc, &instanceData, &m_instanceBuffer);
 	if (FAILED(result))
 	{
@@ -115,15 +168,27 @@ void InstancedShape::Initialize(ID3D11Device* device)
 	// Release the instance array now that the instance buffer has been created and loaded.
 	delete[] instances;
 	instances = 0;
-
 }
 
 void InstancedShape::CreateTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const std::string& filePath)
 {
 }
 
-void InstancedShape::Draw(ID3D11DeviceContext* deviceContext, Camera& camera, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
+void InstancedShape::Draw(ID3D11DeviceContext* deviceContext, Camera& camera, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, ConstantBuffer<CB_VS_instanceShader>& cb_vs_instanceShader)
 {
+	for (int i = 0; i < m_instanceCount; ++i)
+	{
+		float val = timer.GetMilisecondsElapsed();
+		if (i %2 ==0 && i%4==0 && i % 3 != 0)
+			cb_vs_instanceShader.data.pos[i] = DirectX::XMFLOAT3(std::sin(val*0.001f) * 50.0f, 0, 0);
+		else if (i % 3 == 0)
+			cb_vs_instanceShader.data.pos[i] = DirectX::XMFLOAT3(std::cos(val * 0.001f) * 70.0f, 0, 0);
+		else if (i % 2 == 0 && i % 4 != 0 && i % 3 == 0)
+			cb_vs_instanceShader.data.pos[i] = DirectX::XMFLOAT3(0, 0, std::cos(val * 0.001f) * 80.0f);
+		else
+			cb_vs_instanceShader.data.pos[i] = DirectX::XMFLOAT3(0, 0, std::sin(val * 0.001f) * 30.0f);
+	}
+	cb_vs_instanceShader.UpdateBuffer();
 	DirectX::XMMATRIX m_scale = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
 	DirectX::XMMATRIX m_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
 	DirectX::XMMATRIX m_translate = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
@@ -143,6 +208,7 @@ void InstancedShape::Draw(ID3D11DeviceContext* deviceContext, Camera& camera, Co
 
 	// Set the vertex buffer to active in the input assembler so it can be rendered.
 	deviceContext->IASetVertexBuffers(0, 2, bufferPointers, strides, offsets);
+	deviceContext->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -154,7 +220,8 @@ void InstancedShape::Draw(ID3D11DeviceContext* deviceContext, Camera& camera, Co
 
 	cb_vs_vertexshader.UpdateBuffer();
 
-	deviceContext->DrawInstanced(vertexBuffer.VertexCount(), m_instanceCount, 0, 0);
+	deviceContext->DrawIndexedInstanced(indexBuffer.IndexCount(), m_instanceCount,0 , 0, 0);
+	//deviceContext->DrawInstanced(vertexBuffer.VertexCount(), m_instanceCount, 0, 0);
 }
 
 int InstancedShape::GetInstanceCount()

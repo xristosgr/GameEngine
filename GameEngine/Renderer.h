@@ -17,6 +17,7 @@
 #include "PbrClass.h"
 #include "GBufferClass.h"
 #include "Sky.h"
+#include "InstancedShape.h"
 
 class Renderer
 {
@@ -34,6 +35,8 @@ private:
 
 private:
 	float rgb[4];
+
+	InstancedShape instancedShape;
 
 	GBufferClass gBuffer;
 	PbrClass pbr;

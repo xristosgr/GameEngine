@@ -93,6 +93,8 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	HRESULT hr = gfx11.cb_vs_vertexshader.Initialize(gfx11.device, gfx11.deviceContext);
 	hr = gfx11.cb_vs_lightsShader.Initialize(gfx11.device, gfx11.deviceContext);
 	hr = gfx11.cb_vs_windowParams.Initialize(gfx11.device, gfx11.deviceContext);
+	hr = gfx11.cb_vs_instanceShader.Initialize(gfx11.device, gfx11.deviceContext);
+
 
 	hr = gfx11.cb_ps_lightsShader.Initialize(gfx11.device, gfx11.deviceContext);
 	//hr = gfx11.cb_ps_PCFshader.Initialize(gfx11.device, gfx11.deviceContext);
@@ -108,6 +110,7 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	gfx11.deviceContext->VSSetConstantBuffers(0, 1, gfx11.cb_vs_vertexshader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->VSSetConstantBuffers(1, 1, gfx11.cb_vs_lightsShader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->VSSetConstantBuffers(2, 1, gfx11.cb_vs_windowParams.GetBuffer().GetAddressOf());
+	gfx11.deviceContext->VSSetConstantBuffers(3, 1, gfx11.cb_vs_instanceShader.GetBuffer().GetAddressOf());
 
 	gfx11.deviceContext->PSSetConstantBuffers(0, 1, gfx11.cb_ps_lightsShader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->PSSetConstantBuffers(1, 1, gfx11.cb_ps_ssaoBuffer.GetBuffer().GetAddressOf());
@@ -203,6 +206,13 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	defaultText[0].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/shades-tile_albedo.png");
 	defaultText[1].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/shades-tile_normal-dx.png");
 	defaultText[2].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/shades-tile_metallic-shades-tile_roughness.png");
+
+
+
+
+
+
+	instancedShape.Initialize(gfx11.device.Get());
 }
 
 //****************RENDER ENTITIES***************************************
@@ -303,12 +313,6 @@ void Renderer::RenderDeferred(std::vector<Entity>& entities, std::vector<Light>&
 		}
 	}
 
-
-	//gfx11.deviceContext->OMSetBlendState(gfx11.AdditiveBlendState.Get(), NULL, 0xFFFFFFFF);
-	//gfx11.deviceContext->PSSetShader(gfx11.transparentPbrPS.GetShader(), nullptr, 0);
-	gfx11.deviceContext->IASetInputLayout(gfx11.deferredVS.GetInputLayout());
-	gfx11.deviceContext->VSSetShader(gfx11.deferredVS.GetShader(), nullptr, 0);
-
 	for (int i = 0; i < lights.size(); ++i)
 	{
 		gfx11.cb_ps_materialBuffer.data.emissiveColor = lights[i].emissionColor;
@@ -349,6 +353,14 @@ void Renderer::RenderDeferred(std::vector<Entity>& entities, std::vector<Light>&
 		}
 		
 	}
+
+	gfx11.cb_ps_materialBuffer.data.emissiveColor = DirectX::XMFLOAT3(2.0,0.8,0.8);
+	gfx11.cb_ps_materialBuffer.data.bEmissive = 1.0f;
+	gfx11.cb_ps_materialBuffer.UpdateBuffer();
+
+	gfx11.deviceContext->IASetInputLayout(gfx11.instancedVS.GetInputLayout());
+	gfx11.deviceContext->VSSetShader(gfx11.instancedVS.GetShader(), nullptr, 0);
+	instancedShape.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader,gfx11.cb_vs_instanceShader);
 
 	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
 	gfx11.deviceContext->PSSetShader(gfx11.testPS.GetShader(), nullptr, 0);
@@ -426,6 +438,8 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 	gfx11.cb_vs_vertexshader.UpdateBuffer();
 	gfx11.cb_vs_lightsShader.UpdateBuffer();
 	gfx11.cb_vs_windowParams.UpdateBuffer();
+	gfx11.cb_vs_instanceShader.UpdateBuffer();
+
 	gfx11.cb_ps_lightsShader.UpdateBuffer();
 	gfx11.cb_ps_ssaoBuffer.UpdateBuffer();
 	gfx11.cb_ps_lightCull.UpdateBuffer();
@@ -593,6 +607,8 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	////////////////////////////////
 	// 
 	//////////////////////////////////////////////////////
+	
+
 
 	gfx11.deviceContext->PSSetShader(gfx11.postProccessPS.GetShader(), nullptr, 0);
 	rect.SetRenderTexture(gfx11.deviceContext.Get(), gfx11.renderTexture);
@@ -1151,7 +1167,7 @@ void Renderer::RenderToEnvProbe(EnvironmentProbe& probe,Camera& camera, std::vec
 		gfx11.cb_ps_materialBuffer.data.emissiveColor = sky.color;
 		gfx11.cb_ps_materialBuffer.data.bEmissive = 0.0f;
 		gfx11.cb_ps_materialBuffer.UpdateBuffer();
-		gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
+		//gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
 		gfx11.deviceContext->RSSetState(gfx11.rasterizerStateFront.Get());
 
 
@@ -1234,7 +1250,8 @@ void Renderer::ForwardPass(std::vector<Entity>& entities, Camera& camera, Sky& s
 	}
 
 
-	gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[4]);
+
+	gfx11.deviceContext->PSSetShaderResources(1, 1, &gBuffer.m_shaderResourceViewArray[4]);
 	gfx11.deviceContext->IASetInputLayout(gfx11.testVS.GetInputLayout());
 	gfx11.deviceContext->VSSetShader(gfx11.testVS.GetShader(), nullptr, 0);
 	gfx11.deviceContext->PSSetShader(gfx11.skyPS.GetShader(), nullptr, 0);
@@ -1252,4 +1269,12 @@ void Renderer::ForwardPass(std::vector<Entity>& entities, Camera& camera, Sky& s
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerStateFront.Get());
 	sky.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
+
+
+
+	//gfx11.deviceContext->PSSetShaderResources(1, 1, &gBuffer.m_shaderResourceViewArray[4]);
+	//gfx11.deviceContext->IASetInputLayout(gfx11.instancedVS.GetInputLayout());
+	//gfx11.deviceContext->VSSetShader(gfx11.instancedVS.GetShader(), nullptr, 0);
+	//gfx11.deviceContext->PSSetShader(gfx11.testPS.GetShader(), nullptr, 0);
+	//instancedShape.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
 }

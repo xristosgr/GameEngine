@@ -26,6 +26,11 @@ struct CB_VS_windowParams
 	float window_height;
 };
 
+struct CB_VS_instanceShader
+{
+	DirectX::XMFLOAT3 pos[4000];
+};
+
 struct CB_PS_lightsShader
 {
 	DirectX::XMFLOAT4 dynamicLightPosition[NO_LIGHTS];

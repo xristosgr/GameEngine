@@ -34,7 +34,7 @@ void Shapes::Draw(ID3D11DeviceContext* deviceContext,Camera& camera, ConstantBuf
 	cb_vs_vertexshader.data.worldMatrix = DirectX::XMMatrixTranspose(cb_vs_vertexshader.data.worldMatrix);
 
 	cb_vs_vertexshader.UpdateBuffer();
-
+	
 	if (indexBuffer.IndexCount() > 0)
 		deviceContext->DrawIndexed(indexBuffer.IndexCount(), 0, 0);
 	else

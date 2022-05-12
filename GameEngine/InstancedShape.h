@@ -8,13 +8,13 @@
 #include "Camera.h"
 #include "ConstantBuffer.h"
 #include "ConstantBufferTypes.h"
-
+#include "AppTimer.h"
 class InstancedShape
 {
 public:
 	virtual void Initialize(ID3D11Device* device);
 	virtual void CreateTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const std::string& filePath);
-	virtual void Draw(ID3D11DeviceContext* deviceContext, Camera& camera, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader);
+	virtual void Draw(ID3D11DeviceContext* deviceContext, Camera& camera, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, ConstantBuffer<CB_VS_instanceShader>& cb_vs_instanceShader);
 	int GetInstanceCount();
 public:
 	struct InstanceType
@@ -23,7 +23,7 @@ public:
 	};
 
 	VertexBuffer<Vertex> vertexBuffer;
-	//IndexBuffer indexBuffer;
+	IndexBuffer indexBuffer;
 	ID3D11Buffer* m_instanceBuffer;
 	int m_instanceCount;
 
@@ -32,5 +32,8 @@ public:
 	DirectX::XMFLOAT3 pos = DirectX::XMFLOAT3(0, 0, 0);
 	DirectX::XMFLOAT3 rot = DirectX::XMFLOAT3(0, 0, 0);
 	DirectX::XMFLOAT3 scale = DirectX::XMFLOAT3(1, 1, 1);
+
+private:
+	AppTimer timer;
 };
 

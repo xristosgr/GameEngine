@@ -59,6 +59,7 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState_point;
 
 	VertexShader vs2D;
+	VertexShader instancedVS;
 	VertexShader testVS;
 	VertexShader pbrVS;
 	VertexShader volumetricLightVS;
@@ -106,6 +107,7 @@ public:
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<CB_VS_lightsShader> cb_vs_lightsShader;
 	ConstantBuffer<CB_VS_windowParams> cb_vs_windowParams;
+	ConstantBuffer<CB_VS_instanceShader> cb_vs_instanceShader;
 
 	ConstantBuffer<CB_PS_lightsShader> cb_ps_lightsShader;
 	ConstantBuffer<CB_PS_pointLightsShader> cb_ps_pointLightsShader;
