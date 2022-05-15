@@ -28,6 +28,17 @@
   
 
  ![Screenshot 2022-04-15 210117](https://user-images.githubusercontent.com/32782134/163605102-f6d7a1ae-bdf9-4cc6-98e7-78a331b48cc6.jpg)   1000 point lights
+<br />
+
+<br />
+
+
+- Instanced rendering
+
+
+https://user-images.githubusercontent.com/32782134/168482604-3e9cb733-1f82-47b5-9a55-1b990f7ff0e9.mp4
+
+4000 floating cubes
 
 <br />
 
