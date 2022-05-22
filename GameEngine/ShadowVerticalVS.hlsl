@@ -37,9 +37,9 @@ VS_OUTPUT main(VS_INPUT input)
 
     output.tex = input.tex;
     
-    texelSize = 1.0f / window_height;
-   
     output.centerTexCoords = output.position * 0.5 + 0.5;
+    texelSize = (1.0f / window_height)/4.0f;
+   
     
     for (int i = -5; i <= 5; ++i)
     {

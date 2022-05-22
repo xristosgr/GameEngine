@@ -723,9 +723,22 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	static bool show_objects = true;
 	static bool show_particles = false;
 	static bool show_general = false;
-	
+	static bool show_help = false;
 
 	if (show_app_metrics) { ImGui::ShowMetricsWindow(&show_app_metrics); }
+	if (show_help) 
+	{ 
+		ImGui::Begin("Help Window");
+		ImGui::Text("F5: Save");
+		ImGui::Text("F6: Stop physics simulation");
+		ImGui::Text("F7: Start physics simulation");
+		ImGui::Text("F8: Possess character");
+		ImGui::Text("F9: Unpossess character");
+
+		ImGui::Text("Ctrl + C: Copy selected object");
+		ImGui::Text("Ctrl + V: Paste copied object");
+		ImGui::End();
+	}
 
 	bool open = false;
 
@@ -767,6 +780,13 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		{
 			ImGui::MenuItem("Metrics", NULL, &show_app_metrics);
 			ImGui::MenuItem("Style Editor", NULL, &show_app_style_editor);
+
+			ImGui::EndMenu();
+		}
+		ImGui::SameLine();
+		if (ImGui::BeginMenu("Help"))
+		{
+			ImGui::MenuItem("Key bindings", NULL, &show_help);
 
 			ImGui::EndMenu();
 		}

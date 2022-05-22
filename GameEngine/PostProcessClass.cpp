@@ -9,10 +9,10 @@ PostProcessClass::PostProcessClass()
 	sharpness = 16.f;
 	powerExponent = 3.f;
 	metersToViewSpaceUnits = 1.0f;
-	largeScaleAO = 1.0f;
-	smallScaleAO = 1.0f;
+	largeScaleAO = 1.5f;
+	smallScaleAO = 1.5f;
 	decodeBias = 1.0f;
-	decodeScale = 1.0f;
+	decodeScale = 2.0f;
 }
 
 void PostProcessClass::Initialize(DX11& gfx11, int width, int height)

@@ -11,7 +11,7 @@ void InstancedShape::Initialize(ID3D11Device* device)
 {
 	timer.Start();
 
-	scale = DirectX::XMFLOAT3(0.005f, 0.005f, 0.005f);
+	scale = DirectX::XMFLOAT3(0.002f, 0.002f, 0.002f);
 	rot = DirectX::XMFLOAT3(0, 0, 0);
 	pos = DirectX::XMFLOAT3(0, 0, 0);
 
@@ -139,9 +139,9 @@ void InstancedShape::Initialize(ID3D11Device* device)
 	srand(time(NULL));
 	for (int i = 0; i < m_instanceCount; ++i)
 	{
-		float r1 = random_between_two_float(-2500.0f, 2500.0f);
-		float r2 = random_between_two_float(0.0f, 1000.0f);
-		float r3 = random_between_two_float(-2500.0f, 2500.0f);
+		float r1 = random_between_two_float(-6000.0f, 6000.0f);
+		float r2 = random_between_two_float(0.0f, 2000.0f);
+		float r3 = random_between_two_float(-6000.0f, 6000.0f);
 		instances[i].position = DirectX::XMFLOAT3(r1, r2, r3);
 	}
 
