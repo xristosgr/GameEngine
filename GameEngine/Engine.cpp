@@ -246,6 +246,11 @@ void Engine::Update(int width, int height)
 		}
 	}
 
+
+	if (thread_gameHandler.joinable())
+		thread_gameHandler.join();
+	if (thread_SoundHandler.joinable())
+		thread_SoundHandler.join();
 }
 
 void Engine::RenderFrame(float& dt,float& fps)
@@ -307,23 +312,17 @@ void Engine::RenderFrame(float& dt,float& fps)
 	sky.pos.y = camera.pos.y;
 	sky.pos.z = camera.pos.z;
 
-	ObjectsHandler(dt);
-	AIHandler(dt);
-	PlayerLogic(dt);
-	SoundLogic();
+	thread_gameHandler = std::thread(&Engine::gameThread, this,std::ref(dt));
+	thread_SoundHandler = std::thread(&Engine::SoundThread, this);
+
 	renderer.Render(camera, entities, physicsHandler, lights, pointlights, collisionObjects, grid, navMeshes, sounds,sky);
 
 	if (physicsHandler.advance(dt, fps, camera))
 	{
-		//PlayerLogic(dt);
-	
-
 		if (!physicsHandler.isMouseHover && !renderer.runPhysics)
 		{
 			physicsHandler.MouseRayCast(entities, camera, mouse, keyboard, this->width, this->height, renderer.listbox_item_current);
 		}
-		
-
 	}
 }
 
@@ -416,8 +415,8 @@ void Engine::ObjectsHandler(float& dt)
 			}
 		}
 		entities[i].physicsComponent.UpdatePhysics(*physicsHandler.mPhysics, *physicsHandler.aScene, physicsHandler.mCooking);
-		
 		entities[i].Update();
+
 		if (entities[i].model.isAttached)
 		{
 			if (entities[i].parent)
@@ -437,16 +436,16 @@ void Engine::ObjectsHandler(float& dt)
 		//entities[i].Input(mouse, keyboard);
 	}
 
-	for (int i = 0; i < collisionObjects.size(); ++i)
-	{
-
-		collisionObjects[i].physicsComponent.UpdatePhysics(*physicsHandler.mPhysics, *physicsHandler.aScene, physicsHandler.mCooking);
-		if (renderer.runPhysics)
-			collisionObjects[i].bRender = false;
-		else
-			collisionObjects[i].bRender = true;
-		collisionObjects[i].physicsComponent.aStaticActor->setName(collisionObjects[i].entityName.c_str());
-	}
+	//for (int i = 0; i < collisionObjects.size(); ++i)
+	//{
+	//
+	//	collisionObjects[i].physicsComponent.UpdatePhysics(*physicsHandler.mPhysics, *physicsHandler.aScene, physicsHandler.mCooking);
+	//	if (renderer.runPhysics)
+	//		collisionObjects[i].bRender = false;
+	//	else
+	//		collisionObjects[i].bRender = true;
+	//	collisionObjects[i].physicsComponent.aStaticActor->setName(collisionObjects[i].entityName.c_str());
+	//}
 }
 
 void Engine::AIHandler(float& dt)
@@ -502,9 +501,11 @@ void Engine::AIHandler(float& dt)
 				{
 					if (AIEntities[i]->physicsComponent.aActor)
 					{
+						//game_mutex.lock();
 						float gravity = physicsHandler.aScene->getGravity().y;
 						physicsHandler.FallCheck(AIEntities[i]);
 						physicsHandler.LineOfSightToPlayer(AIEntities[i], player);
+						//game_mutex.unlock();
 						if (isNavMeshCreated)
 						{
 							//async_navMesh.clear();
@@ -748,7 +749,7 @@ void Engine::PlayerLogic(float& dt)
 	}
 }
 
-void Engine::SoundLogic()
+void Engine::SoundThread()
 {
 	backGroundSound.UpdatePos(camera.GetPositionFloat3(), camera.GetForwardVector(), camera.upDir);
 	backGroundSound.Update();
@@ -759,4 +760,11 @@ void Engine::SoundLogic()
 	{
 		backGroundSound.Play();
 	}
+}
+
+void Engine::gameThread(float& dt)
+{
+	ObjectsHandler(dt);
+	AIHandler(dt);
+	PlayerLogic(dt);
 }

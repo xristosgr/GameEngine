@@ -42,7 +42,9 @@ private:
 	void CopyPastePointLight();
 
 	void PlayerLogic(float& dt);
-	void SoundLogic();
+	void SoundThread();
+
+	void gameThread(float& dt);
 
 protected:
 	AppTimer timer;
@@ -149,7 +151,7 @@ private:
 
 	SoundComponent backGroundSound;
 
-
 public:
-	std::thread gameThread;
+	std::thread thread_SoundHandler;
+	std::thread thread_gameHandler;
 };
