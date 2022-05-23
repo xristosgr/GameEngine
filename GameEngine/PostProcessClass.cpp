@@ -17,8 +17,8 @@ PostProcessClass::PostProcessClass()
 
 void PostProcessClass::Initialize(DX11& gfx11, int width, int height)
 {
-	BloomHorizontalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
-	BloomVerticalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
+	BloomHorizontalBlurTexture.Initialize(gfx11.device.Get(), width/2, height/2);
+	BloomVerticalBlurTexture.Initialize(gfx11.device.Get(), width/2, height/2);
 
 	bloomRenderTexture.Initialize(gfx11.device.Get(), width, height);
 	rectBloom.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);

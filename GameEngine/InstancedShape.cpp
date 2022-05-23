@@ -139,9 +139,9 @@ void InstancedShape::Initialize(ID3D11Device* device)
 	srand(time(NULL));
 	for (int i = 0; i < m_instanceCount; ++i)
 	{
-		float r1 = random_between_two_float(-6000.0f, 6000.0f);
-		float r2 = random_between_two_float(0.0f, 2000.0f);
-		float r3 = random_between_two_float(-6000.0f, 6000.0f);
+		float r1 = random_between_two_float(-12000.0f, 12000.0f);
+		float r2 = random_between_two_float(0.0f, 5000.0f);
+		float r3 = random_between_two_float(-12000.0f, 12000.0f);
 		instances[i].position = DirectX::XMFLOAT3(r1, r2, r3);
 	}
 
