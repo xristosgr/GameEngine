@@ -126,5 +126,6 @@ private:
 
 	Texture defaultText[3];
 
+	RenderTexture finalImage;
 };
 

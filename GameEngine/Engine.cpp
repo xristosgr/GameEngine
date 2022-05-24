@@ -105,6 +105,7 @@ void Engine::Update(int width, int height)
 
 	if (!camera.PossessCharacter)
 	{
+		renderer.bGuiEnabled = true;
 		while (!mouse.EventBufferIsEmpty())
 		{
 			MouseEvent me = mouse.ReadEvent();

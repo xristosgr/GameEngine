@@ -125,6 +125,8 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	/////////////////////////////////////////////////////
 	
 	gfx11.renderTexture.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
+	finalImage.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
+
 	sky.Initialize(gfx11.device.Get(), gfx11.deviceContext.Get(), gfx11.cb_vs_vertexshader);
 
 	for (int i = 0; i < entities.size(); ++i)
@@ -585,9 +587,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 
-		//gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[5]);
-		//gfx11.deviceContext->PSSetShaderResources(1, 1, &gBuffer.m_shaderResourceViewArray[6]);
-		//gfx11.deviceContext->PSSetShaderResources(2, 1, &postProcess.ssao_noiseTexture.shaderResourceView);
 		postProcess.HbaoPlusRender(gfx11, rect, camera, gBuffer.m_shaderResourceViewArray[4], gBuffer.m_shaderResourceViewArray[5]);
 	}
 	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
@@ -608,7 +607,21 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	// 
 	//////////////////////////////////////////////////////
 	
+	if (bGuiEnabled)
+	{
 
+		gfx11.deviceContext->RSSetViewports(1, &finalImage.m_viewport);
+		finalImage.SetRenderTarget(gfx11.deviceContext.Get(), finalImage.m_depthStencilView);
+		finalImage.ClearRenderTarget(gfx11.deviceContext.Get(), finalImage.m_depthStencilView, 0, 0, 0, 1.0f);
+	}
+	else
+	{
+
+		gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
+		gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
+		gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
+		gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	}
 
 	gfx11.deviceContext->PSSetShader(gfx11.postProccessPS.GetShader(), nullptr, 0);
 	rect.SetRenderTexture(gfx11.deviceContext.Get(), gfx11.renderTexture);
@@ -707,126 +720,133 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	/////////////////////
 	////////////////////
 	
+	if(bGuiEnabled)
+	{
+		gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
+		gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
+		gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
+		gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	}
 	//GUI
 	////////////////////////////////////
 	////////////////////////////////////
-
 	
 	gfxGui.BeginRender();
 
-
-	static bool show_app_metrics = false;
-	static bool show_app_console = false;
-	static bool show_app_log = false;
-	static bool show_app_style_editor = false;
-	static bool show_lights = false;
-	static bool show_objects = true;
-	static bool show_particles = false;
-	static bool show_general = false;
-	static bool show_help = false;
-
-	if (show_app_metrics) { ImGui::ShowMetricsWindow(&show_app_metrics); }
-	if (show_help) 
-	{ 
-		ImGui::Begin("Help Window");
-		ImGui::Text("F5: Save");
-		ImGui::Text("F6: Stop physics simulation");
-		ImGui::Text("F7: Start physics simulation");
-		ImGui::Text("F8: Possess character");
-		ImGui::Text("F9: Unpossess character");
-
-		ImGui::Text("Ctrl + C: Copy selected object");
-		ImGui::Text("Ctrl + V: Paste copied object");
-		ImGui::End();
-	}
-
-	bool open = false;
-
-	if (ImGui::BeginMainMenuBar())
-	{
-		if (ImGui::BeginMenu("Engine"))
-		{
-			if (ImGui::MenuItem("Save", NULL))
-				save = true;
-			ImGui::MenuItem("Lights", NULL, &show_lights);
-			ImGui::MenuItem("Objects", NULL, &show_objects);
-			ImGui::MenuItem("Particles", NULL, &show_particles);
-			ImGui::MenuItem("General", NULL, &show_general);
-			ImGui::MenuItem("Gui", NULL, &bGuiEnabled);
-
-			ImGui::EndMenu();
-		}
-		ImGui::SameLine();
-		if (ImGui::BeginMenu("Files"))
-		{
-			if (ImGui::MenuItem("Open", NULL))
-				open = true;
-
-			ImGui::EndMenu();
-		}
-		ImGui::SameLine();
-		if (ImGui::BeginMenu("Debug"))
-		{
-			ImGui::MenuItem("EnablePostProccess", NULL, &enablePostProccess);
-			ImGui::MenuItem("Console", NULL, &show_app_console);
-			ImGui::MenuItem("Log", NULL, &show_app_log);
-			//ImGui::Checkbox("showDebugWindow", &showDebugWindow);
-
-			ImGui::EndMenu();
-		}
-		ImGui::SameLine();
-
-		if (ImGui::BeginMenu("Tools"))
-		{
-			ImGui::MenuItem("Metrics", NULL, &show_app_metrics);
-			ImGui::MenuItem("Style Editor", NULL, &show_app_style_editor);
-
-			ImGui::EndMenu();
-		}
-		ImGui::SameLine();
-		if (ImGui::BeginMenu("Help"))
-		{
-			ImGui::MenuItem("Key bindings", NULL, &show_help);
-
-			ImGui::EndMenu();
-		}
-		ImGui::SameLine();
-
-		ImGui::NewLine();
-
-		if (open)
-			ImGui::OpenPopup("Open File");
-		//if (save)
-		//	ImGui::OpenPopup("Save File");
-
-		/* Optional third parameter. Support opening only compressed rar/zip files.
-		 * Opening any other file will show error, return false and won't close the dialog.
-		 */
-		if (file_dialog.showFileDialog("Open File", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ImVec2(400, 200), "*.*,.obj,.dae,.gltf,.fbx,.glb"))
-		{
-			std::cout << file_dialog.selected_fn << std::endl;      // The name of the selected file or directory in case of Select Directory dialog mode
-			std::cout << file_dialog.selected_path << std::endl;    // The absolute path to the selected file
-			//f << file_dialog.selected_path;
-
-			std::fstream f;
-			f = std::fstream(file_dialog.selected_path.c_str());
-			if (f.good())
-				inName = file_dialog.selected_path;
-
-			OutputDebugStringA(("NAME = " + inName + "\n").c_str());
-
-			isFileOpen = true;
-		}
-
-
-
-		//ImGui::Text(inName.c_str());
-
-		ImGui::EndMainMenuBar();
-	}
-
 	if (bGuiEnabled)
 	{
+
+		static bool show_app_metrics = false;
+		static bool show_app_console = false;
+		static bool show_app_log = false;
+		static bool show_app_style_editor = false;
+		static bool show_lights = false;
+		static bool show_objects = true;
+		static bool show_particles = false;
+		static bool show_general = false;
+		static bool show_help = false;
+
+		if (show_app_metrics) { ImGui::ShowMetricsWindow(&show_app_metrics); }
+		if (show_help) 
+		{ 
+			ImGui::Begin("Help Window");
+			ImGui::Text("F5: Save");
+			ImGui::Text("F6: Stop physics simulation");
+			ImGui::Text("F7: Start physics simulation");
+			ImGui::Text("F8: Possess character");
+			ImGui::Text("F9: Unpossess character");
+
+			ImGui::Text("Ctrl + C: Copy selected object");
+			ImGui::Text("Ctrl + V: Paste copied object");
+			ImGui::End();
+		}
+
+		bool open = false;
+
+		if (ImGui::BeginMainMenuBar())
+		{
+			if (ImGui::BeginMenu("Engine"))
+			{
+				if (ImGui::MenuItem("Save", NULL))
+					save = true;
+				ImGui::MenuItem("Lights", NULL, &show_lights);
+				ImGui::MenuItem("Objects", NULL, &show_objects);
+				ImGui::MenuItem("Particles", NULL, &show_particles);
+				ImGui::MenuItem("General", NULL, &show_general);
+				//ImGui::MenuItem("Gui", NULL, &bGuiEnabled);
+
+				ImGui::EndMenu();
+			}
+			ImGui::SameLine();
+			if (ImGui::BeginMenu("Files"))
+			{
+				if (ImGui::MenuItem("Open", NULL))
+					open = true;
+
+				ImGui::EndMenu();
+			}
+			ImGui::SameLine();
+			if (ImGui::BeginMenu("Debug"))
+			{
+				ImGui::MenuItem("EnablePostProccess", NULL, &enablePostProccess);
+				ImGui::MenuItem("Console", NULL, &show_app_console);
+				ImGui::MenuItem("Log", NULL, &show_app_log);
+				//ImGui::Checkbox("showDebugWindow", &showDebugWindow);
+
+				ImGui::EndMenu();
+			}
+			ImGui::SameLine();
+
+			if (ImGui::BeginMenu("Tools"))
+			{
+				ImGui::MenuItem("Metrics", NULL, &show_app_metrics);
+				ImGui::MenuItem("Style Editor", NULL, &show_app_style_editor);
+
+				ImGui::EndMenu();
+			}
+			ImGui::SameLine();
+			if (ImGui::BeginMenu("Help"))
+			{
+				ImGui::MenuItem("Key bindings", NULL, &show_help);
+
+				ImGui::EndMenu();
+			}
+			ImGui::SameLine();
+
+			ImGui::NewLine();
+
+			if (open)
+				ImGui::OpenPopup("Open File");
+			//if (save)
+			//	ImGui::OpenPopup("Save File");
+
+			/* Optional third parameter. Support opening only compressed rar/zip files.
+			 * Opening any other file will show error, return false and won't close the dialog.
+			 */
+			if (file_dialog.showFileDialog("Open File", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ImVec2(400, 200), "*.*,.obj,.dae,.gltf,.fbx,.glb"))
+			{
+				std::cout << file_dialog.selected_fn << std::endl;      // The name of the selected file or directory in case of Select Directory dialog mode
+				std::cout << file_dialog.selected_path << std::endl;    // The absolute path to the selected file
+				//f << file_dialog.selected_path;
+
+				std::fstream f;
+				f = std::fstream(file_dialog.selected_path.c_str());
+				if (f.good())
+					inName = file_dialog.selected_path;
+
+				OutputDebugStringA(("NAME = " + inName + "\n").c_str());
+
+				isFileOpen = true;
+			}
+
+
+
+			//ImGui::Text(inName.c_str());
+
+			ImGui::EndMainMenuBar();
+		}
+
+	
 		//cube.DrawGUI("cube");
 		postProcess.rectBloom.DrawGUI("rectBloom");
 		//rectSmall.DrawGUI("rectSmall");
@@ -1140,12 +1160,33 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			}
 			ImGui::End();
 		}
-	}
 
+		ImGuiWindowFlags viewport_flags;
+		//ImGui::PopStyleVar(2);
+
+		const ImGuiViewport* viewport = ImGui::GetMainViewport();
+		//ImGui::SetNextWindowPos(ImVec2(0, 0));
+		ImGui::SetNextWindowPos(viewport->Pos);
+		ImGui::SetNextWindowSize(ImVec2(gfx11.windowWidth, gfx11.windowHeight));
+		ImGui::SetNextWindowViewport(viewport->ID);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+		viewport_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+		viewport_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoScrollbar;
+		ImTextureID textId = finalImage.shaderResourceView;
+
+
+		ImGui::Begin("Viewport", nullptr, viewport_flags);
+
+		ImGui::Image(textId, ImVec2(gfx11.windowWidth, gfx11.windowHeight));
+
+	}
+	ImGui::End();
 	gfxGui.EndRender();
 
-	/////////////////////////////////////
-	/////////////////////////////////////
+		/////////////////////////////////////
+		/////////////////////////////////////
+
 	gfx11.swapchain->Present(vSync, NULL);
 
 }
