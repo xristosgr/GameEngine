@@ -400,8 +400,6 @@ void Entity::DrawGui(physx::PxScene& scene,std::vector<Entity>& entities)
 		ImGui::DragFloat3("pos", &offsetPos.x, 0.01f);
 	else
 		ImGui::DragFloat3("pos", &pos.x, 0.01f);
-
-	ImGui::DragFloat("rotDir", &rotationDir, 0.01f);
 	ImGui::DragFloat3("rot", &rot.x, 0.01f);
 	ImGui::DragFloat3("scale", &scale.x, 0.01f);
 

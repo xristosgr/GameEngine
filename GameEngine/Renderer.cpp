@@ -730,8 +730,9 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 
 	if (bGuiEnabled)
 	{
+		gfxGui.EditorStyle();
 
-		static bool show_app_metrics = false;
+		static bool show_app_metrics = true;
 		static bool show_app_console = false;
 		static bool show_app_log = false;
 		static bool show_app_style_editor = false;
@@ -844,9 +845,13 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 
 	
 		//cube.DrawGUI("cube");
-		postProcess.rectBloom.DrawGUI("rectBloom");
+		//postProcess.rectBloom.DrawGUI("rectBloom");
 		//rectSmall.DrawGUI("rectSmall");
 		//debugCube.DrawGUI("debugCube");
+
+		physicsHandler.isMouseHover = false;
+			//OutputDebugStringA("INVALID!!!!!\n");
+		
 		ImGui::Begin("World");
 
 		if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0) || ImGui::IsMouseClicked(0))
@@ -854,13 +859,17 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			physicsHandler.isMouseHover = true;
 			//OutputDebugStringA("VALID!!!!!\n");
 		}
-		else
-		{
-			physicsHandler.isMouseHover = false;
-			//OutputDebugStringA("INVALID!!!!!\n");
-		}
+		
 
 		ImGui::Begin("Options");
+
+		if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0) || ImGui::IsMouseClicked(0))
+		{
+			physicsHandler.isMouseHover = true;
+			//OutputDebugStringA("VALID!!!!!\n");
+		}
+		
+
 		if (ImGui::CollapsingHeader("Options##2"))
 		{
 			ImGui::InputFloat3("Camera", &camera.pos.x);
@@ -881,6 +890,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			ImGui::DragFloat("acceptedDist", &acceptedDist, 0.1f);
 			ImGui::DragFloat3("sky color", &skyColor.x, 0.05f);
 		}
+		
 		if (ImGui::CollapsingHeader("HBAO+"))
 		{
 			ImGui::DragFloat("Radius", &postProcess.radius, 0.05f, 0.0f, 100.0f);
@@ -896,15 +906,24 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		ImGui::End();
 
 		ImGui::Begin("Sky");
-		if (ImGui::CollapsingHeader("Sky##2"))
+		if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0) || ImGui::IsMouseClicked(0))
 		{
-			sky.DrawGui("Sky");
+			physicsHandler.isMouseHover = true;
+			//OutputDebugStringA("VALID!!!!!\n");
 		}
+		
+		sky.DrawGui("Sky");
+		
 		ImGui::End();
 
 		ImGui::Begin("Lights");
-		if (ImGui::CollapsingHeader("Lights##2"))
 		{
+			if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0) || ImGui::IsMouseClicked(0))
+			{
+				physicsHandler.isMouseHover = true;
+				//OutputDebugStringA("VALID!!!!!\n");
+			}
+			
 			static int listbox_light_current = 0;
 			std::vector<const char*> lightNames;
 			for (int i = 0; i < lights.size(); ++i)
@@ -930,12 +949,19 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			{
 				copyLight = true;
 			}
+
 		}
+		
 		ImGui::End();
 
 		ImGui::Begin("pointLights");
-		if (ImGui::CollapsingHeader("pointLights##2"))
 		{
+			if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0) || ImGui::IsMouseClicked(0))
+			{
+				physicsHandler.isMouseHover = true;
+				//OutputDebugStringA("VALID!!!!!\n");
+			}
+			
 			static int listbox_light_current = 0;
 			std::vector<const char*> lightNames;
 			for (int i = 0; i < pointLights.size(); ++i)
@@ -961,8 +987,10 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			{
 				copyPointLight = true;
 			}
-		
+
 		}
+	
+		
 		ImGui::End();
 
 		ImGui::NewLine();
@@ -970,105 +998,111 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 
 		ImGui::Begin("Entities");
 		
+		if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0) || ImGui::IsMouseClicked(0))
+		{
+			physicsHandler.isMouseHover = true;
+			//OutputDebugStringA("VALID!!!!!\n");
+		}
+		
 			//static int listbox_item_current = -1;
-			std::vector<const char*> objNames;
+		std::vector<const char*> objNames;
+		for (int i = 0; i < entities.size(); ++i)
+		{
+
+			//entities[i].entityName = "Entity" + std::to_string(i);
+			//if (!entities[i].isDeleted)
+			//{
+				objNames.push_back(entities[i].entityName.c_str());
+			//}
+		}
+
+		if (listbox_item_current > objNames.size() - 1)
+		{
+			listbox_item_current = -1;
+		}
+		ImGui::ListBox("Objects", &listbox_item_current, objNames.data(), objNames.size());
+
+		//if (listbox_item_current > -1)
+		//{
+		//	for (int i = 0; i < entities.size(); ++i)
+		//	{
+		//		if (entities[i].entityName == objNames[listbox_item_current])
+		//		{
+		//			entities[i].DrawGui(*physicsHandler.aScene, entities);
+		//		}
+		//	}
+		//}
+
+
+		if (listbox_item_current > -1)
+		{
 			for (int i = 0; i < entities.size(); ++i)
 			{
-
-				//entities[i].entityName = "Entity" + std::to_string(i);
-				//if (!entities[i].isDeleted)
-				//{
-					objNames.push_back(entities[i].entityName.c_str());
-				//}
-			}
-
-			if (listbox_item_current > objNames.size() - 1)
-			{
-				listbox_item_current = -1;
-			}
-			ImGui::ListBox("Objects", &listbox_item_current, objNames.data(), objNames.size());
-
-			//if (listbox_item_current > -1)
-			//{
-			//	for (int i = 0; i < entities.size(); ++i)
-			//	{
-			//		if (entities[i].entityName == objNames[listbox_item_current])
-			//		{
-			//			entities[i].DrawGui(*physicsHandler.aScene, entities);
-			//		}
-			//	}
-			//}
-
-
-			if (listbox_item_current > -1)
-			{
-				for (int i = 0; i < entities.size(); ++i)
+				if (!entities[i].isDeleted)
 				{
-					if (!entities[i].isDeleted)
+					if (entities[i].entityName == objNames[listbox_item_current])
 					{
-						if (entities[i].entityName == objNames[listbox_item_current])
+						if (entities[i].physicsComponent.aActor)
 						{
-							if (entities[i].physicsComponent.aActor)
-							{
-								physx::PxShape* _shape = nullptr;
-								entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
-								if (_shape)
-									_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
-			
-			
-							}
-							else if (entities[i].physicsComponent.aStaticActor)
-							{
-								physx::PxShape* _shape = nullptr;
-								entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
-								if(_shape)
-									_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
-							}
-							entities[i].DrawGui(*physicsHandler.aScene, entities);
+							physx::PxShape* _shape = nullptr;
+							entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
+							if (_shape)
+								_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
+		
+		
 						}
-						else
+						else if (entities[i].physicsComponent.aStaticActor)
 						{
-							if (entities[i].physicsComponent.aActor)
+							physx::PxShape* _shape = nullptr;
+							entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
+							if(_shape)
+								_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, true);
+						}
+						entities[i].DrawGui(*physicsHandler.aScene, entities);
+					}
+					else
+					{
+						if (entities[i].physicsComponent.aActor)
+						{
+							physx::PxShape* _shape = nullptr;
+							entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
+							if (_shape)
+								_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+						}
+						else if (entities[i].physicsComponent.aStaticActor)
+						{
+							physx::PxShape* _shape = nullptr;
+							entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
+							if (_shape)
+								_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+						}
+					}
+				}
+				
+			}
+		}
+		else
+		{
+			for (int i = 0; i < entities.size(); ++i)
+			{
+				if (!entities[i].isDeleted)
+				{
+					if (entities[i].isSelected)
+					{
+						for (int j = 0; j < objNames.size(); ++j)
+						{
+							if (objNames[j] == entities[i].entityName)
 							{
-								physx::PxShape* _shape = nullptr;
-								entities[i].physicsComponent.aActor->getShapes(&_shape, entities[i].physicsComponent.aActor->getNbShapes());
-								if (_shape)
-									_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
-							}
-							else if (entities[i].physicsComponent.aStaticActor)
-							{
-								physx::PxShape* _shape = nullptr;
-								entities[i].physicsComponent.aStaticActor->getShapes(&_shape, entities[i].physicsComponent.aStaticActor->getNbShapes());
-								if (_shape)
-									_shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+								listbox_item_current = j;
+								entities[i].DrawGui(*physicsHandler.aScene, entities);
 							}
 						}
 					}
-					
 				}
+				
+				
 			}
-			else
-			{
-				for (int i = 0; i < entities.size(); ++i)
-				{
-					if (!entities[i].isDeleted)
-					{
-						if (entities[i].isSelected)
-						{
-							for (int j = 0; j < objNames.size(); ++j)
-							{
-								if (objNames[j] == entities[i].entityName)
-								{
-									listbox_item_current = j;
-									entities[i].DrawGui(*physicsHandler.aScene, entities);
-								}
-							}
-						}
-					}
-					
-					
-				}
-			}
+		}
 		
 		ImGui::End();
 
@@ -1103,6 +1137,12 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		//ImGui::NewLine();
 
 		ImGui::Begin("AI");
+		if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0) || ImGui::IsMouseClicked(0))
+		{
+			physicsHandler.isMouseHover = true;
+			//OutputDebugStringA("VALID!!!!!\n");
+		}
+		
 		if (ImGui::CollapsingHeader("AI##2"))
 		{
 			grid.DrawGUI();
@@ -1116,6 +1156,11 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		ImGui::End();
 
 		ImGui::Begin("Sounds");
+		if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0) || ImGui::IsMouseClicked(0))
+		{
+			physicsHandler.isMouseHover = true;
+			//OutputDebugStringA("VALID!!!!!\n");
+		}
 		if (ImGui::CollapsingHeader("Sounds##2"))
 		{
 			for (int i = 0; i < sounds.size(); ++i)
@@ -1126,6 +1171,12 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		ImGui::End();
 
 		ImGui::Begin("EnvironmentProbe");
+		if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0) || ImGui::IsMouseClicked(0))
+		{
+			physicsHandler.isMouseHover = true;
+			//OutputDebugStringA("VALID!!!!!\n");
+		}
+		
 		if (ImGui::CollapsingHeader("EnvironmentProbe##2"))
 		{
 			environmentProbe.DrawGui("Probe1");
@@ -1143,16 +1194,18 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		if (isFileOpen)
 		{
 			ImGui::Begin("Import");
+			if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0) || ImGui::IsMouseClicked(0))
+			{
+				physicsHandler.isMouseHover = true;
+				//OutputDebugStringA("VALID!!!!!\n");
+			}
+			
 			if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0))
 			{
 				physicsHandler.isMouseHover = true;
 				//OutputDebugStringA("VALID!!!!!\n");
 			}
-			else
-			{
-				physicsHandler.isMouseHover = false;
-				//OutputDebugStringA("INVALID!!!!!\n");
-			}
+			
 			ImGui::Checkbox("Textures", &hasTexture);
 			ImGui::Checkbox("Animated", &isAnimated);
 			ImGui::Checkbox("ConvertCordinates", &bConvertCordinates);
@@ -1164,7 +1217,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			ImGui::End();
 		}
 
-
+	
 
 		ImGuiWindowFlags viewport_flags;
 		//ImGui::PopStyleVar(2);

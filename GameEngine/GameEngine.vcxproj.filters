@@ -294,6 +294,9 @@
     <ClCompile Include="SoundComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ImGui\binary_to_compressed_c.cpp">
+      <Filter>ImGui\Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WindowContainer.h">

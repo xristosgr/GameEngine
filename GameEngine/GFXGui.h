@@ -12,5 +12,7 @@ public:
 	void Initialize(HWND hwnd, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 	void BeginRender();
 	void EndRender();
+
+	void EditorStyle();
 };
 
