@@ -852,15 +852,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		physicsHandler.isMouseHover = false;
 			//OutputDebugStringA("INVALID!!!!!\n");
 		
-		ImGui::Begin("World");
-
-		if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0) || ImGui::IsMouseClicked(0))
-		{
-			physicsHandler.isMouseHover = true;
-			//OutputDebugStringA("VALID!!!!!\n");
-		}
-		
-
 		ImGui::Begin("Options");
 
 		if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0) || ImGui::IsMouseClicked(0))
@@ -993,8 +984,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		
 		ImGui::End();
 
-		ImGui::NewLine();
-		ImGui::NewLine();
 
 		ImGui::Begin("Entities");
 		
@@ -1182,14 +1171,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			environmentProbe.DrawGui("Probe1");
 		}
 		ImGui::End();
-
-		if (ImGui::Button("CLEAR!!!!"))
-		{
-			bClear = true;
-		}
-		ImGui::End();
-
-
 
 		if (isFileOpen)
 		{
