@@ -15,12 +15,7 @@ Renderer::Renderer()
 {
 	timer.Start();
 
-	//skyColor = DirectX::XMFLOAT3(0.2f, 0.5f, 1.0f);
 	skyColor = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	//rgb[0] = 0.0f;
-	//rgb[1] = 0.0f;
-	//rgb[2] = 0.0f;
-	//rgb[3] = 1.0f;
 
 	bEntityDeleted = false;
 	save = false;
@@ -974,8 +969,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		ImGui::NewLine();
 
 		ImGui::Begin("Entities");
-		if (ImGui::CollapsingHeader("Entities##2"))
-		{
+		
 			//static int listbox_item_current = -1;
 			std::vector<const char*> objNames;
 			for (int i = 0; i < entities.size(); ++i)
@@ -1075,7 +1069,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 					
 				}
 			}
-		}
+		
 		ImGui::End();
 
 		//ImGui::NewLine();
