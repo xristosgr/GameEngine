@@ -761,6 +761,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			ImGui::End();
 		}
 
+		
 		bool open = false;
 
 		if (ImGui::BeginMainMenuBar())
@@ -864,7 +865,8 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			//OutputDebugStringA("INVALID!!!!!\n");
 		}
 
-		if (ImGui::CollapsingHeader("Options"))
+		ImGui::Begin("Options");
+		if (ImGui::CollapsingHeader("Options##2"))
 		{
 			ImGui::InputFloat3("Camera", &camera.pos.x);
 			ImGui::Checkbox("runPhysics", &runPhysics);
@@ -896,12 +898,17 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			ImGui::DragFloat("decodeBias", &postProcess.decodeBias, 0.1f, 0.0f, 2.0f);
 			ImGui::DragFloat("decodeScale", &postProcess.decodeScale, 0.1f, 0.0f, 2.0f);
 		}
+		ImGui::End();
 
-		if (ImGui::CollapsingHeader("Sky"))
+		ImGui::Begin("Sky");
+		if (ImGui::CollapsingHeader("Sky##2"))
 		{
 			sky.DrawGui("Sky");
 		}
-		if (ImGui::CollapsingHeader("Lights"))
+		ImGui::End();
+
+		ImGui::Begin("Lights");
+		if (ImGui::CollapsingHeader("Lights##2"))
 		{
 			static int listbox_light_current = 0;
 			std::vector<const char*> lightNames;
@@ -929,8 +936,10 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 				copyLight = true;
 			}
 		}
+		ImGui::End();
 
-		if (ImGui::CollapsingHeader("pointLights"))
+		ImGui::Begin("pointLights");
+		if (ImGui::CollapsingHeader("pointLights##2"))
 		{
 			static int listbox_light_current = 0;
 			std::vector<const char*> lightNames;
@@ -959,11 +968,13 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			}
 		
 		}
+		ImGui::End();
 
 		ImGui::NewLine();
 		ImGui::NewLine();
 
-		if (ImGui::CollapsingHeader("Entities"))
+		ImGui::Begin("Entities");
+		if (ImGui::CollapsingHeader("Entities##2"))
 		{
 			//static int listbox_item_current = -1;
 			std::vector<const char*> objNames;
@@ -1065,37 +1076,40 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 				}
 			}
 		}
+		ImGui::End();
 
-		ImGui::NewLine();
-		ImGui::NewLine();
-		if (ImGui::CollapsingHeader("Collision objects"))
-		{
-			static int listbox_item_current = 0;
-			std::vector<const char*> objNames;
-			for (int i = 0; i < collisionObjects.size(); ++i)
-			{
-				collisionObjects[i].entityName = "collisionObject" + std::to_string(i);
-				objNames.push_back(collisionObjects[i].entityName.c_str());
-			}
-			ImGui::ListBox("collisionObjects", &listbox_item_current, objNames.data(), objNames.size());
+		//ImGui::NewLine();
+		//ImGui::NewLine();
+		//if (ImGui::CollapsingHeader("Collision objects"))
+		//{
+		//	static int listbox_item_current = 0;
+		//	std::vector<const char*> objNames;
+		//	for (int i = 0; i < collisionObjects.size(); ++i)
+		//	{
+		//		collisionObjects[i].entityName = "collisionObject" + std::to_string(i);
+		//		objNames.push_back(collisionObjects[i].entityName.c_str());
+		//	}
+		//	ImGui::ListBox("collisionObjects", &listbox_item_current, objNames.data(), objNames.size());
+		//
+		//	for (int i = 0; i < collisionObjects.size(); ++i)
+		//	{
+		//		if (objNames[listbox_item_current] == collisionObjects[i].entityName)
+		//		{
+		//			collisionObjects[i].DrawGUI(objNames[listbox_item_current]);
+		//		}
+		//	}
+		//	if (ImGui::Button("AddCollisionObject"))
+		//	{
+		//		bAddCollisionObject = true;
+		//	}
+		//}
+		//
+		//
+		//ImGui::NewLine();
+		//ImGui::NewLine();
 
-			for (int i = 0; i < collisionObjects.size(); ++i)
-			{
-				if (objNames[listbox_item_current] == collisionObjects[i].entityName)
-				{
-					collisionObjects[i].DrawGUI(objNames[listbox_item_current]);
-				}
-			}
-			if (ImGui::Button("AddCollisionObject"))
-			{
-				bAddCollisionObject = true;
-			}
-		}
-
-
-		ImGui::NewLine();
-		ImGui::NewLine();
-		if (ImGui::CollapsingHeader("AI"))
+		ImGui::Begin("AI");
+		if (ImGui::CollapsingHeader("AI##2"))
 		{
 			grid.DrawGUI();
 			ImGui::Checkbox("renderNavMesh", &bRenderNavMesh);
@@ -1105,29 +1119,24 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 				bCreateGrid = true;
 			}
 		}
-		ImGui::NewLine();
-		ImGui::NewLine();
-		if (ImGui::CollapsingHeader("Sounds"))
+		ImGui::End();
+
+		ImGui::Begin("Sounds");
+		if (ImGui::CollapsingHeader("Sounds##2"))
 		{
 			for (int i = 0; i < sounds.size(); ++i)
 			{
 				sounds[i]->cube.DrawGUI("sound" + std::to_string(i));
 			}
 		}
+		ImGui::End();
 
-		ImGui::NewLine();
-		ImGui::NewLine();
-		if (ImGui::CollapsingHeader("EnvironmentProbe"))
+		ImGui::Begin("EnvironmentProbe");
+		if (ImGui::CollapsingHeader("EnvironmentProbe##2"))
 		{
 			environmentProbe.DrawGui("Probe1");
 		}
-
-		ImGui::NewLine();
-		ImGui::NewLine();
-
-
-		ImGui::NewLine();
-		ImGui::NewLine();
+		ImGui::End();
 
 		if (ImGui::Button("CLEAR!!!!"))
 		{
@@ -1161,6 +1170,8 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			ImGui::End();
 		}
 
+
+
 		ImGuiWindowFlags viewport_flags;
 		//ImGui::PopStyleVar(2);
 
@@ -1179,9 +1190,9 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		ImGui::Begin("Viewport", nullptr, viewport_flags);
 
 		ImGui::Image(textId, ImVec2(gfx11.windowWidth, gfx11.windowHeight));
-
+		ImGui::End();
 	}
-	ImGui::End();
+
 	gfxGui.EndRender();
 
 		/////////////////////////////////////
