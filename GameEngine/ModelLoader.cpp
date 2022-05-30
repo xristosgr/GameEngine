@@ -256,39 +256,13 @@ TextureStorageType ModelLoader::DetermineTextureStorageType(const aiScene* pScen
 	aiString path;
 	pMat->GetTexture(textureType, index, &path);
 	std::string texturePath = path.C_Str();
-	//Check if texture is an embedded indexed texture by seeing if the file path is an index #
-	if (texturePath[0] == '*')
-	{
-		if (pScene->mTextures[0]->mHeight == 0)
-		{
-			return TextureStorageType::EmbeddedIndexCompressed;
-		}
-		else
-		{
-			assert("SUPPORT DOES NOT EXIST YET FOR INDEXED NON COMPRESSED TEXTURES!" && 0);
-			return TextureStorageType::EmbeddedIndexNonCompressed;
-		}
-	}
-	//Check if texture is an embedded texture but not indexed (path will be the texture's name instead of #)
-	if (auto pTex = pScene->GetEmbeddedTexture(texturePath.c_str()))
-	{
-		if (pTex->mHeight == 0)
-		{
-			return TextureStorageType::EmbeddedCompressed;
-		}
-		else
-		{
-			assert("SUPPORT DOES NOT EXIST YET FOR EMBEDDED NON COMPRESSED TEXTURES!" && 0);
-			return TextureStorageType::EmbeddedNonCompressed;
-		}
-	}
-	//Lastly check if texture is a filepath by checking for period before extension name
+
 	if (texturePath.find('.') != std::string::npos)
 	{
 		return TextureStorageType::Disk;
 	}
 
-	return TextureStorageType::None; // No texture exists
+	return TextureStorageType::None;
 }
 
 std::vector<Texture> ModelLoader::LoadMaterialTextures(aiMaterial* pMaterial, aiTextureType textureType, const aiScene* pScene)

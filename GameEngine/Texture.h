@@ -9,10 +9,6 @@ enum class TextureStorageType
 {
 	Invalid,
 	None,
-	EmbeddedIndexCompressed,
-	EmbeddedIndexNonCompressed,
-	EmbeddedCompressed,
-	EmbeddedNonCompressed,
 	Disk
 };
 
