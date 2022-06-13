@@ -39,17 +39,10 @@ void Sky::Draw(ID3D11DeviceContext* deviceContext, Camera& camera, ConstantBuffe
 	DirectX::XMMATRIX matrix_rotate;
 	DirectX::XMMATRIX matrix_translate;
 	DirectX::XMMATRIX worldMatrix;
-	//
-	//pos.x = camera.pos.x;
-	//pos.y = camera.pos.y;
-	//pos.z = camera.pos.z;
-	////pos = camera.pos;
+
 	matrix_scale = DirectX::XMMatrixScaling(this->scale.x, this->scale.y, this->scale.z);
 	matrix_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
 	matrix_translate = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
 	worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
 	model.Draw(worldMatrix, camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	//cube.pos = camera.GetPositionFloat3();
-	//cube.scale = scale;
-	//cube.Draw(deviceContext, camera, cb_vs_vertexshader);
 }

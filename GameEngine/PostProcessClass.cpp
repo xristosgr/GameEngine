@@ -117,9 +117,6 @@ void PostProcessClass::HbaoPlusRender(DX11& gfx11, RectShape& rect, Camera& came
 	GFSDK_SSAO_Output_D3D11 Output;
 	Output.pRenderTargetView = hbaoTexture.m_renderTargetView;
 	Output.Blend.Mode = GFSDK_SSAO_OVERWRITE_RGB;
-	//Output.Blend.CustomState.pBlendState = gfx11.blendState.Get();
-	//const GFSDK_SSAO_FLOAT pBlendFactor = 1.0f;
-	//Output.Blend.CustomState.pBlendFactor = &pBlendFactor;
 	status = pAOContext->RenderAO(gfx11.deviceContext.Get(), Input, Params, Output, RenderMask);
 	assert(status == GFSDK_SSAO_OK);
 }

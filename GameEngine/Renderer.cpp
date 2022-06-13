@@ -6,7 +6,7 @@
 #include <wincodec.h>
 #include <random>
 
-float randomFloatRange(float min, float max)
+inline float randomFloatRange(float min, float max)
 {
 	return (min + 1) + (((float)rand()) / (float)RAND_MAX) * (max - (min + 1));
 }
@@ -47,6 +47,9 @@ Renderer::Renderer()
 	acceptedDist = 2000.0f;
 	bloomBrightness = 0.65f;
 	bloomStrengh = 4.0f;
+
+	renderResWidth = 1920;
+	renderResHeight = 1080;
 }
 
 bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights)
@@ -54,7 +57,7 @@ bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std:
 	this->windowWidth = width;
 	this->windowHeight = height;
 
-	if (!gfx11.Initialize(hwnd, camera, width, height))
+	if (!gfx11.Initialize(hwnd, camera, windowWidth, windowHeight))
 		return false;
 
 	gfxGui.Initialize(hwnd, gfx11.device.Get(), gfx11.deviceContext.Get());
@@ -71,7 +74,7 @@ bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std:
 
 	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
 	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-	camera.PerspectiveFov(70.0f, static_cast<float>(gfx11.windowWidth / gfx11.windowHeight) * (16.0f / 9.0f), 0.1f, 1000.0f);
+	camera.PerspectiveFov(70.0f, static_cast<float>(this->windowWidth / this->windowHeight) * (16.0f / 9.0f), 0.1f, 1000.0f);
 	gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
 	gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -119,9 +122,11 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	//////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////
 	
-	gfx11.renderTexture.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
-	finalImage.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
+	//gfx11.renderTexture.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
+	//finalImage.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
 
+	gfx11.renderTexture.Initialize(gfx11.device.Get(), renderResWidth,renderResHeight);
+	finalImage.Initialize(gfx11.device.Get(), renderResWidth,renderResHeight);
 	sky.Initialize(gfx11.device.Get(), gfx11.deviceContext.Get(), gfx11.cb_vs_vertexshader);
 
 	for (int i = 0; i < entities.size(); ++i)
@@ -173,19 +178,19 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 
 
 	//Bloom
-	postProcess.Initialize(gfx11, windowWidth, windowHeight);
-	postProcess.HbaoPlusInit(gfx11, windowWidth, windowHeight);
+	postProcess.Initialize(gfx11, renderResWidth,renderResHeight);
+	postProcess.HbaoPlusInit(gfx11, renderResWidth,renderResHeight);
 	//BloomHorizontalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
 	//BloomVerticalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
 	//
 	//bloomRenderTexture.Initialize(gfx11.device.Get(), windowWidth, windowHeight);
 
 	//Volumetric light
-	forwardRenderTexture.Initialize(gfx11.device.Get(), windowWidth, windowHeight);
+	forwardRenderTexture.Initialize(gfx11.device.Get(), renderResWidth,renderResHeight);
 
 	pbr.Initialize(gfx11);
-	gBuffer.Initialize(gfx11);
-	shadowsRenderer.Initialize(gfx11, windowWidth, windowHeight);
+	gBuffer.Initialize(gfx11, renderResWidth, renderResHeight);
+	shadowsRenderer.Initialize(gfx11, renderResWidth,renderResHeight);
 
 	for (int i = 0; i < pointLights.size(); ++i)
 	{
@@ -212,38 +217,25 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	instancedShape.Initialize(gfx11.device.Get());
 }
 
+void Renderer::ClearScreen()
+{
+	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
+	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
+	gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
+	gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+}
+
 //****************RENDER ENTITIES***************************************
 void Renderer::RenderDeferred(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera, Sky& sky)
 {
-	//sky.cube.pos.x = camera.pos.x;
-	//sky.cube.pos.y = camera.pos.y;
-	//sky.cube.pos.z = camera.pos.z;
-
 	gfx11.deviceContext->VSSetConstantBuffers(0, 1, gfx11.cb_vs_vertexshader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 
 	gfx11.deviceContext->PSSetShader(gfx11.deferredPS.GetShader(), nullptr, 0);
-
 	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
 
-	gfx11.cb_ps_materialBuffer.data.emissiveColor = DirectX::XMFLOAT3(0,0,0);
-	gfx11.cb_ps_materialBuffer.data.bEmissive = 1.0f;
-	gfx11.cb_ps_materialBuffer.UpdateBuffer();
-	
-	//gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
-	gfx11.deviceContext->RSSetState(gfx11.rasterizerStateFront.Get());
 
-	camera.PerspectiveFov(70.0f, static_cast<float>(gfx11.windowWidth / gfx11.windowHeight) * (16.0f / 9.0f), 0.1f, 100000000.0f);
-	sky.scale.x = 10000000;
-	sky.scale.y = 10000000;
-	sky.scale.z = 10000000;
-	sky.Draw(gfx11.deviceContext.Get(), camera,gfx11.cb_vs_vertexshader);
-	sky.scale.x = 100;
-	sky.scale.y = 100;
-	sky.scale.z = 100;
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
-
-	camera.PerspectiveFov(70.0f, static_cast<float>(gfx11.windowWidth / gfx11.windowHeight) * (16.0f / 9.0f), 0.1f, 1000.0f);
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		if (entities[i].model.loadAsync && entities[i].physicsComponent.mass == 0.0f)
@@ -357,7 +349,7 @@ void Renderer::RenderDeferred(std::vector<Entity>& entities, std::vector<Light>&
 
 	gfx11.deviceContext->IASetInputLayout(gfx11.instancedVS.GetInputLayout());
 	gfx11.deviceContext->VSSetShader(gfx11.instancedVS.GetShader(), nullptr, 0);
-	instancedShape.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader,gfx11.cb_vs_instanceShader);
+	//instancedShape.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader,gfx11.cb_vs_instanceShader);
 
 	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
 	gfx11.deviceContext->PSSetShader(gfx11.testPS.GetShader(), nullptr, 0);
@@ -366,8 +358,8 @@ void Renderer::RenderDeferred(std::vector<Entity>& entities, std::vector<Light>&
 
 void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera)
 {
-	gfx11.cb_vs_windowParams.data.window_width = (float)windowWidth;
-	gfx11.cb_vs_windowParams.data.window_height = (float)windowHeight;
+	gfx11.cb_vs_windowParams.data.window_width = (float)renderResWidth;
+	gfx11.cb_vs_windowParams.data.window_height = (float)renderResHeight;
 
 	std::vector<Light*> culledShadowLights;
 	for (int i = 0; i < lights.size(); ++i)
@@ -490,12 +482,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			if (lights[i].bShadow)
 				shadowsRenderer.RenderShadows(gfx11, entities, lights[i], camera, renderShadowDistance, i);
 		}
-
-		//gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
-		//gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-		//gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
-		//gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	
 	}
 
 	////////////
@@ -508,10 +494,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		if (environmentProbe.recalculate)
 		{
 
-			gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
-			gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-			gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
-			gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+			ClearScreen();
 
 			environmentProbe.prevPos = environmentProbe.pos;
 			environmentProbe.UpdateCamera();
@@ -525,29 +508,11 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	
 	
 
-	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
-	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-	gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
-	gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	shadowsRenderer.SoftShadows(gfx11,postProcess.rectBloom, entities, lights, camera, renderShadowDistance);
+	ClearScreen();
 
-
-
-	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
-	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-	gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
-	gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
 	gBuffer.GeometryPass(gfx11, camera, gfx11.depthStencilView.Get(), rgb);
 	RenderDeferred(entities, lights, pointLights, camera,sky);
-
-
-	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
-	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-	gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
-	gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
 
 	gfx11.deviceContext->VSSetConstantBuffers(0, 1, gfx11.cb_vs_vertexshader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
@@ -562,44 +527,21 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	gBuffer.LightPass(gfx11, rect, camera,lights,pointLights,acceptedDist);
 
 	gfx11.deviceContext->OMSetBlendState(nullptr, NULL, 0xFFFFFFFF);
-	//rect.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
-
-	//RenderSceneToTexture(gfx11.renderTexture, camera, entities, lights,pointLights, collisionObjects);
-	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
-	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-	gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
-	gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
 
 	//////////////BLOOM///////////////////////////////////////
 	if (enablePostProccess)
 	{
 		postProcess.BloomRender(gfx11, rect, camera);
-
-		gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
-		gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-		gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
-		gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-
 		postProcess.HbaoPlusRender(gfx11, rect, camera, gBuffer.m_shaderResourceViewArray[4], gBuffer.m_shaderResourceViewArray[5]);
 	}
-	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
-	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-	gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
-	gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	ClearScreen();
 
 
-	ForwardPass(entities, camera, sky);
+	//ForwardPass(entities, camera, sky);
 
-	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
-	gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-	gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
-	gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	
-
+	//ClearScreen();
 	////////////////////////////////
-	// 
+
 	//////////////////////////////////////////////////////
 	
 	if (bGuiEnabled)
@@ -611,17 +553,13 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	}
 	else
 	{
-
-		gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
-		gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-		gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
-		gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		ClearScreen();
 	}
 
 	gfx11.deviceContext->PSSetShader(gfx11.postProccessPS.GetShader(), nullptr, 0);
 	rect.SetRenderTexture(gfx11.deviceContext.Get(), gfx11.renderTexture);
 	gfx11.deviceContext->PSSetShaderResources(1, 1, &postProcess.BloomHorizontalBlurTexture.shaderResourceView);
-	gfx11.deviceContext->PSSetShaderResources(2, 1, &forwardRenderTexture.shaderResourceView);
+	//gfx11.deviceContext->PSSetShaderResources(2, 1, &forwardRenderTexture.shaderResourceView);
 	gfx11.deviceContext->PSSetShaderResources(3, 1, &postProcess.hbaoTexture.shaderResourceView);
 	gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState2D.Get(), 0);
 	gfx11.deviceContext->IASetInputLayout(gfx11.vs2D.GetInputLayout());
@@ -629,6 +567,10 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	rect.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
 	gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState.Get(), 0);
 	//////////////////////////////////////////////////////////////////////////////////
+
+	SkyRender(camera, sky);
+	ForwardPass(entities, camera, sky);
+	
 
 	/////////////////////////////////////////////////////////////////////////////////
 
@@ -717,10 +659,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	
 	if(bGuiEnabled)
 	{
-		gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
-		gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-		gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
-		gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		ClearScreen();
 	}
 	//GUI
 	////////////////////////////////////
@@ -1303,8 +1242,8 @@ void Renderer::RenderToEnvProbe(EnvironmentProbe& probe,Camera& camera, std::vec
 
 void Renderer::ForwardPass(std::vector<Entity>& entities, Camera& camera, Sky& sky)
 {
-	forwardRenderTexture.SetRenderTarget(gfx11.deviceContext.Get(), gfx11.depthStencilView.Get());
-	forwardRenderTexture.ClearRenderTarget(gfx11.deviceContext.Get(), gfx11.depthStencilView.Get(), 0, 0, 0, 1, false);
+	//forwardRenderTexture.SetRenderTarget(gfx11.deviceContext.Get(), gfx11.depthStencilView.Get());
+	//forwardRenderTexture.ClearRenderTarget(gfx11.deviceContext.Get(), gfx11.depthStencilView.Get(), 0, 0, 0, 1, false);
 
 
 	gfx11.deviceContext->PSSetShaderResources(5, 1, &pbr.prefilterCubeMap.shaderResourceView);
@@ -1350,6 +1289,32 @@ void Renderer::ForwardPass(std::vector<Entity>& entities, Camera& camera, Sky& s
 	}
 
 
+	//
+	//gfx11.deviceContext->PSSetShaderResources(1, 1, &gBuffer.m_shaderResourceViewArray[4]);
+	//gfx11.deviceContext->IASetInputLayout(gfx11.testVS.GetInputLayout());
+	//gfx11.deviceContext->VSSetShader(gfx11.testVS.GetShader(), nullptr, 0);
+	//gfx11.deviceContext->PSSetShader(gfx11.skyPS.GetShader(), nullptr, 0);
+	//gfx11.cb_ps_materialBuffer.data.emissiveColor = sky.color;
+	////gfx11.cb_ps_materialBuffer.data.bEmissive = 1.0f;
+	//
+	//
+	//gfx11.cb_ps_skyBuffer.data.apexColor = sky.apexColor;
+	//gfx11.cb_ps_skyBuffer.data.centerColor = sky.centerColor;
+	//
+	//gfx11.cb_ps_skyBuffer.UpdateBuffer();
+	//gfx11.cb_ps_materialBuffer.UpdateBuffer();
+	//
+	////gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
+	//gfx11.deviceContext->RSSetState(gfx11.rasterizerStateFront.Get());
+	//sky.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
+	//gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
+}
+
+void Renderer::SkyRender(Camera& camera, Sky& sky)
+{
+	sky.scale.x = 100;
+	sky.scale.y = 100;
+	sky.scale.z = 100;
 
 	gfx11.deviceContext->PSSetShaderResources(1, 1, &gBuffer.m_shaderResourceViewArray[4]);
 	gfx11.deviceContext->IASetInputLayout(gfx11.testVS.GetInputLayout());
@@ -1369,12 +1334,4 @@ void Renderer::ForwardPass(std::vector<Entity>& entities, Camera& camera, Sky& s
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerStateFront.Get());
 	sky.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
-
-
-
-	//gfx11.deviceContext->PSSetShaderResources(1, 1, &gBuffer.m_shaderResourceViewArray[4]);
-	//gfx11.deviceContext->IASetInputLayout(gfx11.instancedVS.GetInputLayout());
-	//gfx11.deviceContext->VSSetShader(gfx11.instancedVS.GetShader(), nullptr, 0);
-	//gfx11.deviceContext->PSSetShader(gfx11.testPS.GetShader(), nullptr, 0);
-	//instancedShape.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
 }

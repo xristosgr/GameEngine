@@ -4,7 +4,7 @@ Shadows::Shadows()
 {
 }
 
-void Shadows::Initialize(DX11& gfx11, int& screen_width, int& screen_height)
+void Shadows::Initialize(DX11& gfx11, int screen_width, int screen_height)
 {
 	shadowTexture.Initialize(gfx11.device.Get(), screen_width, screen_height);
 	shadowHorizontalBlurTexture.Initialize(gfx11.device.Get(), screen_width/2, screen_height/2);

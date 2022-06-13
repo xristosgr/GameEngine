@@ -7,7 +7,7 @@ class Shadows
 {
 public:
 	Shadows();
-	void Initialize(DX11& gfx11,int& screen_width, int& screen_height);
+	void Initialize(DX11& gfx11,int screen_width, int screen_height);
 	void RenderToTexture(DX11& gfx11, std::vector<Entity>& entities, Camera& camera, RenderTexture& shadowMap, Light& light, float& renderDistance);
 	void RenderShadowEntities(DX11& gfx11, std::vector<Entity>& entity, Light& light, Camera& camera, float& renderDistance);
 	void RenderEntities(DX11& gfx11, std::vector<Entity>& entity, std::vector<Light>& lights, Camera& camera);

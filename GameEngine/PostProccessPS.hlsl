@@ -27,7 +27,7 @@ float4 main(PS_INPUT input) : SV_TARGET
   
     sampleColor *= hbaoPlus;
     sampleColor += bloom * bloomStrength;
-    sampleColor += forwardColor;
+    //sampleColor += forwardColor;
 
     
     return float4(sampleColor, 1.0f);

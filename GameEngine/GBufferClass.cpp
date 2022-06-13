@@ -4,15 +4,15 @@ GBufferClass::GBufferClass()
 {
 }
 
-void GBufferClass::Initialize(DX11& gfx11)
+void GBufferClass::Initialize(DX11& gfx11, int width, int height)
 {
 
-	albedoTexture.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
-	normalTexture.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
-	metallicRoughnessTexture.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
-	worldPositionTexture.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
-	depthTexture.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
-	ssao_normalTexture.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
+	albedoTexture.Initialize(gfx11.device.Get(), width,height);
+	normalTexture.Initialize(gfx11.device.Get(), width, height);
+	metallicRoughnessTexture.Initialize(gfx11.device.Get(), width, height);
+	worldPositionTexture.Initialize(gfx11.device.Get(), width, height);
+	depthTexture.Initialize(gfx11.device.Get(), width, height);
+	ssao_normalTexture.Initialize(gfx11.device.Get(), width, height);
 
 	m_renderTargetTextureArray[0] = albedoTexture.m_renderTargetTexture;
 	m_renderTargetTextureArray[1] = normalTexture.m_renderTargetTexture;
@@ -38,7 +38,7 @@ void GBufferClass::Initialize(DX11& gfx11)
 
 void GBufferClass::GeometryPass(DX11& gfx11, Camera& camera, ID3D11DepthStencilView* depthView, float* rgb)
 {
-	//gfx11.deviceContext->RSSetViewports(1, &albedoTexture.m_viewport);
+	gfx11.deviceContext->RSSetViewports(1, &albedoTexture.m_viewport);
 	SetRenderTargets(gfx11, depthView);
 	ClearRenderTargets(gfx11, depthView, rgb);
 }

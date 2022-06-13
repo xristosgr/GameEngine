@@ -28,11 +28,12 @@ public:
 	void InitScene(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera,Sky& sky);
 
 private:
+	void ClearScreen();
 	void RenderDeferred(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera, Sky& sky);
 	void UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera);
 	void RenderToEnvProbe(EnvironmentProbe& probe, Camera& camera, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, Sky& sky);
 	void ForwardPass(std::vector<Entity>& entities, Camera& camera, Sky& sky);
-
+	void SkyRender(Camera& camera, Sky& sky);
 private:
 	float rgb[4];
 
@@ -104,6 +105,8 @@ public:
 	bool bHasFinishedLoading = false;
 private:
 	int windowWidth, windowHeight;
+	int renderResWidth, renderResHeight;
+
 	EnvironmentProbe environmentProbe;
 
 	RenderTexture cubeTexture;
