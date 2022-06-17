@@ -36,16 +36,16 @@ bool DX11::InitializeDirectX(HWND hwnd)
 
 		//Device and Swapchain Creation
 		DXGI_SWAP_CHAIN_DESC1 scd1 = { 0 };
-		scd1.Width = lround(this->windowWidth);		// Match the size of the window.
-		scd1.Height = lround(this->windowWidth);
+		scd1.Width = lround(this->windowWidth);
+		scd1.Height = lround(this->windowHeight);
 		scd1.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		//scd1.Format = DXGI_FORMAT::DXGI_FORMAT_R10G10B10A2_UNORM;
 		scd1.Stereo = false;
 		scd1.SampleDesc.Count = MSSA_COUNT;
 		scd1.SampleDesc.Quality = MSSA_Quality;
 		scd1.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		scd1.BufferCount = 3;									//NOTE: Use double-buffering to minimize latency.
-		scd1.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;	// All Microsoft Store apps must use this SwapEffect.
+		scd1.BufferCount = 3;									
+		scd1.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;	
 		scd1.Flags = 0;
 		scd1.Scaling = DXGI_SCALING_NONE;
 		scd1.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
@@ -55,7 +55,7 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		scdFullScreen.RefreshRate.Denominator = 1;
 		scdFullScreen.Scaling = DXGI_MODE_SCALING::DXGI_MODE_SCALING_UNSPECIFIED;
 		scdFullScreen.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		scdFullScreen.Windowed = TRUE;
+		scdFullScreen.Windowed = FALSE;
 
 		D3D_FEATURE_LEVEL featureLevels[]
 		{
@@ -68,16 +68,16 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		D3D_FEATURE_LEVEL  FeatureLevelsSupported;
 		D3D_FEATURE_LEVEL m_d3dFeatureLevel(D3D_FEATURE_LEVEL_11_1);
 		hr = D3D11CreateDevice(
-			nullptr,					// Specify nullptr to use the default adapter.
-			D3D_DRIVER_TYPE_HARDWARE,	// Create a device using the hardware graphics driver.
-			0,							// Should be 0 unless the driver is D3D_DRIVER_TYPE_SOFTWARE.
-			creationFlags,				// Set debug and Direct2D compatibility flags.
-			featureLevels,				// List of feature levels this app can support.
-			ARRAYSIZE(featureLevels),	// Size of the list above.
-			D3D11_SDK_VERSION,			// Always set this to D3D11_SDK_VERSION for Microsoft Store apps.
-			&device,					// Returns the Direct3D device created.
-			&m_d3dFeatureLevel,			// Returns feature level of device created.
-			&deviceContext					// Returns the device immediate context.
+			nullptr,					
+			D3D_DRIVER_TYPE_HARDWARE,	
+			0,					
+			creationFlags,		
+			featureLevels,		
+			ARRAYSIZE(featureLevels),	
+			D3D11_SDK_VERSION,		
+			&device,					
+			&m_d3dFeatureLevel,		
+			&deviceContext	
 		);
 
 		COM_ERROR_IF_FAILED(hr, "Failed to create device.");

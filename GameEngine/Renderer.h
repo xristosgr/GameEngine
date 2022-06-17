@@ -105,7 +105,7 @@ public:
 	bool bHasFinishedLoading = false;
 private:
 	int windowWidth, windowHeight;
-	int renderResWidth, renderResHeight;
+
 
 	EnvironmentProbe environmentProbe;
 

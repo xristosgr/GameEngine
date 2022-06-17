@@ -47,9 +47,6 @@ Renderer::Renderer()
 	acceptedDist = 2000.0f;
 	bloomBrightness = 0.65f;
 	bloomStrengh = 4.0f;
-
-	renderResWidth = 1920;
-	renderResHeight = 1080;
 }
 
 bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights)
@@ -125,8 +122,8 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	//gfx11.renderTexture.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
 	//finalImage.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
 
-	gfx11.renderTexture.Initialize(gfx11.device.Get(), renderResWidth,renderResHeight);
-	finalImage.Initialize(gfx11.device.Get(), renderResWidth,renderResHeight);
+	gfx11.renderTexture.Initialize(gfx11.device.Get(), windowWidth,windowHeight);
+	finalImage.Initialize(gfx11.device.Get(), windowWidth, windowHeight);
 	sky.Initialize(gfx11.device.Get(), gfx11.deviceContext.Get(), gfx11.cb_vs_vertexshader);
 
 	for (int i = 0; i < entities.size(); ++i)
@@ -178,19 +175,19 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 
 
 	//Bloom
-	postProcess.Initialize(gfx11, renderResWidth,renderResHeight);
-	postProcess.HbaoPlusInit(gfx11, renderResWidth,renderResHeight);
+	postProcess.Initialize(gfx11, windowWidth, windowHeight);
+	postProcess.HbaoPlusInit(gfx11, windowWidth, windowHeight);
 	//BloomHorizontalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
 	//BloomVerticalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
 	//
 	//bloomRenderTexture.Initialize(gfx11.device.Get(), windowWidth, windowHeight);
 
 	//Volumetric light
-	forwardRenderTexture.Initialize(gfx11.device.Get(), renderResWidth,renderResHeight);
+	forwardRenderTexture.Initialize(gfx11.device.Get(), windowWidth, windowHeight);
 
 	pbr.Initialize(gfx11);
-	gBuffer.Initialize(gfx11, renderResWidth, renderResHeight);
-	shadowsRenderer.Initialize(gfx11, renderResWidth,renderResHeight);
+	gBuffer.Initialize(gfx11, windowWidth, windowHeight);
+	shadowsRenderer.Initialize(gfx11, windowWidth, windowHeight);
 
 	for (int i = 0; i < pointLights.size(); ++i)
 	{
@@ -358,8 +355,8 @@ void Renderer::RenderDeferred(std::vector<Entity>& entities, std::vector<Light>&
 
 void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera)
 {
-	gfx11.cb_vs_windowParams.data.window_width = (float)renderResWidth;
-	gfx11.cb_vs_windowParams.data.window_height = (float)renderResHeight;
+	gfx11.cb_vs_windowParams.data.window_width = (float)windowWidth;
+	gfx11.cb_vs_windowParams.data.window_height = (float)windowHeight;
 
 	std::vector<Light*> culledShadowLights;
 	for (int i = 0; i < lights.size(); ++i)
@@ -590,9 +587,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	{
 		gfx11.deviceContext->PSSetShader(gfx11.testPS.GetShader(), nullptr, 0);
 		rectSmall.pos = DirectX::XMFLOAT3(2.88, -1.56, 2.878);
-		//gfx11.deviceContext->PSSetShaderResources(0, 1, &lights[3].m_shadowMap.shaderResourceView);
-		//gfx11.deviceContext->PSSetShaderResources(0, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
-		//gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[4]);
 		gfx11.deviceContext->PSSetShaderResources(0, 1, &postProcess.hbaoTexture.shaderResourceView);
 		gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState2D.Get(), 0);
 		gfx11.deviceContext->IASetInputLayout(gfx11.vs2D.GetInputLayout());
@@ -616,9 +610,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	}
 	
 	/////////////////////////////////////////////////////////////////////////////////
-	
-
-	//ForwardPass(camera, sky);
 	//Physics Debug Draw
 	//////////////////////
 	//////////////////////
@@ -705,11 +696,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			{
 				if (ImGui::MenuItem("Save", NULL))
 					save = true;
-				ImGui::MenuItem("Lights", NULL, &show_lights);
-				ImGui::MenuItem("Objects", NULL, &show_objects);
-				ImGui::MenuItem("Particles", NULL, &show_particles);
-				ImGui::MenuItem("General", NULL, &show_general);
-				//ImGui::MenuItem("Gui", NULL, &bGuiEnabled);
 
 				ImGui::EndMenu();
 			}
@@ -722,21 +708,10 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 				ImGui::EndMenu();
 			}
 			ImGui::SameLine();
-			if (ImGui::BeginMenu("Debug"))
-			{
-				ImGui::MenuItem("EnablePostProccess", NULL, &enablePostProccess);
-				ImGui::MenuItem("Console", NULL, &show_app_console);
-				ImGui::MenuItem("Log", NULL, &show_app_log);
-				//ImGui::Checkbox("showDebugWindow", &showDebugWindow);
-
-				ImGui::EndMenu();
-			}
-			ImGui::SameLine();
 
 			if (ImGui::BeginMenu("Tools"))
 			{
 				ImGui::MenuItem("Metrics", NULL, &show_app_metrics);
-				ImGui::MenuItem("Style Editor", NULL, &show_app_style_editor);
 
 				ImGui::EndMenu();
 			}
@@ -753,8 +728,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 
 			if (open)
 				ImGui::OpenPopup("Open File");
-			//if (save)
-			//	ImGui::OpenPopup("Save File");
 
 			/* Optional third parameter. Support opening only compressed rar/zip files.
 			 * Opening any other file will show error, return false and won't close the dialog.
@@ -775,28 +748,17 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 				isFileOpen = true;
 			}
 
-
-
-			//ImGui::Text(inName.c_str());
-
 			ImGui::EndMainMenuBar();
 		}
 
-	
-		//cube.DrawGUI("cube");
-		//postProcess.rectBloom.DrawGUI("rectBloom");
-		//rectSmall.DrawGUI("rectSmall");
-		//debugCube.DrawGUI("debugCube");
 
 		physicsHandler.isMouseHover = false;
-			//OutputDebugStringA("INVALID!!!!!\n");
-		
+
 		ImGui::Begin("Options");
 
 		if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0) || ImGui::IsMouseClicked(0))
 		{
 			physicsHandler.isMouseHover = true;
-			//OutputDebugStringA("VALID!!!!!\n");
 		}
 		
 
