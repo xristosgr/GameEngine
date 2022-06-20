@@ -45,8 +45,9 @@ Renderer::Renderer()
 	renderShadowDistance = 2700.0f;
 	shadowDist = 5.5f;
 	acceptedDist = 2000.0f;
-	bloomBrightness = 0.65f;
-	bloomStrengh = 4.0f;
+	bloomBrightness = 0.6f;
+	bloomStrength = 0.04f;
+	hbaoStrength = 1.4f;
 }
 
 bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights)
@@ -61,9 +62,6 @@ bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std:
 
 
 
-
-	//float rgb[4];
-	
 	gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState.Get(), 0);
 	gfx11.deviceContext->PSSetSamplers(0, 1, gfx11.samplerState_Wrap.GetAddressOf());
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
@@ -196,7 +194,7 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 		pointLights[i].pos.x = x;
 		pointLights[i].pos.z = z;
 		pointLights[i].lightColor = DirectX::XMFLOAT3(5, 20, 1);
-		pointLights[i].emissionColor = DirectX::XMFLOAT3(1, 2, 1);
+		pointLights[i].emissionColor = DirectX::XMFLOAT3(1, 6, 1);
 		pointLights[i].scale = DirectX::XMFLOAT3(0.01f, 0.01f, 0.01f);
 		pointLights[i].cutOff = 0.2f;
 		pointLights[i].radius = 2.0f;
@@ -268,6 +266,7 @@ void Renderer::RenderDeferred(std::vector<Entity>& entities, std::vector<Light>&
 				}
 				else
 				{
+					gfx11.cb_ps_materialBuffer.data.emissiveColor = DirectX::XMFLOAT3(0,0,0);
 					gfx11.cb_ps_materialBuffer.data.bEmissive = 0.0f;
 					gfx11.cb_ps_materialBuffer.UpdateBuffer();
 				}
@@ -418,8 +417,8 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 
 	gfx11.cb_ps_screenEffectBuffer.data.gamma = gamma;
 	gfx11.cb_ps_screenEffectBuffer.data.bloomBrightness = bloomBrightness;
-	gfx11.cb_ps_screenEffectBuffer.data.bloomStrength = bloomStrengh;
-
+	gfx11.cb_ps_screenEffectBuffer.data.bloomStrength = bloomStrength;
+	gfx11.cb_ps_screenEffectBuffer.data.hbaoStrength = hbaoStrength;
 
 	gfx11.cb_vs_vertexshader.UpdateBuffer();
 	gfx11.cb_vs_lightsShader.UpdateBuffer();
@@ -528,15 +527,13 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	//////////////BLOOM///////////////////////////////////////
 	if (enablePostProccess)
 	{
+		postProcess.HbaoPlusRender(gfx11, rect, camera, gBuffer.m_shaderResourceViewArray[4], gBuffer.m_shaderResourceViewArray[1]);
 		postProcess.BloomRender(gfx11, rect, camera);
-		postProcess.HbaoPlusRender(gfx11, rect, camera, gBuffer.m_shaderResourceViewArray[4], gBuffer.m_shaderResourceViewArray[5]);
+		
 	}
 	ClearScreen();
 
 
-	//ForwardPass(entities, camera, sky);
-
-	//ClearScreen();
 	////////////////////////////////
 
 	//////////////////////////////////////////////////////
@@ -587,7 +584,8 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	{
 		gfx11.deviceContext->PSSetShader(gfx11.testPS.GetShader(), nullptr, 0);
 		rectSmall.pos = DirectX::XMFLOAT3(2.88, -1.56, 2.878);
-		gfx11.deviceContext->PSSetShaderResources(0, 1, &postProcess.hbaoTexture.shaderResourceView);
+		gfx11.deviceContext->PSSetShaderResources(0, 1, &postProcess.bloomRenderTexture.shaderResourceView);
+		gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[0]);
 		gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState2D.Get(), 0);
 		gfx11.deviceContext->IASetInputLayout(gfx11.vs2D.GetInputLayout());
 		gfx11.deviceContext->VSSetShader(gfx11.vs2D.GetShader(), nullptr, 0);
@@ -772,9 +770,10 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			ImGui::Checkbox("debugEnabled", &debugEnabled);
 			ImGui::Checkbox("renderCollision", &bRenderCollision);
 			ImGui::DragInt("vSync", &vSync);
-			ImGui::DragFloat("bloomStrengh", &bloomStrengh, 0.1f);
+			ImGui::DragFloat("bloomStrengh", &bloomStrength, 0.1f);
 			ImGui::DragFloat("bloomBrightness", &bloomBrightness, 0.1f);
 			ImGui::DragFloat("gamma", &gamma, 0.1f);
+			ImGui::DragFloat("hbaoStrengh", &hbaoStrength, 0.1f);
 			ImGui::InputInt("cameraMode", &switchCameraMode);
 			ImGui::DragFloat("renderDistance", &renderDistance, 1.0f);
 			ImGui::DragFloat("renderShadowDistance", &renderShadowDistance, 1.0f);

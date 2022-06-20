@@ -118,8 +118,9 @@ private:
 	Texture brdfText;
 
 	float bloomBrightness;
-	float bloomStrengh;
+	float bloomStrength;
 	float gamma;
+	float hbaoStrength;
 	bool bRenderCollision;
 
 	RenderTexture forwardRenderTexture;

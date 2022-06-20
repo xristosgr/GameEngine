@@ -97,6 +97,8 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 	if (!entity.physicsComponent.aActor)
 		return;
 
+
+	isFalling = entity.isFalling;
 	entity.isMovingLeft = false;
 
 	DirectX::XMFLOAT4 forwardDir;
@@ -316,11 +318,10 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 		{
 			entity.physicsComponent.aActor->addForce(physx::PxVec3(moveX * 30, 0, moveZ * 30), physx::PxForceMode::eFORCE);
 		}
-		//OutputDebugStringA(("X = " + std::to_string(moveX)+ " |Y = " + std::to_string(moveZ) + "\n").c_str());
 
 		if (entity.isFalling)
 		{
-			entity.model.SetAnimIndex(2, true, 10.0f);
+			entity.model.SetAnimIndex(2, true, 8.0f);
 		}
 		else
 		{
@@ -335,9 +336,6 @@ void TpsController::Movement(float& dt, float gravity, Entity& entity, Keyboard&
 				entity.model.SetAnimIndex(0, true, 5.0f);
 			}
 		}
-		isFalling = entity.isFalling;
-
-		entity.model.Update();
 
 		entity.physicsComponent.aActor->setGlobalPose(entity.physicsComponent.trans);
 	}

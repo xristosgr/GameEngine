@@ -49,15 +49,6 @@
     <Filter Include="GFX\Model\Source files">
       <UniqueIdentifier>{a36555b9-9eff-4f39-8a36-89b222266969}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GameObjects">
-      <UniqueIdentifier>{3f3c363f-b009-425c-8b9a-e2afecbf85a9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameObjects\Header files">
-      <UniqueIdentifier>{dc9c30e9-3b41-4486-a660-8a0f204bb9f3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameObjects\Source files">
-      <UniqueIdentifier>{48a47eee-3733-4257-b0cc-a95ae388dd3c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Physics">
       <UniqueIdentifier>{5020ec18-0fcf-454f-960f-183d47bf6d76}</UniqueIdentifier>
     </Filter>

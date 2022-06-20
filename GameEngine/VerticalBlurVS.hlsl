@@ -43,7 +43,7 @@ VS_OUTPUT main(VS_INPUT input)
     
     for (int i = -10; i <= 10; ++i)
     {
-        output.texCoords[i + 10] = output.centerTexCoords + float2(0, texelSize * i*2);
+        output.texCoords[i + 10] = output.centerTexCoords + float2(0, texelSize * i*4);
 
     }
     

@@ -44,7 +44,7 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		scd1.SampleDesc.Count = MSSA_COUNT;
 		scd1.SampleDesc.Quality = MSSA_Quality;
 		scd1.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		scd1.BufferCount = 3;									
+		scd1.BufferCount = 2;									
 		scd1.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;	
 		scd1.Flags = 0;
 		scd1.Scaling = DXGI_SCALING_NONE;
@@ -55,7 +55,7 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		scdFullScreen.RefreshRate.Denominator = 1;
 		scdFullScreen.Scaling = DXGI_MODE_SCALING::DXGI_MODE_SCALING_UNSPECIFIED;
 		scdFullScreen.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		scdFullScreen.Windowed = FALSE;
+		scdFullScreen.Windowed = TRUE;
 
 		D3D_FEATURE_LEVEL featureLevels[]
 		{

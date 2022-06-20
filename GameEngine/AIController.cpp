@@ -75,7 +75,7 @@ void AIController::MoveTo(float& dt, Entity* start, Entity* end, float& gravity)
 		//start->m_index = 0;
 		start->model.SetAnimIndex(0, true, 4.2f);
 	}
-	start->model.Update();
+	//start->model.Update();
 }
 
 physx::PxVec3 AIController::MoveDirectlyTo(float& dt, physx::PxExtendedVec3& v1, physx::PxExtendedVec3& v2)

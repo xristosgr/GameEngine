@@ -20,8 +20,6 @@ public:
 	void Update();
 	void Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix, Texture* text = nullptr, bool bCheckFrustum = true);
 	void AttachController(physx::PxController& characterController,bool& runPhysics);
-	void MouseMove(Mouse& mouse, Keyboard& keyboard,Camera& camera);
-	void SetupAttachment(Entity* entity, std::string boneName);
 	void SetupAttachment(Entity* entity);
 	void DrawGui(physx::PxScene& scene, std::vector<Entity>& entities);
 	void Input(Mouse& mouse, Keyboard& keyboard);

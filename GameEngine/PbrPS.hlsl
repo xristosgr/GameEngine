@@ -66,17 +66,19 @@ float3 dirLight(PS_INPUT input, float3 albedo, float3 bumpNormal, float roughnes
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    float4 albedo = float4(pow(objTexture.Sample(SampleTypeWrap, input.inTexCoord), gamma));
+    int3 sampleIndices = int3(input.inPosition.xy, 0);
     
-    float3 bumpNormal = normalTexture.Sample(SampleTypeWrap, input.inTexCoord).rgb;
+    float4 albedo = float4(pow(objTexture.Load(sampleIndices), gamma));
+    
+    float3 bumpNormal = normalTexture.Load(sampleIndices).rgb;
     if (bumpNormal.r == -1 && bumpNormal.g == -1 && bumpNormal.b == -1)
     {
         return float4(albedo.r, albedo.g, albedo.b, 1.0f);
     }
-    float metallic = roughnessMetalicTexture.Sample(SampleTypeWrap, input.inTexCoord).b;
-    float roughness = roughnessMetalicTexture.Sample(SampleTypeWrap, input.inTexCoord).g;
-    float3 worldPos = worldPositionTexture.Sample(SampleTypeWrap, input.inTexCoord).xyz;
-    float distToCamera = distToCameraTexture.Sample(SampleTypeWrap, input.inTexCoord).x;
+    float metallic = roughnessMetalicTexture.Load(sampleIndices).b;
+    float roughness = roughnessMetalicTexture.Load(sampleIndices).g;
+    float3 worldPos = worldPositionTexture.Load(sampleIndices).xyz;
+    //float distToCamera = distToCameraTexture.Load(sampleIndices).x;
     
     float3 V = normalize(cameraPos.xyz - worldPos);
 

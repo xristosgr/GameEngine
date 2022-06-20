@@ -12,6 +12,7 @@ Entity::Entity()
 	bRender = true;
 	isDeleted = false;
 	bFlagForDeletion = false;
+	isEmissive = false;
 }
 
 bool Entity::Intitialize(const std::string filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, bool isAnimated)
@@ -114,6 +115,8 @@ void Entity::Update()
 
 void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projectionMatrix, Texture* text,bool bCheckFrustum)
 {
+	if(isAnimated)
+		model.Update();
 
 	DirectX::XMMATRIX matrix_scale;
 	DirectX::XMMATRIX matrix_rotate;
@@ -271,87 +274,6 @@ void Entity::AttachController(physx::PxController& characterController, bool& ru
 
 }
 
-void Entity::MouseMove(Mouse& mouse, Keyboard& keyboard, Camera& camera)
-{
-	if (physicsComponent.aActor)
-	{
-		physicsComponent.aActor->getShapes(&physicsComponent.aShape, physicsComponent.aActor->getNbShapes());
-		if (physicsComponent.aShape->getFlags().isSet(physx::PxShapeFlag::eVISUALIZATION))
-		{
-
-			float pointX, pointY;
-			DirectX::XMMATRIX viewMatrix, inverseViewMatrix;
-			DirectX::XMFLOAT3 direction = DirectX::XMFLOAT3(0, 0, 0);
-
-			pointX = ((2.0f * (float)mouse.GetPosX()) / (float)1280) - 1.0f;
-			pointY = (((2.0f * (float)mouse.GetPosY()) / (float)720) - 1.0f) * -1.0f;
-
-
-			DirectX::XMFLOAT4X4 projection;
-			DirectX::XMStoreFloat4x4(&projection, camera.GetProjectionMatrix());
-			pointX = pointX / projection._11;
-			pointY = pointY / projection._22;
-
-			viewMatrix = camera.GetViewMatrix();
-			inverseViewMatrix = DirectX::XMMatrixInverse(nullptr, viewMatrix);
-
-
-			DirectX::XMFLOAT4X4 invView;
-			DirectX::XMStoreFloat4x4(&invView, inverseViewMatrix);
-
-			direction.x = (pointX * invView._11) + (pointY * invView._21) + invView._31;
-			direction.y = (pointX * invView._12) + (pointY * invView._22) + invView._32;
-			direction.z = (pointX * invView._13) + (pointY * invView._23) + invView._33;
-		   
-			if (keyboard.KeyIsPressed('X'))
-			{
-				
-				physicsComponent.trans = physicsComponent.aActor->getGlobalPose();
-				physicsComponent.trans.p.x += direction.x * 0.3f;
-				physicsComponent.aActor->setGlobalPose(physicsComponent.trans);
-			}
-			if (keyboard.KeyIsPressed('Y'))
-			{
-
-				physicsComponent.trans = physicsComponent.aActor->getGlobalPose();
-				physicsComponent.trans.p.y += direction.y * 0.3f;
-				physicsComponent.aActor->setGlobalPose(physicsComponent.trans);
-			}
-			if (keyboard.KeyIsPressed('Z'))
-			{
-
-				physicsComponent.trans = physicsComponent.aActor->getGlobalPose();
-				physicsComponent.trans.p.z += direction.z * 0.3f;
-				physicsComponent.aActor->setGlobalPose(physicsComponent.trans);
-			}
-
-		}
-	}
-}
-
-void Entity::SetupAttachment(Entity* entity, std::string boneName)
-{
-	//parent = entity;
-	//if (model.isAttached)
-	//{
-	//	if (parent)
-	//	{
-	//		parent->model.attachedBone = boneName;
-	//
-	//		parent->model.FinalBoneTrans = parent->model.boneTrans * parent->model._worldMatrix;
-	//
-	//
-	//		DirectX::XMMatrixDecompose(&_scale, &_rot, &_pos, parent->model.FinalBoneTrans);
-	//
-	//		DirectX::XMStoreFloat3(&parent->model.worldPos, _pos);
-	//		DirectX::XMStoreFloat3(&parent->model.worldScale, _scale);
-	//		DirectX::XMStoreFloat4(&parent->model.worldRot, _rot);
-	//
-	//
-	//		pos = XMFLOAT3(parent->model.worldPos.x, parent->model.worldPos.y, parent->model.worldPos.z);
-	//	}
-	//}
-}
 void Entity::SetupAttachment(Entity* entity)
 {
 

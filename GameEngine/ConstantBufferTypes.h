@@ -65,6 +65,7 @@ struct CB_PS_screenEffectBuffer
 	float gamma;
 	float bloomBrightness;
 	float bloomStrength;
+	float hbaoStrength;
 };
 
 struct CB_PS_pbrBuffer
