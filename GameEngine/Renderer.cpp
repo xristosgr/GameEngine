@@ -157,7 +157,7 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	{
 		lights[i].Initialize(gfx11.device.Get(), gfx11.deviceContext.Get(), gfx11.cb_vs_vertexshader);
 		if (lights[i].lightType == 2.0f)
-			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), 2048, 2048);
+			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), 1024, 1024);
 		else
 			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), 1024, 1024);
 		lights[i].SetupCamera(gfx11.windowWidth, gfx11.windowHeight);
@@ -196,8 +196,8 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 		pointLights[i].lightColor = DirectX::XMFLOAT4(5, 20, 1,1.0f);
 		pointLights[i].emissionColor = DirectX::XMFLOAT3(1, 6, 1);
 		pointLights[i].scale = DirectX::XMFLOAT3(0.01f, 0.01f, 0.01f);
-		pointLights[i].cutOff = 0.2f;
-		pointLights[i].radius = 2.0f;
+		pointLights[i].cutOff = 0.8f;
+		pointLights[i].radius = 4.0f;
 	}
 
 	defaultText[0].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/Tex1/plasticpattern1-albedo.png");

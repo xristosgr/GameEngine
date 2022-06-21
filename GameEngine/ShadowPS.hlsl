@@ -120,7 +120,6 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
     }
     else
     {
-        //if (lightTypeEnableShadows[index].x == 2.0f)
         shadow = lightIntensity;
     }
     return (float3(shadow, shadow, shadow));

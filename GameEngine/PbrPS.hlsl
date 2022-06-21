@@ -139,7 +139,10 @@ float4 main(PS_INPUT input) : SV_TARGET
     color = pow(color, float3(1.0f / 1.0f, 1.0f / 1.0f, 1.0f / 1.0f));
 
     float3 shadows = shadowTexture.Sample(SampleTypeWrap, input.inTexCoord).xyz;
-    color *= shadows;
+    
+    if (lightsSize > 0)
+        color *= shadows;
+    
     return float4(color, 1.0);
    
 }
