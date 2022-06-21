@@ -19,12 +19,13 @@ public:
 
 	void DrawVolume(Camera& camera);
 
+	void Clear();
 	DirectX::XMMATRIX lightViewMatrix;
 	DirectX::XMMATRIX lightProjectionMatrix;
 	DirectX::XMFLOAT3 posOffset;
 	//Camera camera;
 
-	DirectX::XMFLOAT3 lightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+	DirectX::XMFLOAT4 lightColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f,1.0f);
 	DirectX::XMFLOAT3 emissionColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 	DirectX::XMFLOAT3 specularColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
@@ -57,7 +58,7 @@ public:
 	float nearZ = 0.1f;
 	float farZ = 1000.0f;
 	bool bShadow = true;
-
+	bool bFlagForDeletion;
 
 	RenderTexture m_shadowMap;
 
@@ -73,6 +74,7 @@ private:
 	ID3D11Device* device;
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 
-	std::unique_ptr<Camera> camera;
+	//std::unique_ptr<Camera> camera;
+	Camera* camera = nullptr;
 };
 

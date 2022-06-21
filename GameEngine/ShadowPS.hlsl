@@ -6,7 +6,7 @@ cbuffer lightBuffer : register(b0)
     float4 dynamicLightColor[NO_LIGHTS];
     float4 SpotlightDir[NO_LIGHTS];
     float4 cameraPos;
-    float4 lightType[NO_LIGHTS];
+    float4 lightTypeEnableShadows[NO_LIGHTS];
     //float4 acceptedDistShadowAndLight;
     //float acceptedDist;
     uint lightsSize;
@@ -55,7 +55,7 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    float3 color = float3(0, 0, 0);
+    float3 color = float3(0, 0,0);
     
     for (int i = 0; i < NO_LIGHTS; ++i)
     {
@@ -63,9 +63,11 @@ float4 main(PS_INPUT input) : SV_TARGET
             break;
        
          float3 shadows = Shadows(input.lightViewPosition[i], depthMapTextures[i], input.distToCamera, input,i);
-         color += shadows;
-    }    
-    return float4(color, 1.0);
+        
+        if (lightTypeEnableShadows[i].y)
+            color += shadows;
+    }
+    return (float4(color, 1.0));
 
 }
 
@@ -74,7 +76,10 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
     //float zbias = bias;
     float2 projectTexCoord;
     float lightDepthValue;
-    float lightIntensity;
+    
+    float lightIntensity = 1.0f / (lightsSize);
+    float shadowIntensity = lightsSize;
+    
     float shadow = 0.0f;
     float3 color = float3(0, 0, 0);
     int width;
@@ -88,15 +93,12 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
     projectTexCoord.x = lightViewPosition.x / lightViewPosition.w/2.0f + 0.5f;
     projectTexCoord.y = -lightViewPosition.y / lightViewPosition.w / 2.0f + 0.5f;
    
-    
+   
     if ((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y))
     {
         lightDepthValue = lightViewPosition.z / lightViewPosition.w;
         
-        //if (dist < acceptedDistShadowAndLight.x)
-        //{
-            //lightDepthValue = lightDepthValue - 0.00008f;
-            lightDepthValue = lightDepthValue - 0.0005f;
+        lightDepthValue = lightDepthValue - 0.0005f;
         
         int PCF_RANGE = 2;
         
@@ -107,18 +109,19 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
             for (int y = -PCF_RANGE; y <= PCF_RANGE; y++)
             {
                 float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projectTexCoord + float2(x, y) * texelSize).r;
-            
-       
-                shadow += lightDepthValue > pcfDepth ? 0.0f : 1.0f;
+                
+                if(lightsSize == 1)
+                    shadow += lightDepthValue > pcfDepth ? 0.4f : lightIntensity;
+                else
+                    shadow += lightDepthValue > pcfDepth ? 0.04f * -shadowIntensity : lightIntensity;
             }
         }
         shadow /= ((PCF_RANGE * 2 + 1) * (PCF_RANGE * 2 + 1));
-       
     }
     else
     {
-        if (lightType[index].x == 2.0f)
-            shadow = 1.0f;
+        //if (lightTypeEnableShadows[index].x == 2.0f)
+        shadow = lightIntensity;
     }
-    return float3(shadow, shadow, shadow);
+    return (float3(shadow, shadow, shadow));
 }

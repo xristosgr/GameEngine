@@ -246,7 +246,19 @@ void Engine::Update(int width, int height)
 			entities[i].bFlagForDeletion = false;
 		}
 	}
-
+	for (int i = 0; i < lights.size(); ++i)
+	{
+		if (lights[i].bFlagForDeletion)
+		{
+			lights[i].Clear();
+			if (i < entities.size() - 1)
+			{
+				std::swap(lights[i], lights.back());
+			}
+			lights.pop_back();
+			lights[i].bFlagForDeletion = false;
+		}
+	}
 
 	if (thread_gameHandler.joinable())
 		thread_gameHandler.join();

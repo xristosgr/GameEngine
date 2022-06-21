@@ -74,7 +74,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     F0 = lerp(F0, albedo.rgb, metallic);
     float3 Lo = float3(0.0f, 0.0f, 0.0f);
     
-    Lo = pointLight(input, albedo.rgb, pointdynamicLightPosition.xyz, pointdynamicLightColor.rgb, pointRadiusAndcutOff.y, bumpNormal, roughness, metallic, V, F0, worldPos);
+    Lo = pointLight(input, albedo.rgb, pointdynamicLightPosition.xyz, pointdynamicLightColor.rgb * pointdynamicLightColor.w, pointRadiusAndcutOff.y, bumpNormal, roughness, metallic, V, F0, worldPos);
     
     float3 color = Lo;
     

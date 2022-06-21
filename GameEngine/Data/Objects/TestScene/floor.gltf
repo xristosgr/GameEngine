@@ -73,18 +73,18 @@
     "images" : [
         {
             "mimeType" : "image/png",
-            "name" : "shades-tile_normal-dx",
-            "uri" : "shades-tile_normal-dx.png"
+            "name" : "mat_normal",
+            "uri" : "mat_normal.png"
         },
         {
             "mimeType" : "image/png",
-            "name" : "shades-tile_albedo",
-            "uri" : "shades-tile_albedo.png"
+            "name" : "mat_diffuseOriginal",
+            "uri" : "mat_diffuseOriginal.png"
         },
         {
             "mimeType" : "image/png",
-            "name" : "shades-tile_metallic-shades-tile_roughness",
-            "uri" : "shades-tile_metallic-shades-tile_roughness.png"
+            "name" : "mat_metallic-mat_smoothness",
+            "uri" : "mat_metallic-mat_smoothness.png"
         }
     ],
     "accessors" : [

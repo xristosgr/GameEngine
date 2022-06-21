@@ -131,7 +131,7 @@ private:
 		bool bShadow;
 		DirectX::XMFLOAT3 pos;
 		DirectX::XMFLOAT3 scale;
-		DirectX::XMFLOAT3 lightColor;
+		DirectX::XMFLOAT4 lightColor;
 		DirectX::XMFLOAT3 direction;
 		DirectX::XMFLOAT3 SpotDir;
 		float radius;

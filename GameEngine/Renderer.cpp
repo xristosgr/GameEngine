@@ -42,9 +42,8 @@ Renderer::Renderer()
 	vSync = 0;
 	gamma = 2.2f;
 	renderDistance = 6000.0f;
-	renderShadowDistance = 2700.0f;
-	shadowDist = 5.5f;
-	acceptedDist = 2000.0f;
+	shadowLightsDistance = 600.0f;
+	deferredLightsDistance = 200.0f;
 	bloomBrightness = 0.6f;
 	bloomStrength = 0.04f;
 	hbaoStrength = 1.4f;
@@ -81,6 +80,7 @@ bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std:
 
 void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera, Sky& sky)
 {
+	camera.pos = DirectX::XMFLOAT3(5, 10, 5);
 	//INIT CONSTANT BUFFERS/////////////////////////////
 	///////////////////////////////////////////////////
 	HRESULT hr = gfx11.cb_vs_vertexshader.Initialize(gfx11.device, gfx11.deviceContext);
@@ -193,16 +193,16 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 		float z = randomFloatRange(-20.0f, 20.0f);
 		pointLights[i].pos.x = x;
 		pointLights[i].pos.z = z;
-		pointLights[i].lightColor = DirectX::XMFLOAT3(5, 20, 1);
+		pointLights[i].lightColor = DirectX::XMFLOAT4(5, 20, 1,1.0f);
 		pointLights[i].emissionColor = DirectX::XMFLOAT3(1, 6, 1);
 		pointLights[i].scale = DirectX::XMFLOAT3(0.01f, 0.01f, 0.01f);
 		pointLights[i].cutOff = 0.2f;
 		pointLights[i].radius = 2.0f;
 	}
 
-	defaultText[0].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/shades-tile_albedo.png");
-	defaultText[1].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/shades-tile_normal-dx.png");
-	defaultText[2].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/shades-tile_metallic-shades-tile_roughness.png");
+	defaultText[0].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/Tex1/plasticpattern1-albedo.png");
+	defaultText[1].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/Tex1/plasticpattern1-normal2b.png");
+	defaultText[2].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/Tex1/plasticpattern1-metalness-plasticpattern1-roughness2.png");
 
 
 
@@ -316,27 +316,11 @@ void Renderer::RenderDeferred(std::vector<Entity>& entities, std::vector<Light>&
 	
 	for (int i = 0; i < pointLights.size(); ++i)
 	{
-		DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - pointLights[i].pos.x, camera.GetPositionFloat3().y - pointLights[i].pos.y, camera.GetPositionFloat3().z - pointLights[i].pos.z);
-		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
-		float dist = diffVec.dot(diffVec);
+		gfx11.cb_ps_materialBuffer.data.emissiveColor = pointLights[i].emissionColor;
+		gfx11.cb_ps_materialBuffer.data.bEmissive = 1.0f;
+		gfx11.cb_ps_materialBuffer.UpdateBuffer();
 	
-		if (dist < acceptedDist)
-		{
-			gfx11.cb_ps_materialBuffer.data.emissiveColor = pointLights[i].emissionColor;
-			gfx11.cb_ps_materialBuffer.data.bEmissive = 1.0f;
-			gfx11.cb_ps_materialBuffer.UpdateBuffer();
-	
-	
-			DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - pointLights[i].pos.x, camera.GetPositionFloat3().y - pointLights[i].pos.y, camera.GetPositionFloat3().z - pointLights[i].pos.z);
-			physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
-			float dist = diffVec.dot(diffVec);
-	
-			if (dist < renderDistance)
-			{
-				pointLights[i].Draw(camera);
-			}
-		}
-		
+		pointLights[i].Draw(camera);
 	}
 
 	gfx11.cb_ps_materialBuffer.data.emissiveColor = DirectX::XMFLOAT3(2.0,0.8,0.8);
@@ -356,25 +340,38 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 {
 	gfx11.cb_vs_windowParams.data.window_width = (float)windowWidth;
 	gfx11.cb_vs_windowParams.data.window_height = (float)windowHeight;
-
-	std::vector<Light*> culledShadowLights;
+	culledShadowLights.clear();
+	//std::vector<Light*> culledShadowLights;
 	for (int i = 0; i < lights.size(); ++i)
 	{
-		DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - lights[i].pos.x, camera.GetPositionFloat3().y - lights[i].pos.y, camera.GetPositionFloat3().z - lights[i].pos.z);
-		physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
-		float dist = diffVec.dot(diffVec);
-		if (dist < acceptedDist*2 || lights[i].lightType == 2.0f)
+		if (culledShadowLights.size() < NO_LIGHTS-1)
 		{
-			culledShadowLights.push_back(&lights[i]);
+			if (lights[i].lightType == 2.0f)
+			{
+				culledShadowLights.push_back(&lights[i]);
+			}
+			else
+			{
+				DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - lights[i].pos.x, camera.GetPositionFloat3().y - lights[i].pos.y, camera.GetPositionFloat3().z - lights[i].pos.z);
+				physx::PxVec3 diffVec = physx::PxVec3(diff.x, diff.y, diff.z);
+				float dist = diffVec.dot(diffVec);
+
+				if (dist < shadowLightsDistance)
+				{
+					culledShadowLights.push_back(&lights[i]);
+				}
+
+			}
 		}
+		
 	}
 	for (int i = 0; i < culledShadowLights.size(); ++i)
 	{
 		gfx11.cb_vs_lightsShader.data.lightProjectionMatrix[i] = culledShadowLights[i]->GetCamera()->GetProjectionMatrix();
 		gfx11.cb_vs_lightsShader.data.lightViewMatrix[i] = culledShadowLights[i]->GetCamera()->GetViewMatrix();
-
-		gfx11.cb_ps_lightsShader.data.dynamicLightColor[i] = DirectX::XMFLOAT4(culledShadowLights[i]->lightColor.x, culledShadowLights[i]->lightColor.y, culledShadowLights[i]->lightColor.z, 1.0f);
-
+	
+		gfx11.cb_ps_lightsShader.data.dynamicLightColor[i] = DirectX::XMFLOAT4(culledShadowLights[i]->lightColor.x, culledShadowLights[i]->lightColor.y, culledShadowLights[i]->lightColor.z, culledShadowLights[i]->lightColor.w);
+	
 		if (culledShadowLights[i]->lightType == 2.0f)
 		{
 			culledShadowLights[i]->pos.x = camera.pos.x;
@@ -384,13 +381,13 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 		
 		gfx11.cb_ps_lightsShader.data.dynamicLightPosition[i] = DirectX::XMFLOAT4(culledShadowLights[i]->pos.x, culledShadowLights[i]->pos.y, culledShadowLights[i]->pos.z, 1.0f);
 		gfx11.cb_ps_lightsShader.data.SpotlightDir[i] = DirectX::XMFLOAT4(culledShadowLights[i]->SpotDir.x, culledShadowLights[i]->SpotDir.y, culledShadowLights[i]->SpotDir.z, 1.0f);
-
+	
 		gfx11.cb_ps_lightsShader.data.lightType[i].x = culledShadowLights[i]->lightType;
-
-		gfx11.cb_ps_lightsShader.data.lightType[i].y = 0;
+	
+		gfx11.cb_ps_lightsShader.data.lightType[i].y = (float)culledShadowLights[i]->bShadow;
 		gfx11.cb_ps_lightsShader.data.lightType[i].z = 0;
 		gfx11.cb_ps_lightsShader.data.lightType[i].w = 0;
-
+	
 		gfx11.cb_ps_lightCull.data.RadiusAndcutOff[i].x = culledShadowLights[i]->radius;
 		gfx11.cb_ps_lightCull.data.RadiusAndcutOff[i].y = culledShadowLights[i]->cutOff;
 		gfx11.cb_ps_lightCull.data.RadiusAndcutOff[i].z = 0.0;
@@ -471,13 +468,17 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 
 	if (bEnableShadows)
 	{
-		for (int i = 0; i < lights.size(); ++i)
+		if (!culledShadowLights.empty())
 		{
-			lights[i].UpdateCamera();
+			for (int i = 0; i < culledShadowLights.size(); ++i)
+			{
+				culledShadowLights[i]->UpdateCamera();
 
-			if (lights[i].bShadow)
-				shadowsRenderer.RenderShadows(gfx11, entities, lights[i], camera, renderShadowDistance, i);
+				if (culledShadowLights[i]->bShadow)
+					shadowsRenderer.RenderShadows(gfx11, entities, *culledShadowLights[i], camera, shadowLightsDistance, i);
+			}
 		}
+		
 	}
 
 	////////////
@@ -504,7 +505,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	
 	
 
-	shadowsRenderer.SoftShadows(gfx11,postProcess.rectBloom, entities, lights, camera, renderShadowDistance);
+	shadowsRenderer.SoftShadows(gfx11,postProcess.rectBloom, entities, culledShadowLights, camera, shadowLightsDistance);
 	ClearScreen();
 
 	gBuffer.GeometryPass(gfx11, camera, gfx11.depthStencilView.Get(), rgb);
@@ -520,7 +521,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	gfx11.deviceContext->PSSetShaderResources(8, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
 	//gfx11.deviceContext->PSSetShaderResources(8, 1, &shadowsRenderer.shadowTexture.shaderResourceView);
 
-	gBuffer.LightPass(gfx11, rect, camera,lights,pointLights,acceptedDist);
+	gBuffer.LightPass(gfx11, rect, camera,lights,pointLights,deferredLightsDistance);
 
 	gfx11.deviceContext->OMSetBlendState(nullptr, NULL, 0xFFFFFFFF);
 
@@ -585,7 +586,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		gfx11.deviceContext->PSSetShader(gfx11.testPS.GetShader(), nullptr, 0);
 		rectSmall.pos = DirectX::XMFLOAT3(2.88, -1.56, 2.878);
 		gfx11.deviceContext->PSSetShaderResources(0, 1, &postProcess.bloomRenderTexture.shaderResourceView);
-		gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[0]);
+		gfx11.deviceContext->PSSetShaderResources(0, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
 		gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState2D.Get(), 0);
 		gfx11.deviceContext->IASetInputLayout(gfx11.vs2D.GetInputLayout());
 		gfx11.deviceContext->VSSetShader(gfx11.vs2D.GetShader(), nullptr, 0);
@@ -776,9 +777,8 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			ImGui::DragFloat("hbaoStrengh", &hbaoStrength, 0.1f);
 			ImGui::InputInt("cameraMode", &switchCameraMode);
 			ImGui::DragFloat("renderDistance", &renderDistance, 1.0f);
-			ImGui::DragFloat("renderShadowDistance", &renderShadowDistance, 1.0f);
-			ImGui::DragFloat("shadowDist", &shadowDist, 0.1f);
-			ImGui::DragFloat("acceptedDist", &acceptedDist, 0.1f);
+			ImGui::DragFloat("renderShadowDistance", &shadowLightsDistance, 1.0f);
+			ImGui::DragFloat("deferredLightsDistance", &deferredLightsDistance, 1.0f);
 			ImGui::DragFloat3("sky color", &skyColor.x, 0.05f);
 		}
 		

@@ -90,9 +90,7 @@ public:
 	int selectedPointLight = -1;
 
 	float renderDistance;
-	float renderShadowDistance;
-	float shadowDist;
-	float acceptedDist;
+	float shadowLightsDistance, deferredLightsDistance;
 
 	int listbox_item_current = -1;
 
@@ -131,5 +129,8 @@ private:
 	Texture defaultText[3];
 
 	RenderTexture finalImage;
+
+
+	std::vector<Light*> culledShadowLights;
 };
 

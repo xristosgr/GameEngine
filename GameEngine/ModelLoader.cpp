@@ -60,6 +60,13 @@ bool ModelLoader::LoadModel(const std::string filePath)
 	
 	_curScene = importers.size();
 	importers.push_back(new Assimp::Importer);
+
+	if (importers.empty())
+	{
+		ErrorLogger::Log(importers[_curScene]->GetErrorString());
+		return false;
+	}
+
 	scenes.push_back(importers[_curScene]->ReadFile(filePath, aiProcess_ConvertToLeftHanded | aiProcess_Triangulate | aiProcess_SplitLargeMeshes | aiProcess_OptimizeMeshes | aiProcess_FixInfacingNormals | aiProcess_ImproveCacheLocality | aiProcess_FindInvalidData | aiProcess_RemoveRedundantMaterials | aiProcess_GenSmoothNormals));
 
 	if (!scenes[_curScene] || scenes[_curScene]->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scenes[_curScene]->mRootNode)

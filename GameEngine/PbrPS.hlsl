@@ -53,6 +53,7 @@ Texture2D shadowTexture : TEXTURE : register(t8);
 //Texture2D depthMapTextures[NO_LIGHTS] : TEXTURE : register(t7);
 
 SamplerState SampleTypeWrap : register(s0);
+SamplerState SampleTypeClamp : register(s1);
 SamplerState objSamplerStateMip : SAMPLER : register(s2);
 
 float3 fresnelSchlick(float cosTheta, float3 F0);
@@ -115,8 +116,7 @@ float4 main(PS_INPUT input) : SV_TARGET
         
     
         }
-        float3 shadows = shadowTexture.Sample(SampleTypeWrap, input.inTexCoord).xyz;
-        Lo *= shadows;
+      
     }
     
     float3 F = fresnelSchlickRoughness(max(dot(bumpNormal, V), 0.0f), F0, roughness);
@@ -134,9 +134,12 @@ float4 main(PS_INPUT input) : SV_TARGET
     ambient = (kD * diffuse + specular);
     float3 color = ambient + Lo;
     
+    
     color = color / (color + float3(1.0, 1.0f, 1.0f));
     color = pow(color, float3(1.0f / 1.0f, 1.0f / 1.0f, 1.0f / 1.0f));
 
+    float3 shadows = shadowTexture.Sample(SampleTypeWrap, input.inTexCoord).xyz;
+    color *= shadows;
     return float4(color, 1.0);
    
 }

@@ -2,15 +2,15 @@
 
 Light::Light()
 {
-	camera = std::make_unique<Camera>();
-
+	//camera = std::make_unique<Camera>();
+	camera = new Camera;
 	pos = DirectX::XMFLOAT3(4.925, 2.4, 1.6);
 	scale = DirectX::XMFLOAT3(0.05, 0.05, 0.05);
 	rot = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
 	posOffset = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
-	lightColor = DirectX::XMFLOAT3(50.0, 50.0, 50.0);
+	lightColor = DirectX::XMFLOAT4(50.0, 50.0, 50.0,1.0f);
 	fov = 90.0f;
-	lightStrenth = 10.0f;
+	//lightStrenth = 10.0f;
 	radius = 13.0f;
 	lightAttenuation = 1.0f;
 	dimensions = 1;
@@ -23,10 +23,13 @@ Light::Light()
 	conePos = DirectX::XMFLOAT3(0, 0, 0);
 	volumeScale = DirectX::XMFLOAT3(0.5f, 0.5f, 0.5f);
 	coneRot = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
+
+	bFlagForDeletion = false;
 }
 
 void Light::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
 {
+
 	this->device = device;
 	this->deviceContext = deviceContext;
 	this->cb_vs_vertexshader = cb_vs_vertexshader;
@@ -76,11 +79,14 @@ void Light::UpdateCamera()
 
 Camera* Light::GetCamera()
 {
-	return camera.get();
+	return camera;
 }
 
 void Light::DrawGui(std::string name)
 {
+	if (ImGui::Button("Delete"))
+		bFlagForDeletion = true;
+
 	ImGui::Checkbox("Enable", &isLightEnabled);
 	ImGui::Checkbox("CastShadow", &bShadow);
 
@@ -90,7 +96,7 @@ void Light::DrawGui(std::string name)
 
 	ImGui::DragFloat3("lightColor", &lightColor.x, 0.005f);
 	ImGui::DragFloat3("emissionColor", &emissionColor.x, 0.005f);
-	//ImGui::DragFloat("light strength", &lightStrenth, 0.005f, 0.0f, 100.0f);
+	ImGui::DragFloat("light strength", &lightColor.w, 0.005f, 0.0f, 100.0f);
 	//ImGui::DragFloat("light attenuation", &lightAttenuation, 0.005f, 0.0f, 100.0f);
 
 	ImGui::DragFloat3("direction", &direction.x, 0.01f);
@@ -141,4 +147,9 @@ void Light::DrawVolume(Camera& camera)
 	matrix_translate = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);
 	worldMatrix = matrix_scale * matrix_rotate * matrix_translate;
 	sphere.Draw(worldMatrix, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+}
+
+void Light::Clear()
+{
+	sphere.Clear();
 }
