@@ -158,5 +158,5 @@ public:
 
 	private:
 		DirectX::XMFLOAT3 camTempPos, camTempRot;
-		bool unlockCamera = true;
+		bool bPbrRenderCamFix = true;
 };

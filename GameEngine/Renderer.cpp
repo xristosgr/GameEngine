@@ -42,7 +42,7 @@ Renderer::Renderer()
 	vSync = 0;
 	gamma = 2.2f;
 	renderDistance = 6000.0f;
-	shadowLightsDistance = 600.0f;
+	shadowLightsDistance = 1000.0f;
 	deferredLightsDistance = 200.0f;
 	bloomBrightness = 0.6f;
 	bloomStrength = 0.04f;

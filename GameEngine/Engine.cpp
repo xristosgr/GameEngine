@@ -161,7 +161,7 @@ void Engine::Update(int width, int height)
 			camTempRot = camera.rot;
 			camera.SetPosition(1.0f, 1.0f, 1.0f);
 			camera.SetRotation(0, 0, 0);
-			unlockCamera = true;
+			bPbrRenderCamFix = true;
 		}
 		
 
@@ -343,9 +343,9 @@ void Engine::RenderFrame(float& dt,float& fps)
 	renderer.Render(camera, entities, physicsHandler, lights, pointlights, collisionObjects, grid, navMeshes, sounds,sky);
 
 
-	if (unlockCamera)
+	if (bPbrRenderCamFix)
 	{
-		unlockCamera = false;
+		bPbrRenderCamFix = false;
 		camera.SetPosition(camTempPos.x, camTempPos.y, camTempPos.z);
 		camera.SetRotation(camTempRot.x, camTempRot.y, camTempRot.z);
 	}
