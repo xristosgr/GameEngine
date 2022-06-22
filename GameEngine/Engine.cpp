@@ -103,53 +103,69 @@ void Engine::Update(int width, int height)
 	float cameraSpeed = 0.001f;
 
 
+
 	if (!camera.PossessCharacter)
 	{
-		renderer.bGuiEnabled = true;
-		while (!mouse.EventBufferIsEmpty())
+		if (!renderer.environmentProbe.recalculate)
 		{
-			MouseEvent me = mouse.ReadEvent();
-
-			if (mouse.IsMiddleDown())
+			renderer.bGuiEnabled = true;
+			while (!mouse.EventBufferIsEmpty())
 			{
-				if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
+				MouseEvent me = mouse.ReadEvent();
+
+				if (mouse.IsMiddleDown())
 				{
-					camera.AdjustRotation(static_cast<float>(me.GetPosY()) * 0.004f, static_cast<float>(me.GetPosX()) * 0.004f, 0.0f, true);
+					if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
+					{
+						camera.AdjustRotation(static_cast<float>(me.GetPosY()) * 0.004f, static_cast<float>(me.GetPosX()) * 0.004f, 0.0f, true);
+					}
 				}
 			}
-		}
 
-		if (keyboard.KeyIsPressed(VK_SHIFT))
-		{
-			cameraSpeed = 0.01;
-		}
-		if (keyboard.KeyIsPressed('W'))
-		{
-			camera.AdjustPosition(camera.GetForwardVector() * cameraSpeed * dt);
-		}
-		if (keyboard.KeyIsPressed('S'))
-		{
-			camera.AdjustPosition(camera.GetBackwardVector() * cameraSpeed * dt);
-		}
+			if (keyboard.KeyIsPressed(VK_SHIFT))
+			{
+				cameraSpeed = 0.01;
+			}
+			if (keyboard.KeyIsPressed('W'))
+			{
+				camera.AdjustPosition(camera.GetForwardVector() * cameraSpeed * dt);
+			}
+			if (keyboard.KeyIsPressed('S'))
+			{
+				camera.AdjustPosition(camera.GetBackwardVector() * cameraSpeed * dt);
+			}
 
-		if (keyboard.KeyIsPressed('A'))
-		{
-			camera.AdjustPosition(camera.GetLeftVector() * cameraSpeed * dt);
+			if (keyboard.KeyIsPressed('A'))
+			{
+				camera.AdjustPosition(camera.GetLeftVector() * cameraSpeed * dt);
 
-		}
-		if (keyboard.KeyIsPressed('D'))
-		{
-			camera.AdjustPosition(camera.GetRightVector() * cameraSpeed * dt);
-		}
+			}
+			if (keyboard.KeyIsPressed('D'))
+			{
+				camera.AdjustPosition(camera.GetRightVector() * cameraSpeed * dt);
+			}
 
-		if (keyboard.KeyIsPressed(VK_SPACE))
-		{
-			camera.AdjustPosition(0.0f, cameraSpeed * dt, 0.0f);
+			if (keyboard.KeyIsPressed(VK_SPACE))
+			{
+				camera.AdjustPosition(0.0f, cameraSpeed * dt, 0.0f);
+			}
+			if (keyboard.KeyIsPressed('Q'))
+			{
+				camera.AdjustPosition(0.0f, -cameraSpeed * dt, 0.0f);
+			}
 		}
-		if (keyboard.KeyIsPressed('Q'))
+		
+		if (renderer.environmentProbe.recalculate)
 		{
-			camera.AdjustPosition(0.0f, -cameraSpeed * dt, 0.0f);
+			camTempPos = camera.pos;
+			camTempRot = camera.rot;
+			camera.SetPosition(1.0f, 1.0f, 1.0f);
+			camera.SetRotation(0, 0, 0);
+			unlockCamera = true;
 		}
+		
+
+	
 		ClipCursor(NULL);
 		while (ShowCursor(TRUE) < 0);
 
@@ -321,14 +337,22 @@ void Engine::RenderFrame(float& dt,float& fps)
 
 	
 
-	sky.pos.x = camera.pos.x;
-	sky.pos.y = camera.pos.y;
-	sky.pos.z = camera.pos.z;
-
 	thread_gameHandler = std::thread(&Engine::gameThread, this,std::ref(dt));
 	thread_SoundHandler = std::thread(&Engine::SoundThread, this);
 
 	renderer.Render(camera, entities, physicsHandler, lights, pointlights, collisionObjects, grid, navMeshes, sounds,sky);
+
+
+	if (unlockCamera)
+	{
+		unlockCamera = false;
+		camera.SetPosition(camTempPos.x, camTempPos.y, camTempPos.z);
+		camera.SetRotation(camTempRot.x, camTempRot.y, camTempRot.z);
+	}
+
+	sky.pos.x = camera.pos.x;
+	sky.pos.y = camera.pos.y;
+	sky.pos.z = camera.pos.z;
 
 	if (physicsHandler.advance(dt, fps, camera))
 	{

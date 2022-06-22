@@ -97,6 +97,7 @@ void Light::DrawGui(std::string name)
 	ImGui::DragFloat3("lightColor", &lightColor.x, 0.005f);
 	ImGui::DragFloat3("emissionColor", &emissionColor.x, 0.005f);
 	ImGui::DragFloat("light strength", &lightColor.w, 0.005f, 0.0f, 100.0f);
+	ImGui::DragFloat("lightShadowStrength", &lightShadowStrength.x, 0.005f);
 	//ImGui::DragFloat("light attenuation", &lightAttenuation, 0.005f, 0.0f, 100.0f);
 
 	ImGui::DragFloat3("direction", &direction.x, 0.01f);

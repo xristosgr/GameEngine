@@ -48,8 +48,6 @@ Renderer::Renderer()
 	bloomStrength = 0.04f;
 	hbaoStrength = 1.4f;
 	
-	sunShadowStrength = 0.0f;
-	spotShadowStrength = 0.0f;
 }
 
 bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights)
@@ -83,7 +81,7 @@ bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std:
 
 void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights, Camera& camera, Sky& sky)
 {
-	camera.pos = DirectX::XMFLOAT3(5, 10, 5);
+	//camera.pos = DirectX::XMFLOAT3(1, 1, 1);
 	//INIT CONSTANT BUFFERS/////////////////////////////
 	///////////////////////////////////////////////////
 	HRESULT hr = gfx11.cb_vs_vertexshader.Initialize(gfx11.device, gfx11.deviceContext);
@@ -397,6 +395,13 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 		gfx11.cb_ps_lightCull.data.RadiusAndcutOff[i].y = culledShadowLights[i]->cutOff;
 		gfx11.cb_ps_lightCull.data.RadiusAndcutOff[i].z = 0.0;
 		gfx11.cb_ps_lightCull.data.RadiusAndcutOff[i].w = 0.0;
+
+
+
+		gfx11.cb_ps_shadowsBuffer.data.dynamicLightShadowStrength[i].x = culledShadowLights[i]->lightShadowStrength.x;
+		gfx11.cb_ps_shadowsBuffer.data.dynamicLightShadowStrength[i].y = 0.0f;
+		gfx11.cb_ps_shadowsBuffer.data.dynamicLightShadowStrength[i].z = 0.0f;
+		gfx11.cb_ps_shadowsBuffer.data.dynamicLightShadowStrength[i].w = 0.0f;
 	}
 
 	if (!culledShadowLights.empty())
@@ -422,9 +427,6 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 	gfx11.cb_ps_screenEffectBuffer.data.bloomStrength = bloomStrength;
 	gfx11.cb_ps_screenEffectBuffer.data.hbaoStrength = hbaoStrength;
 
-
-	gfx11.cb_ps_shadowsBuffer.data.sunShadowStrength = sunShadowStrength;
-	gfx11.cb_ps_shadowsBuffer.data.spotShadowStrength = spotShadowStrength;
 
 	gfx11.cb_vs_vertexshader.UpdateBuffer();
 	gfx11.cb_vs_lightsShader.UpdateBuffer();
@@ -500,7 +502,8 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	{
 		if (environmentProbe.recalculate)
 		{
-
+		
+			
 			ClearScreen();
 
 			environmentProbe.prevPos = environmentProbe.pos;
@@ -510,6 +513,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			pbr.PbrRender(gfx11,rect,debugCube,environmentProbe,camera,rgb);
 			environmentProbe.pos = environmentProbe.prevPos;
 			environmentProbe.recalculate = false;
+
 		}
 	}
 	
@@ -604,14 +608,14 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 
 		//debugCube.SetRenderTexture(gfx11.deviceContext.Get(), environmentProbe.environmentCubeMap);
 		debugCube.SetRenderTexture(gfx11.deviceContext.Get(), pbr.irradianceCubeMap);
-		gfx11.deviceContext->PSSetShaderResources(1, 1, &gBuffer.m_shaderResourceViewArray[4]);
+		//gfx11.deviceContext->PSSetShaderResources(1, 1, &gBuffer.m_shaderResourceViewArray[4]);
 		//debugCube.SetRenderTexture(gfx11.deviceContext.Get(), pbr.prefilterCubeMap);
 		gfx11.deviceContext->PSSetShader(gfx11.cubeMapPS.GetShader(), nullptr, 0);
 		gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState.Get(), 0);
 		gfx11.deviceContext->IASetInputLayout(gfx11.testVS.GetInputLayout());
 		gfx11.deviceContext->VSSetShader(gfx11.testVS.GetShader(), nullptr, 0);
 		gfx11.deviceContext->PSSetSamplers(0, 1, gfx11.samplerState_Wrap.GetAddressOf());
-		debugCube.pos = DirectX::XMFLOAT3(0, 0, 0);
+		//debugCube.pos = DirectX::XMFLOAT3(0, 0, 0);
 		debugCube.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
 		
 		gfx11.deviceContext->PSSetShader(gfx11.colorPS.GetShader(), nullptr, 0);
@@ -819,8 +823,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 
 		ImGui::Begin("Lights");
 		{
-			ImGui::DragFloat("sunShadowStrength", &sunShadowStrength, 0.01f, -100.0f, 100.0f);
-			ImGui::DragFloat("spotShadowStrength", &spotShadowStrength, 0.01f, -100.0f, 100.0f);
 			if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0) || ImGui::IsMouseClicked(0))
 			{
 				physicsHandler.isMouseHover = true;

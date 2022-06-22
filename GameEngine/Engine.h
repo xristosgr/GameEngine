@@ -154,4 +154,9 @@ private:
 public:
 	std::thread thread_SoundHandler;
 	std::thread thread_gameHandler;
+
+
+	private:
+		DirectX::XMFLOAT3 camTempPos, camTempRot;
+		bool unlockCamera = true;
 };

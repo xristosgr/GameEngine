@@ -65,6 +65,7 @@ private:
 public:
 	DX11 gfx11;
 
+	EnvironmentProbe environmentProbe;
 	bool bAddEntity;
 	bool isAnimated;
 	bool hasTexture;
@@ -105,7 +106,6 @@ private:
 	int windowWidth, windowHeight;
 
 
-	EnvironmentProbe environmentProbe;
 
 	RenderTexture cubeTexture;
 
@@ -121,8 +121,6 @@ private:
 	float hbaoStrength;
 	bool bRenderCollision;
 
-	float sunShadowStrength;
-	float spotShadowStrength;
 
 	RenderTexture forwardRenderTexture;
 

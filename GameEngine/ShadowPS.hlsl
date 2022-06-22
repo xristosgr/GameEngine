@@ -15,8 +15,7 @@ cbuffer lightBuffer : register(b0)
 
 cbuffer shadowsbuffer : register(b9)
 {
-    float sunShadowStrength;
-    float spotShadowStrength;
+    float4 dynamicLightShadowStrength[NO_LIGHTS];
 }
 
 cbuffer lightCull : register(b2)
@@ -110,10 +109,7 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
             {
                 float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projectTexCoord + float2(x, y) * texelSize).r;
                 
-                if (lightsSize == 1)
-                    shadow += lightDepthValue > pcfDepth ? sunShadowStrength : dynamicLightColor[index].w * lightIntensity;
-               else
-                    shadow += lightDepthValue > pcfDepth ? spotShadowStrength * shadowIntensity : dynamicLightColor[index].w * lightIntensity;
+               shadow += lightDepthValue > pcfDepth ? dynamicLightShadowStrength[index].x : dynamicLightColor[index].w * lightIntensity;
             }
         }
         shadow /= ((PCF_RANGE * 2 + 1) * (PCF_RANGE * 2 + 1));
