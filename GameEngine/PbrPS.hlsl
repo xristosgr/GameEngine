@@ -89,6 +89,8 @@ float4 main(PS_INPUT input) : SV_TARGET
     F0 = lerp(F0, albedo.rgb, metallic);
     float3 Lo = float3(0.0f, 0.0f, 0.0f);
 
+    float3 shadows = shadowTexture.Sample(SampleTypeWrap, input.inTexCoord).xyz;
+    
     //[unroll(NO_LIGHTS)]
         
     if (lightsSize > 0)
@@ -105,11 +107,11 @@ float4 main(PS_INPUT input) : SV_TARGET
                     Lo += pointLight(input, albedo.rgb, dynamicLightPosition[i].xyz, dynamicLightColor[i].rgb, RadiusAndcutOff[i].y, bumpNormal, roughness, metallic, V, F0, worldPos);
                 else if (lightType[i].x == 1.0)
                 {
-                    Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i);
+                    Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i) * shadows;
                 }
                 else if (lightType[i].x == 2.0)
                 {
-                    Lo += dirLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i);
+                    Lo += dirLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i) * shadows;
                 }
 
             }
@@ -138,10 +140,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     color = color / (color + float3(1.0, 1.0f, 1.0f));
     color = pow(color, float3(1.0f / 1.0f, 1.0f / 1.0f, 1.0f / 1.0f));
 
-    float3 shadows = shadowTexture.Sample(SampleTypeWrap, input.inTexCoord).xyz;
-    
-    if (lightsSize > 0)
-        color *= shadows;
+  
     
     return float4(color, 1.0);
    

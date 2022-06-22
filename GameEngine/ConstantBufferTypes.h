@@ -38,7 +38,6 @@ struct CB_PS_lightsShader
 	DirectX::XMFLOAT4 SpotlightDir[NO_LIGHTS];
 	DirectX::XMFLOAT4 cameraPos;
 	DirectX::XMFLOAT4 lightType[NO_LIGHTS];
-	//DirectX::XMFLOAT4 acceptedDistShadowAndLight;
 	unsigned int lightsSize;
 };
 
@@ -90,4 +89,10 @@ struct CB_PS_skyBuffer
 {
 	DirectX::XMFLOAT4 apexColor;
 	DirectX::XMFLOAT4 centerColor;
+};
+
+struct CB_PS_shadowsBuffer
+{
+	float sunShadowStrength;
+	float spotShadowStrength;
 };

@@ -11,24 +11,24 @@ void Shadows::Initialize(DX11& gfx11, int screen_width, int screen_height)
 	shadowVerticalBlurTexture.Initialize(gfx11.device.Get(), screen_width/2, screen_height/2);
 }
 
-void Shadows::RenderToTexture(DX11& gfx11, std::vector<Entity>& entities, Camera& camera, RenderTexture& shadowMap, Light& light, float& renderDistance)
+void Shadows::RenderToTexture(DX11& gfx11, std::vector<Entity>& entities, Camera& camera, RenderTexture& shadowMap, Light* light, float& renderDistance)
 {
-	light.UpdateCamera();
+	light->UpdateCamera();
 	shadowMap.SetRenderTarget(gfx11.deviceContext.Get(), shadowMap.m_depthStencilView);
 	shadowMap.ClearRenderTarget(gfx11.deviceContext.Get(), shadowMap.m_depthStencilView, 0.0f, 0.0f, 0.0f, 1.0f);
 
 	RenderShadowEntities(gfx11, entities, light, camera, renderDistance);
 }
 
-void Shadows::RenderShadowEntities(DX11& gfx11, std::vector<Entity>& entities, Light& light, Camera& camera,float& renderDistance)
+void Shadows::RenderShadowEntities(DX11& gfx11, std::vector<Entity>& entities, Light* light, Camera& camera,float& renderDistance)
 {
-	DirectX::XMMATRIX viewMatrix = (light.lightViewMatrix);
-	DirectX::XMMATRIX projectionMatrix = (light.lightProjectionMatrix);
+	DirectX::XMMATRIX viewMatrix = (light->lightViewMatrix);
+	DirectX::XMMATRIX projectionMatrix = (light->lightProjectionMatrix);
 	gfx11.deviceContext->PSSetShader(gfx11.depthPS.GetShader(), NULL, 0);
 
 	for (int i = 0; i < entities.size(); ++i)
 	{
-		if (light.lightType == 2.0f)
+		if (light->lightType == 2.0f)
 		{
 			if (entities[i].model.isAnimated)
 			{
@@ -104,17 +104,21 @@ void Shadows::RenderEntities(DX11& gfx11, std::vector<Entity>& entities, std::ve
 	}
 }
 
-void Shadows::RenderShadows(DX11& gfx11, std::vector<Entity>& entities, Light& light, Camera& camera, float& renderDistance, int& index)
+void Shadows::RenderShadows(DX11& gfx11, std::vector<Entity>& entities, Light* light, Camera& camera, float& renderDistance, int& index)
 {
-	light.UpdateCamera();
-	gfx11.cb_vs_lightsShader.data.lightViewMatrix[index] = DirectX::XMMatrixTranspose(light.lightViewMatrix);
-	gfx11.cb_vs_lightsShader.data.lightProjectionMatrix[index] = DirectX::XMMatrixTranspose(light.lightProjectionMatrix);
+	light->UpdateCamera();
+	gfx11.cb_vs_lightsShader.data.lightViewMatrix[index] = DirectX::XMMatrixTranspose(light->lightViewMatrix);
+	gfx11.cb_vs_lightsShader.data.lightProjectionMatrix[index] = DirectX::XMMatrixTranspose(light->lightProjectionMatrix);
 
 
 	gfx11.cb_vs_lightsShader.UpdateBuffer();
 
-	gfx11.deviceContext->RSSetViewports(1, &light.m_shadowMap.m_viewport);
-	RenderToTexture(gfx11, entities, camera, light.m_shadowMap, light, renderDistance);
+	if (light)
+	{
+		gfx11.deviceContext->RSSetViewports(1, &light->m_shadowMap.m_viewport);
+		RenderToTexture(gfx11, entities, camera, light->m_shadowMap, light, renderDistance);
+	}
+
 }
 
 void Shadows::SoftShadows(DX11& gfx11, RectShape& blurRect, std::vector<Entity>& entities, std::vector<Light*>& lights, Camera& camera, float& renderDistance)

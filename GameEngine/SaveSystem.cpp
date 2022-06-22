@@ -163,6 +163,7 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 			outfile << "colorX= " << lights[i].lightColor.x << "\n";
 			outfile << "colorY= " << lights[i].lightColor.y << "\n";
 			outfile << "colorZ= " << lights[i].lightColor.z << "\n";
+			outfile << "colorW= " << lights[i].lightColor.w << "\n";
 
 			outfile << "emissionColorX= " << lights[i].emissionColor.x << "\n";
 			outfile << "emissionColorY= " << lights[i].emissionColor.y << "\n";
@@ -206,6 +207,7 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 			outfile << "colorX= " << pointLights[i].lightColor.x << "\n";
 			outfile << "colorY= " << pointLights[i].lightColor.y << "\n";
 			outfile << "colorZ= " << pointLights[i].lightColor.z << "\n";
+		
 
 			outfile << "emissionColorX= " << pointLights[i].emissionColor.x << "\n";
 			outfile << "emissionColorY= " << pointLights[i].emissionColor.y << "\n";
@@ -596,6 +598,10 @@ void SaveSystem::LoadLightData(std::vector<Light>& lights, std::vector<Light>& p
 					if (path == "colorZ=")
 					{
 						lights[i].lightColor.z = (float)val;
+					}
+					if (path == "colorW=")
+					{
+						lights[i].lightColor.w = (float)val;
 					}
 
 					if (path == "emissionColorX=")

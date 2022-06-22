@@ -121,6 +121,9 @@ private:
 	float hbaoStrength;
 	bool bRenderCollision;
 
+	float sunShadowStrength;
+	float spotShadowStrength;
+
 	RenderTexture forwardRenderTexture;
 
 	AppTimer timer;

@@ -10,14 +10,14 @@ cbuffer lightBuffer : register(b0)
     //float4 acceptedDistShadowAndLight;
     //float acceptedDist;
     uint lightsSize;
+    
 }
 
-//cbuffer PCFbuffer : register(b1)
-//{
-//    int pcfLevel;
-//    double bias;
-//    bool enableShadows;
-//}
+cbuffer shadowsbuffer : register(b9)
+{
+    float sunShadowStrength;
+    float spotShadowStrength;
+}
 
 cbuffer lightCull : register(b2)
 {
@@ -98,8 +98,8 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
     {
         lightDepthValue = lightViewPosition.z / lightViewPosition.w;
         
-        lightDepthValue = lightDepthValue - 0.0005f;
-        
+        //lightDepthValue = lightDepthValue - 0.0005f;
+        lightDepthValue = lightDepthValue - 0.0009f;
         int PCF_RANGE = 2;
         
         [unroll(PCF_RANGE*2+1)]
@@ -110,17 +110,17 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
             {
                 float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projectTexCoord + float2(x, y) * texelSize).r;
                 
-                if(lightsSize == 1)
-                    shadow += lightDepthValue > pcfDepth ? 0.4f : lightIntensity;
-                else
-                    shadow += lightDepthValue > pcfDepth ? 0.04f * -shadowIntensity : lightIntensity;
+                if (lightsSize == 1)
+                    shadow += lightDepthValue > pcfDepth ? sunShadowStrength : dynamicLightColor[index].w * lightIntensity;
+               else
+                    shadow += lightDepthValue > pcfDepth ? spotShadowStrength * shadowIntensity : dynamicLightColor[index].w * lightIntensity;
             }
         }
         shadow /= ((PCF_RANGE * 2 + 1) * (PCF_RANGE * 2 + 1));
     }
     else
     {
-        shadow = lightIntensity;
+        shadow = dynamicLightColor[index].w * lightIntensity;
     }
     return (float3(shadow, shadow, shadow));
 }

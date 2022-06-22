@@ -47,6 +47,9 @@ Renderer::Renderer()
 	bloomBrightness = 0.6f;
 	bloomStrength = 0.04f;
 	hbaoStrength = 1.4f;
+	
+	sunShadowStrength = 0.0f;
+	spotShadowStrength = 0.0f;
 }
 
 bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights)
@@ -99,6 +102,7 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	hr = gfx11.cb_ps_pointLightCull.Initialize(gfx11.device, gfx11.deviceContext);
 	hr = gfx11.cb_ps_pointLightsShader.Initialize(gfx11.device, gfx11.deviceContext);
 	hr = gfx11.cb_ps_skyBuffer.Initialize(gfx11.device, gfx11.deviceContext);
+	hr = gfx11.cb_ps_shadowsBuffer.Initialize(gfx11.device, gfx11.deviceContext);
 
 	gfx11.deviceContext->VSSetConstantBuffers(0, 1, gfx11.cb_vs_vertexshader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->VSSetConstantBuffers(1, 1, gfx11.cb_vs_lightsShader.GetBuffer().GetAddressOf());
@@ -114,6 +118,7 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	gfx11.deviceContext->PSSetConstantBuffers(6, 1, gfx11.cb_ps_pointLightsShader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->PSSetConstantBuffers(7, 1, gfx11.cb_ps_pointLightCull.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->PSSetConstantBuffers(8, 1, gfx11.cb_ps_skyBuffer.GetBuffer().GetAddressOf());
+	gfx11.deviceContext->PSSetConstantBuffers(9, 1, gfx11.cb_ps_shadowsBuffer.GetBuffer().GetAddressOf());
 	//////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////
 	
@@ -157,7 +162,7 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	{
 		lights[i].Initialize(gfx11.device.Get(), gfx11.deviceContext.Get(), gfx11.cb_vs_vertexshader);
 		if (lights[i].lightType == 2.0f)
-			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), 1024, 1024);
+			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), 2048, 2048);
 		else
 			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), 1024, 1024);
 		lights[i].SetupCamera(gfx11.windowWidth, gfx11.windowHeight);
@@ -417,6 +422,10 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 	gfx11.cb_ps_screenEffectBuffer.data.bloomStrength = bloomStrength;
 	gfx11.cb_ps_screenEffectBuffer.data.hbaoStrength = hbaoStrength;
 
+
+	gfx11.cb_ps_shadowsBuffer.data.sunShadowStrength = sunShadowStrength;
+	gfx11.cb_ps_shadowsBuffer.data.spotShadowStrength = spotShadowStrength;
+
 	gfx11.cb_vs_vertexshader.UpdateBuffer();
 	gfx11.cb_vs_lightsShader.UpdateBuffer();
 	gfx11.cb_vs_windowParams.UpdateBuffer();
@@ -431,6 +440,7 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 	gfx11.cb_ps_pointLightsShader.UpdateBuffer();
 	gfx11.cb_ps_pointLightCull.UpdateBuffer();
 	gfx11.cb_ps_skyBuffer.UpdateBuffer();
+	gfx11.cb_ps_shadowsBuffer.UpdateBuffer();
 }
 
 //********************************PBR*********************************
@@ -475,7 +485,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 				culledShadowLights[i]->UpdateCamera();
 
 				if (culledShadowLights[i]->bShadow)
-					shadowsRenderer.RenderShadows(gfx11, entities, *culledShadowLights[i], camera, shadowLightsDistance, i);
+					shadowsRenderer.RenderShadows(gfx11, entities, culledShadowLights[i], camera, shadowLightsDistance, i);
 			}
 		}
 		
@@ -809,6 +819,8 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 
 		ImGui::Begin("Lights");
 		{
+			ImGui::DragFloat("sunShadowStrength", &sunShadowStrength, 0.01f, -100.0f, 100.0f);
+			ImGui::DragFloat("spotShadowStrength", &spotShadowStrength, 0.01f, -100.0f, 100.0f);
 			if (ImGui::IsWindowHovered() || ImGui::IsAnyItemHovered() || ImGui::IsMouseDragging(0) || ImGui::IsMouseClicked(0))
 			{
 				physicsHandler.isMouseHover = true;

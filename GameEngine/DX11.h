@@ -119,6 +119,7 @@ public:
 	ConstantBuffer<CB_PS_materialBuffer> cb_ps_materialBuffer;
 	ConstantBuffer<CB_PS_ssaoBuffer> cb_ps_ssaoBuffer;
 	ConstantBuffer<CB_PS_skyBuffer> cb_ps_skyBuffer;
+	ConstantBuffer<CB_PS_shadowsBuffer> cb_ps_shadowsBuffer;
 
 	RenderTexture renderTexture;
 	//RenderTexture shadowTexture;
