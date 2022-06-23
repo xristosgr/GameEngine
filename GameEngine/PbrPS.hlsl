@@ -107,16 +107,17 @@ float4 main(PS_INPUT input) : SV_TARGET
                     Lo += pointLight(input, albedo.rgb, dynamicLightPosition[i].xyz, dynamicLightColor[i].rgb, RadiusAndcutOff[i].y, bumpNormal, roughness, metallic, V, F0, worldPos);
                 else if (lightType[i].x == 1.0)
                 {
-                    Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i) * shadows;
+                    Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i);
                 }
                 else if (lightType[i].x == 2.0)
                 {
-                    Lo += dirLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i) * shadows;
+                    Lo += dirLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i);
                 }
 
             }
         
-    
+            Lo *= shadows;
+
         }
       
     }

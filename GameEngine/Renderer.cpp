@@ -45,7 +45,7 @@ Renderer::Renderer()
 	shadowLightsDistance = 1000.0f;
 	deferredLightsDistance = 200.0f;
 	bloomBrightness = 0.6f;
-	bloomStrength = 0.04f;
+	bloomStrength = 0.03f;
 	hbaoStrength = 1.4f;
 	
 }
