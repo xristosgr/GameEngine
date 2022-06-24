@@ -89,8 +89,8 @@ float4 main(PS_INPUT input) : SV_TARGET
     F0 = lerp(F0, albedo.rgb, metallic);
     float3 Lo = float3(0.0f, 0.0f, 0.0f);
 
-    float3 shadows = shadowTexture.Sample(SampleTypeWrap, input.inTexCoord).xyz;
-    
+    float3 shadows = shadowTexture.Sample(SampleTypeWrap, input.inTexCoord).rgb;
+
     //[unroll(NO_LIGHTS)]
     
     if (lightsSize > 0)

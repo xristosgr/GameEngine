@@ -2,7 +2,7 @@
 
 #include"DX11.h"
 #include "Light.h"
-const int BUFFER_COUNT = 5;
+const int BUFFER_COUNT = 6;
 
 class GBufferClass
 {
@@ -17,7 +17,7 @@ private:
 	void ClearRenderTargets(DX11& gfx11, ID3D11DepthStencilView* depthView, float* rgb);
 
 public:
-	RenderTexture albedoTexture, normalTexture, metallicRoughnessTexture, worldPositionTexture, depthTexture;
+	RenderTexture albedoTexture, normalTexture, metallicRoughnessTexture, worldPositionTexture, depthTexture, shadowsTexture;
 
 	ID3D11Texture2D* m_renderTargetTextureArray[BUFFER_COUNT];
 	ID3D11RenderTargetView* m_renderTargetViewArray[BUFFER_COUNT];
