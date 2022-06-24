@@ -39,7 +39,6 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		scd1.Width = lround(this->windowWidth);
 		scd1.Height = lround(this->windowHeight);
 		scd1.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-		//scd1.Format = DXGI_FORMAT::DXGI_FORMAT_R10G10B10A2_UNORM;
 		scd1.Stereo = false;
 		scd1.SampleDesc.Count = MSSA_COUNT;
 		scd1.SampleDesc.Quality = MSSA_Quality;

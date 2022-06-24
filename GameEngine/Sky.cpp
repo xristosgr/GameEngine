@@ -11,6 +11,9 @@ Sky::Sky()
 
 	apexColor = DirectX::XMFLOAT4(0.71f, 0.95f, 0.845f,1.0f);
 	centerColor = DirectX::XMFLOAT4(0.72f, 0.955f, 0.84f,1.0f);
+
+	//apexColor = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	//centerColor = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 void Sky::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)

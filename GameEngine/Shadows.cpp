@@ -115,8 +115,10 @@ void Shadows::RenderShadows(DX11& gfx11, std::vector<Entity>& entities, Light* l
 
 	if (light)
 	{
+		gfx11.deviceContext->RSSetState(gfx11.rasterizerStateFront.Get());
 		gfx11.deviceContext->RSSetViewports(1, &light->m_shadowMap.m_viewport);
 		RenderToTexture(gfx11, entities, camera, light->m_shadowMap, light, renderDistance);
+		gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 	}
 
 }

@@ -1,4 +1,4 @@
 Count= 118
-lightsCount= 4
-pointLightsCount= 50
+lightsCount= 2
+pointLightsCount= 4
 CollisionCount= 0

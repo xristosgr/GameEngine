@@ -54,6 +54,10 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
+    float alpha = objTexture.Sample(SampleTypeWrap, input.inTexCoord).a;
+    if (alpha < 0.95)
+        discard;
+    
     float3 color = float3(0, 0,0);
     
     for (int i = 0; i < NO_LIGHTS; ++i)
@@ -72,10 +76,6 @@ float4 main(PS_INPUT input) : SV_TARGET
 
 float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, PS_INPUT input, int index)
 {
-    //float zbias = bias;
-    float2 projectTexCoord;
-    float lightDepthValue;
-    
     float lightIntensity = 1.0f / (lightsSize);
     float shadowIntensity = lightsSize;
     
@@ -88,35 +88,36 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
     texelSize.x = 0.5 / width;
     texelSize.y = 0.5 / height;
     
-
-    projectTexCoord.x = lightViewPosition.x / lightViewPosition.w/2.0f + 0.5f;
-    projectTexCoord.y = -lightViewPosition.y / lightViewPosition.w / 2.0f + 0.5f;
+    float3 projCoords;
    
-   
-    if ((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y))
+    projCoords.x = lightViewPosition.x / lightViewPosition.w / 2.0f + 0.5f;
+    projCoords.y = -lightViewPosition.y / lightViewPosition.w / 2.0f + 0.5f;
+    projCoords.z = lightViewPosition.z / lightViewPosition.w;
+    
+    if (lightTypeEnableShadows[index].x == 2.0f)
+        projCoords.z = projCoords.z - 0.0001f;
+    else
+        projCoords.z = projCoords.z - 0.00015f;
+    
+    if ((saturate(projCoords.x) == projCoords.x) && (saturate(projCoords.y) == projCoords.y))
     {
-        lightDepthValue = lightViewPosition.z / lightViewPosition.w;
-        
-        //lightDepthValue = lightDepthValue - 0.0005f;
-        lightDepthValue = lightDepthValue - 0.0009f;
         int PCF_RANGE = 2;
-        
         [unroll(PCF_RANGE*2+1)]
         for (int x = -PCF_RANGE; x <= PCF_RANGE; x++)
         {
-           [unroll(PCF_RANGE*2+1)]
+        [unroll(PCF_RANGE*2+1)]
             for (int y = -PCF_RANGE; y <= PCF_RANGE; y++)
             {
-                float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projectTexCoord + float2(x, y) * texelSize).r;
-                
-               shadow += lightDepthValue > pcfDepth ? dynamicLightShadowStrength[index].x : dynamicLightColor[index].w * lightIntensity;
+                float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projCoords.xy + float2(x, y) * texelSize).r;
+             
+                shadow += projCoords.z > pcfDepth ? 0.0f : dynamicLightColor[index].w;
             }
         }
         shadow /= ((PCF_RANGE * 2 + 1) * (PCF_RANGE * 2 + 1));
     }
     else
     {
-        shadow = dynamicLightColor[index].w * lightIntensity;
+        shadow = dynamicLightColor[index].w;
     }
     return (float3(shadow, shadow, shadow));
 }

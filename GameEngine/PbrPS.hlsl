@@ -92,7 +92,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 shadows = shadowTexture.Sample(SampleTypeWrap, input.inTexCoord).xyz;
     
     //[unroll(NO_LIGHTS)]
-        
+    
     if (lightsSize > 0)
     {
         for (int i = 0; i < NO_LIGHTS; ++i)
@@ -138,11 +138,11 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 color = ambient + Lo;
     
     
+
     color = color / (color + float3(1.0, 1.0f, 1.0f));
     color = pow(color, float3(1.0f / 1.0f, 1.0f / 1.0f, 1.0f / 1.0f));
 
   
-    
     return float4(color, 1.0);
    
 }

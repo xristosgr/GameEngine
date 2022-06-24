@@ -42,7 +42,7 @@ Renderer::Renderer()
 	vSync = 0;
 	gamma = 2.2f;
 	renderDistance = 6000.0f;
-	shadowLightsDistance = 1000.0f;
+	shadowLightsDistance = 600.0f;
 	deferredLightsDistance = 200.0f;
 	bloomBrightness = 0.6f;
 	bloomStrength = 0.03f;
@@ -190,18 +190,18 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	gBuffer.Initialize(gfx11, windowWidth, windowHeight);
 	shadowsRenderer.Initialize(gfx11, windowWidth, windowHeight);
 
-	for (int i = 0; i < pointLights.size(); ++i)
-	{
-		float x = randomFloatRange(-30.0f, 30.0f);
-		float z = randomFloatRange(-20.0f, 20.0f);
-		pointLights[i].pos.x = x;
-		pointLights[i].pos.z = z;
-		pointLights[i].lightColor = DirectX::XMFLOAT4(5, 20, 1,1.0f);
-		pointLights[i].emissionColor = DirectX::XMFLOAT3(1, 6, 1);
-		pointLights[i].scale = DirectX::XMFLOAT3(0.01f, 0.01f, 0.01f);
-		pointLights[i].cutOff = 0.8f;
-		pointLights[i].radius = 4.0f;
-	}
+	//for (int i = 0; i < pointLights.size(); ++i)
+	//{
+	//	float x = randomFloatRange(-30.0f, 30.0f);
+	//	float z = randomFloatRange(-20.0f, 20.0f);
+	//	pointLights[i].pos.x = x;
+	//	pointLights[i].pos.z = z;
+	//	pointLights[i].lightColor = DirectX::XMFLOAT4(5, 20, 1,1.0f);
+	//	pointLights[i].emissionColor = DirectX::XMFLOAT3(1, 6, 1);
+	//	pointLights[i].scale = DirectX::XMFLOAT3(0.01f, 0.01f, 0.01f);
+	//	pointLights[i].cutOff = 0.8f;
+	//	pointLights[i].radius = 4.0f;
+	//}
 
 	defaultText[0].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/Tex1/plasticpattern1-albedo.png");
 	defaultText[1].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/Tex1/plasticpattern1-normal2b.png");
