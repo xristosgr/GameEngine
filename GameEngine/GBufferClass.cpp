@@ -38,7 +38,7 @@ void GBufferClass::Initialize(DX11& gfx11, int width, int height)
 
 void GBufferClass::GeometryPass(DX11& gfx11, Camera& camera, ID3D11DepthStencilView* depthView, float* rgb)
 {
-	gfx11.deviceContext->RSSetViewports(1, &albedoTexture.m_viewport);
+	gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
 	SetRenderTargets(gfx11, depthView);
 	ClearRenderTargets(gfx11, depthView, rgb);
 }

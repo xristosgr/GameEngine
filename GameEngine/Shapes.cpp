@@ -12,6 +12,7 @@ void Shapes::SetRenderTexture(ID3D11DeviceContext* deviceContext, RenderTexture&
 
 void Shapes::Draw(ID3D11DeviceContext* deviceContext,Camera& camera, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
 {
+	//pos = DirectX::XMFLOAT3(0, 0, 0);
 	DirectX::XMMATRIX m_scale = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
 	DirectX::XMMATRIX m_rotate = DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z);
 	DirectX::XMMATRIX m_translate = DirectX::XMMatrixTranslation(pos.x, pos.y, pos.z);

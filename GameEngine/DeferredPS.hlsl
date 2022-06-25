@@ -77,7 +77,7 @@ PS_OUTPUT main(PS_INPUT input) : SV_TARGET
     PS_OUTPUT output;
     
    
-        
+  
     
     if (bEmissive == 0.0f)
     {
@@ -87,6 +87,7 @@ PS_OUTPUT main(PS_INPUT input) : SV_TARGET
             discard;
         }
        
+        
        output.normal = normalTexture.Sample(SampleTypeWrap, input.inTexCoord);
 
        output.normal = (output.normal * 2.0f) - 1.0f;
@@ -117,9 +118,8 @@ PS_OUTPUT main(PS_INPUT input) : SV_TARGET
         float3 shadows = Shadows(input.lightViewPosition[i], depthMapTextures[i], input, i);
         
         if (lightTypeEnableShadows[i].y)
-            output.shadows += float4(shadows, 0.0f);
+            output.shadows.rgb += shadows;
     }
-    
     return output;
 }
 

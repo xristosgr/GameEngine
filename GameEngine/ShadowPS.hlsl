@@ -95,9 +95,9 @@ float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, float dist, 
     projCoords.z = lightViewPosition.z / lightViewPosition.w;
     
     if (lightTypeEnableShadows[index].x == 2.0f)
-        projCoords.z = projCoords.z - 0.0001f;
+        projCoords.z = projCoords.z - 0.00002f;
     else
-        projCoords.z = projCoords.z - 0.00015f;
+        projCoords.z = projCoords.z - 0.00004f;
     
     if ((saturate(projCoords.x) == projCoords.x) && (saturate(projCoords.y) == projCoords.y))
     {

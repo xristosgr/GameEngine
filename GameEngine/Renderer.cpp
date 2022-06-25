@@ -229,6 +229,22 @@ void Renderer::RenderDeferred(std::vector<Entity>& entities, std::vector<Light>&
 	gfx11.deviceContext->VSSetConstantBuffers(0, 1, gfx11.cb_vs_vertexshader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 
+	std::vector< ID3D11ShaderResourceView*> ShadowTextures;
+	
+	if (!culledShadowLights.empty())
+	{
+		ShadowTextures.resize(culledShadowLights.size());
+		int index = 0;
+		for (int j = 0; j < ShadowTextures.size(); ++j)
+		{
+	
+			ShadowTextures[index] = culledShadowLights[j]->m_shadowMap.shaderResourceView;
+			index++;
+		}
+		gfx11.deviceContext->PSSetShaderResources(3, ShadowTextures.size(), ShadowTextures.data());
+	}
+
+
 	gfx11.deviceContext->PSSetShader(gfx11.deferredPS.GetShader(), nullptr, 0);
 	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
 
@@ -516,29 +532,33 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 
 		}
 	}
-	
 
-	ClearScreen();
-	shadowsRenderer.SoftShadows(gfx11, gBuffer.m_shaderResourceViewArray[5], postProcess.rectBloom, entities, culledShadowLights, camera, shadowLightsDistance);
-	ClearScreen();
+	//shadowsRenderer.SoftShadows(gfx11, gBuffer.m_shaderResourceViewArray[5], postProcess.rectBloom, entities, culledShadowLights, camera, shadowLightsDistance);
+	//std::vector< ID3D11ShaderResourceView*> ShadowTextures;
+	//
+	//OutputDebugStringA(("SIZE = " + std::to_string(culledShadowLights.size()) + "\n").c_str());
+	//if (!culledShadowLights.empty())
+	//{
+	//	ShadowTextures.resize(culledShadowLights.size());
+	//	int index = 0;
+	//	for (int j = 0; j < ShadowTextures.size(); ++j)
+	//	{
+	//
+	//		ShadowTextures[index] = culledShadowLights[j]->m_shadowMap.shaderResourceView;
+	//		index++;
+	//	}
+	//	gfx11.deviceContext->PSSetShaderResources(3, ShadowTextures.size(), ShadowTextures.data());
+	//}
 
-	std::vector< ID3D11ShaderResourceView*> ShadowTextures;
-	ShadowTextures.resize(lights.size());
-	int index = 0;
-	for (int j = 0; j < ShadowTextures.size(); ++j)
-	{
 
-		ShadowTextures[index] = culledShadowLights[j]->m_shadowMap.shaderResourceView;
-		index++;
-	}
-	gfx11.deviceContext->PSSetShaderResources(3, ShadowTextures.size(), ShadowTextures.data());
 	gBuffer.GeometryPass(gfx11, camera, gfx11.depthStencilView.Get(), rgb);
 	RenderDeferred(entities, lights, pointLights, camera,sky);
-	
+	ClearScreen();
 	gfx11.deviceContext->VSSetConstantBuffers(0, 1, gfx11.cb_vs_vertexshader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 
-
+	shadowsRenderer.SoftShadows(gfx11, gBuffer.m_shaderResourceViewArray[5], postProcess.rectBloom, entities, culledShadowLights, camera, shadowLightsDistance);
+	ClearScreen();
 
 	gfx11.deviceContext->PSSetShaderResources(5, 1, &pbr.prefilterCubeMap.shaderResourceView);
 	gfx11.deviceContext->PSSetShaderResources(6, 1, &pbr.brdfTexture.shaderResourceView);
