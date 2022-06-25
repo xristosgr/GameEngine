@@ -533,24 +533,6 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		}
 	}
 
-	//shadowsRenderer.SoftShadows(gfx11, gBuffer.m_shaderResourceViewArray[5], postProcess.rectBloom, entities, culledShadowLights, camera, shadowLightsDistance);
-	//std::vector< ID3D11ShaderResourceView*> ShadowTextures;
-	//
-	//OutputDebugStringA(("SIZE = " + std::to_string(culledShadowLights.size()) + "\n").c_str());
-	//if (!culledShadowLights.empty())
-	//{
-	//	ShadowTextures.resize(culledShadowLights.size());
-	//	int index = 0;
-	//	for (int j = 0; j < ShadowTextures.size(); ++j)
-	//	{
-	//
-	//		ShadowTextures[index] = culledShadowLights[j]->m_shadowMap.shaderResourceView;
-	//		index++;
-	//	}
-	//	gfx11.deviceContext->PSSetShaderResources(3, ShadowTextures.size(), ShadowTextures.data());
-	//}
-
-
 	gBuffer.GeometryPass(gfx11, camera, gfx11.depthStencilView.Get(), rgb);
 	RenderDeferred(entities, lights, pointLights, camera,sky);
 	ClearScreen();
