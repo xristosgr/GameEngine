@@ -9,8 +9,6 @@ cbuffer materialBuffer : register(b5)
     float bEmissive;
 }
 
-
-
 struct PS_INPUT
 {
     float4 inPosition : SV_POSITION;

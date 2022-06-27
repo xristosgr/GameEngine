@@ -178,38 +178,16 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	//Bloom
 	postProcess.Initialize(gfx11, windowWidth, windowHeight);
 	postProcess.HbaoPlusInit(gfx11, windowWidth, windowHeight);
-	//BloomHorizontalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
-	//BloomVerticalBlurTexture.Initialize(gfx11.device.Get(), 800, 600);
-	//
-	//bloomRenderTexture.Initialize(gfx11.device.Get(), windowWidth, windowHeight);
 
 	//Volumetric light
 	forwardRenderTexture.Initialize(gfx11.device.Get(), windowWidth, windowHeight);
 
 	pbr.Initialize(gfx11);
 	gBuffer.Initialize(gfx11, windowWidth, windowHeight);
-	shadowsRenderer.Initialize(gfx11, windowWidth, windowHeight);
-
-	//for (int i = 0; i < pointLights.size(); ++i)
-	//{
-	//	float x = randomFloatRange(-30.0f, 30.0f);
-	//	float z = randomFloatRange(-20.0f, 20.0f);
-	//	pointLights[i].pos.x = x;
-	//	pointLights[i].pos.z = z;
-	//	pointLights[i].lightColor = DirectX::XMFLOAT4(5, 20, 1,1.0f);
-	//	pointLights[i].emissionColor = DirectX::XMFLOAT3(1, 6, 1);
-	//	pointLights[i].scale = DirectX::XMFLOAT3(0.01f, 0.01f, 0.01f);
-	//	pointLights[i].cutOff = 0.8f;
-	//	pointLights[i].radius = 4.0f;
-	//}
 
 	defaultText[0].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/Tex1/plasticpattern1-albedo.png");
 	defaultText[1].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/Tex1/plasticpattern1-normal2b.png");
 	defaultText[2].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/Tex1/plasticpattern1-metalness-plasticpattern1-roughness2.png");
-
-
-
-
 
 
 	instancedShape.Initialize(gfx11.device.Get());
@@ -614,7 +592,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	{
 		gfx11.deviceContext->PSSetShader(gfx11.testPS.GetShader(), nullptr, 0);
 		rectSmall.pos = DirectX::XMFLOAT3(2.88, -1.56, 2.878);
-		gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[3]);
+		gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[0]);
 		//gfx11.deviceContext->PSSetShaderResources(0, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
 		gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState2D.Get(), 0);
 		gfx11.deviceContext->IASetInputLayout(gfx11.vs2D.GetInputLayout());
@@ -1239,8 +1217,7 @@ void Renderer::ForwardPass(std::vector<Entity>& entities, Camera& camera, Sky& s
 	gfx11.deviceContext->PSSetShaderResources(5, 1, &pbr.prefilterCubeMap.shaderResourceView);
 	gfx11.deviceContext->PSSetShaderResources(6, 1, &pbr.brdfTexture.shaderResourceView);
 	gfx11.deviceContext->PSSetShaderResources(7, 1, &pbr.irradianceCubeMap.shaderResourceView);
-	gfx11.deviceContext->PSSetShaderResources(8, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
-	gfx11.deviceContext->PSSetShaderResources(9, 1, &gBuffer.m_shaderResourceViewArray[4]);
+	gfx11.deviceContext->PSSetShaderResources(8, 1, &gBuffer.m_shaderResourceViewArray[4]);
 	gfx11.deviceContext->PSSetShader(gfx11.transparentPbrPS.GetShader(), nullptr, 0);
 
 	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
