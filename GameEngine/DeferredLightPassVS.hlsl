@@ -5,12 +5,10 @@ cbuffer constantBuffer : register(b0)
     float4x4 projectionMatrix;
 };
 
-
 struct VS_INPUT
 {
     float3 inPos : POSITION;
     float2 inTexCoord : TEXCOORD;
-
 };
 
 struct VS_OUTPUT
@@ -22,18 +20,11 @@ struct VS_OUTPUT
 VS_OUTPUT main(VS_INPUT input)
 {
     VS_OUTPUT output;
-    
-
     output.outPosition = mul(float4(input.inPos.xyz, 1.0f), worldMatrix);
-    //output.outPosition = mul(output.outPosition, viewMatrix);
+    output.outPosition = mul(output.outPosition, viewMatrix);
     output.outPosition = mul(output.outPosition, projectionMatrix);
-    
-    output.outTexCoord = input.inTexCoord;
-    
-    float4 position = mul(float4(input.inPos.xyz, 1.0f), worldMatrix);
-    position = mul(position, viewMatrix);
-    position = mul(position, projectionMatrix);
 
-   
+    output.outTexCoord = input.inTexCoord;
+
     return output;
 }

@@ -18,8 +18,6 @@ struct PS_INPUT
 {
     float4 inPosition : SV_POSITION;
     float2 inTexCoord : TEXCOORD;
-    float4 ViewPosition : TEXCOORD1;
-    float distToCamera : TEXCOORD2;
 };
 
 static const float PI = 3.14159265359;

@@ -18,8 +18,6 @@ struct VS_INPUT
     float3 inPos : POSITION;
     float2 inTexCoord : TEXCOORD;
     float3 inNormal : NORMAL;
-   // float3 inTangent : TANGENT;
-   // float3 inBinormal : BINORMAL;
 };
 
 struct VS_OUTPUT

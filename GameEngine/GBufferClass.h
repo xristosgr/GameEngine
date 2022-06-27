@@ -10,7 +10,7 @@ public:
 	GBufferClass();
 	void Initialize(DX11& gfx11, int width, int height);
 	void GeometryPass(DX11& gfx11, Camera& camera, ID3D11DepthStencilView* depthView, float* rgb);
-	void LightPass(DX11& gfx11,RectShape& rect, Camera& camera, std::vector<Light>& spotLights, std::vector<Light>& pointLights,float& acceptedDist);
+	void LightPass(DX11& gfx11,RectShape& rect, Camera& camera, std::vector<Light*>& culledShadowLights, std::vector<Light>& pointLights,float& acceptedDist);
 
 private:
 	void SetRenderTargets(DX11& gfx11, ID3D11DepthStencilView* depthView);

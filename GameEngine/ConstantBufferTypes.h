@@ -38,6 +38,8 @@ struct CB_PS_lightsShader
 	DirectX::XMFLOAT4 SpotlightDir[NO_LIGHTS];
 	DirectX::XMFLOAT4 cameraPos;
 	DirectX::XMFLOAT4 lightType[NO_LIGHTS];
+	DirectX::XMMATRIX lightViewMatrix[NO_LIGHTS];
+	DirectX::XMMATRIX lightProjectionMatrix[NO_LIGHTS];
 	unsigned int lightsSize;
 };
 

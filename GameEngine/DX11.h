@@ -73,6 +73,7 @@ public:
 	VertexShader shadowVS;
 	VertexShader shadowHorizontalBlurVS;
 	VertexShader shadowVerticalBlurVS;
+	VertexShader deferredLightPassVS;
 
 	PixelShader testPS;
 	PixelShader colorPS;

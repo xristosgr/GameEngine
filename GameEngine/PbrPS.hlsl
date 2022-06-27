@@ -6,18 +6,17 @@ cbuffer lightBuffer : register(b0)
     float4 dynamicLightColor[NO_LIGHTS];
     float4 SpotlightDir[NO_LIGHTS];
     float4 cameraPos;
-    float4 lightType[NO_LIGHTS];
-    //float4 acceptedDistShadowAndLight;
-    //float acceptedDist;
+    float4 lightTypeEnableShadows[NO_LIGHTS];
+    float4x4 lightViewMatrix[NO_LIGHTS];
+    float4x4 lightProjectionMatrix[NO_LIGHTS];
     uint lightsSize;
 }
 
-cbuffer PCFbuffer : register(b1)
+cbuffer shadowsbuffer : register(b9)
 {
-    int pcfLevel;
-    double bias;
-    bool enableShadows;
+    float4 dynamicLightShadowStrength[NO_LIGHTS];
 }
+
 
 cbuffer lightCull : register(b2)
 {
@@ -34,8 +33,7 @@ struct PS_INPUT
 {
     float4 inPosition : SV_POSITION;
     float2 inTexCoord : TEXCOORD;
-    float4 ViewPosition : TEXCOORD1;
-    float distToCamera : TEXCOORD2;
+
 };
 
 static const float PI = 3.14159265359;
@@ -48,13 +46,15 @@ Texture2D distToCameraTexture : TEXTURE : register(t4);
 TextureCube prefilterMap : TEXTURE : register(t5);
 Texture2D brdfTexture : TEXTURE : register(t6);
 TextureCube irradianceMap : TEXTURE : register(t7);
-Texture2D shadowTexture : TEXTURE : register(t8);
-
+//Texture2D shadowTexture : TEXTURE : register(t8);
+Texture2D depthMapTextures[NO_LIGHTS] : TEXTURE : register(t8);
 //Texture2D depthMapTextures[NO_LIGHTS] : TEXTURE : register(t7);
 
 SamplerState SampleTypeWrap : register(s0);
 SamplerState SampleTypeClamp : register(s1);
 SamplerState objSamplerStateMip : SAMPLER : register(s2);
+
+float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, PS_INPUT input, int index);
 
 float3 fresnelSchlick(float cosTheta, float3 F0);
 float3 fresnelSchlickRoughness(float cosTheta, float3 F0, float roughness);
@@ -78,10 +78,12 @@ float4 main(PS_INPUT input) : SV_TARGET
     }
     float metallic = roughnessMetalicTexture.Load(sampleIndices).b;
     float roughness = roughnessMetalicTexture.Load(sampleIndices).g;
-    float3 worldPos = worldPositionTexture.Load(sampleIndices).xyz;
+    float4 worldPos = worldPositionTexture.Load(sampleIndices);
+
+
     //float distToCamera = distToCameraTexture.Load(sampleIndices).x;
     
-    float3 V = normalize(cameraPos.xyz - worldPos);
+    float3 V = normalize(cameraPos.xyz - worldPos.xyz);
 
     float3 ambient = float3(0.1, 0.1, 0.1);
     float3 F0 = float3(0.04f, 0.04f, 0.04f);
@@ -89,7 +91,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     F0 = lerp(F0, albedo.rgb, metallic);
     float3 Lo = float3(0.0f, 0.0f, 0.0f);
 
-    float3 shadows = shadowTexture.Sample(SampleTypeWrap, input.inTexCoord).rgb;
+    //float3 shadows = shadowTexture.Sample(SampleTypeWrap, input.inTexCoord).rgb;
 
     //[unroll(NO_LIGHTS)]
     
@@ -100,23 +102,23 @@ float4 main(PS_INPUT input) : SV_TARGET
             if (i > lightsSize - 1)
                 break;
             
-            float distance = length(dynamicLightPosition[i].xyz - worldPos);
+            float distance = length(dynamicLightPosition[i].xyz - worldPos.xyz);
             if (distance < RadiusAndcutOff[i].x)
             {
-                if (lightType[i].x == 0.0)
+                if (lightTypeEnableShadows[i].x == 0.0)
                     Lo += pointLight(input, albedo.rgb, dynamicLightPosition[i].xyz, dynamicLightColor[i].rgb, RadiusAndcutOff[i].y, bumpNormal, roughness, metallic, V, F0, worldPos);
-                else if (lightType[i].x == 1.0)
+                else if (lightTypeEnableShadows[i].x == 1.0)
                 {
-                    Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i);
+                    Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos.xyz, i) * Shadows(worldPos, depthMapTextures[i],input,i);
                 }
-                else if (lightType[i].x == 2.0)
+                else if (lightTypeEnableShadows[i].x == 2.0)
                 {
-                    Lo += dirLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos, i);
+                    Lo += dirLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos.xyz, i) * Shadows(worldPos, depthMapTextures[i], input, i);
                 }
 
             }
         
-            Lo *= shadows;
+            //Lo *= shadows;
 
         }
       
@@ -289,4 +291,53 @@ float3 fresnelSchlickRoughness(float cosTheta, float3 F0, float roughness)
 {
     return F0 + (max(float3(1.0f - roughness, 1.0f - roughness, 1.0f - roughness), F0) - F0) * pow(clamp(1.0f - cosTheta, 0.0f, 1.0f), 5.0f);
     //return F0 + (max(float3(1.0f - roughness, 1.0f - roughness, 1.0f - roughness), F0) - F0) * pow(1.0f - cosTheta, 5.0f);
+}
+
+
+float3 Shadows(float4 worldPos, Texture2D depthMapTexture, PS_INPUT input, int index)
+{
+    float4 lightViewPosition = worldPos;
+    lightViewPosition = mul(lightViewPosition, transpose(lightViewMatrix[index]));
+    lightViewPosition = mul(lightViewPosition, transpose(lightProjectionMatrix[index]));
+    
+    float shadow = 0.0f;
+    int width;
+    int height;
+    depthMapTexture.GetDimensions(width, height);
+    float2 texelSize;
+    texelSize.x = 0.5 / width;
+    texelSize.y = 0.5 / height;
+    
+    float3 projCoords;
+   
+    projCoords.x = lightViewPosition.x / lightViewPosition.w / 2.0f + 0.5f;
+    projCoords.y = -lightViewPosition.y / lightViewPosition.w / 2.0f + 0.5f;
+    projCoords.z = lightViewPosition.z / lightViewPosition.w;
+    
+    if (lightTypeEnableShadows[index].x == 2.0f)
+        projCoords.z = projCoords.z - 0.00002f;
+    else
+        projCoords.z = projCoords.z - 0.00004f;
+    
+    if ((saturate(projCoords.x) == projCoords.x) && (saturate(projCoords.y) == projCoords.y))
+    {
+        int PCF_RANGE = 2;
+        [unroll(PCF_RANGE*2+1)]
+        for (int x = -PCF_RANGE; x <= PCF_RANGE; x++)
+        {
+        [unroll(PCF_RANGE*2+1)]
+            for (int y = -PCF_RANGE; y <= PCF_RANGE; y++)
+            {
+                float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projCoords.xy + float2(x, y) * texelSize).r;
+             
+                shadow += projCoords.z > pcfDepth ? 0.0f : 1.0f;
+            }
+        }
+        shadow /= ((PCF_RANGE * 2 + 1) * (PCF_RANGE * 2 + 1));
+    }
+    else
+    {
+        shadow = 1.0f;
+    }
+    return (float3(shadow, shadow, shadow));
 }

@@ -1,17 +1,8 @@
-#define NO_LIGHTS 24
-
 cbuffer constantBuffer : register(b0)
 {
     float4x4 worldMatrix;
     float4x4 viewMatrix;
     float4x4 projectionMatrix;
-};
-
-cbuffer lightsBuffer : register(b1)
-{
-    float4x4 lightViewMatrix[NO_LIGHTS];
-    float4x4 lightProjectionMatrix[NO_LIGHTS];
-    uint lightsSize;
 };
 
 struct VS_INPUT
@@ -28,10 +19,9 @@ struct VS_OUTPUT
     float4 outPosition : SV_POSITION;
     float2 outTexCoord : TEXCOORD;
     float3 outNormal : NORMAL;
-    float3 outWorldPos : WOLRD_POSITION;
+    float3 outWorldPos : WORLD_POSITION;
     float3 outTangent : TANGENT;
     float3 outBinormal : BINORMAL;
-    float4 lightViewPosition[NO_LIGHTS] : LIGHTVIEWS;
 };
 
 VS_OUTPUT main(VS_INPUT input)
@@ -51,16 +41,6 @@ VS_OUTPUT main(VS_INPUT input)
     output.outBinormal = normalize(mul(float4(input.inBinormal, 0.0f), worldMatrix));
     
     output.outWorldPos = mul(float4(input.inPos, 1.0f), worldMatrix);
-    
-    
-    for (int i = 0; i < NO_LIGHTS; ++i)
-    {
-        if (i > lightsSize - 1)
-            break;
-        output.lightViewPosition[i] = mul(float4(input.inPos.xyz, 1.0f), worldMatrix);
-        output.lightViewPosition[i] = mul(output.lightViewPosition[i], transpose(lightViewMatrix[i]));
-        output.lightViewPosition[i] = mul(output.lightViewPosition[i], transpose(lightProjectionMatrix[i]));
-    }
-    
+  
     return output;
 }

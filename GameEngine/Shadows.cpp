@@ -6,9 +6,9 @@ Shadows::Shadows()
 
 void Shadows::Initialize(DX11& gfx11, int screen_width, int screen_height)
 {
-	shadowTexture.Initialize(gfx11.device.Get(), screen_width, screen_height);
-	shadowHorizontalBlurTexture.Initialize(gfx11.device.Get(), screen_width, screen_height/2);
-	shadowVerticalBlurTexture.Initialize(gfx11.device.Get(), screen_width/2, screen_height/2);
+	//shadowTexture.Initialize(gfx11.device.Get(), screen_width, screen_height);
+	//shadowHorizontalBlurTexture.Initialize(gfx11.device.Get(), screen_width, screen_height/2);
+	//shadowVerticalBlurTexture.Initialize(gfx11.device.Get(), screen_width/2, screen_height/2);
 }
 
 void Shadows::RenderToTexture(DX11& gfx11, std::vector<Entity>& entities, Camera& camera, RenderTexture& shadowMap, Light* light, float& renderDistance)
@@ -128,23 +128,7 @@ void Shadows::SoftShadows(DX11& gfx11,ID3D11ShaderResourceView* shadowsResourceV
 
 	float rgb[4] = { 0,0,0,1 };
 
-	//gfx11.deviceContext->RSSetViewports(1, &shadowTexture.m_viewport);
-	//shadowTexture.SetRenderTarget(gfx11.deviceContext.Get(), shadowTexture.m_depthStencilView);
-	//shadowTexture.ClearRenderTarget(gfx11.deviceContext.Get(), shadowTexture.m_depthStencilView, 0.0f, 0.0f, 0.0f, 1.0f);
-	//
-	//gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState.Get(), 0);
-	//gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
-	//
-	//gfx11.deviceContext->PSSetSamplers(0, 1, gfx11.samplerState_Wrap.GetAddressOf());
-	//gfx11.deviceContext->PSSetSamplers(1, 1, gfx11.samplerState_Clamp.GetAddressOf());
-	//RenderEntities(gfx11, entities, lights, camera);
-
-	//gfx11.deviceContext->RSSetViewports(1, &gfx11.viewport);
-	//gfx11.deviceContext->OMSetRenderTargets(1, gfx11.renderTargetView.GetAddressOf(), gfx11.depthStencilView.Get());
-	//gfx11.deviceContext->ClearRenderTargetView(gfx11.renderTargetView.Get(), rgb);
-	//gfx11.deviceContext->ClearDepthStencilView(gfx11.depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	//gfx11.deviceContext->PSSetShaderResources(0, 1, &shadowTexture.shaderResourceView);
+	
 	gfx11.deviceContext->PSSetShaderResources(0, 1, &shadowsResourceView);
 	BlurPass(shadowHorizontalBlurTexture, gfx11, blurRect, gfx11.shadowHorizontalBlurVS, gfx11.shadowHorizontalBlurPS, camera);
 

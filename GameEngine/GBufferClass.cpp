@@ -43,7 +43,7 @@ void GBufferClass::GeometryPass(DX11& gfx11, Camera& camera, ID3D11DepthStencilV
 	ClearRenderTargets(gfx11, depthView, rgb);
 }
 
-void GBufferClass::LightPass(DX11& gfx11, RectShape& rect, Camera& camera, std::vector<Light>& spotLights, std::vector<Light>& pointLights, float& acceptedDist)
+void GBufferClass::LightPass(DX11& gfx11, RectShape& rect, Camera& camera, std::vector<Light*>& culledShadowLights, std::vector<Light>& pointLights, float& acceptedDist)
 {
 	gfx11.renderTexture.SetRenderTarget(gfx11.deviceContext.Get(), gfx11.depthStencilView.Get());
 	gfx11.renderTexture.ClearRenderTarget(gfx11.deviceContext.Get(), gfx11.depthStencilView.Get(), 0, 0, 0, 1,true);
@@ -62,8 +62,8 @@ void GBufferClass::LightPass(DX11& gfx11, RectShape& rect, Camera& camera, std::
 	
 	gfx11.deviceContext->OMSetBlendState(gfx11.deferredLightBlendState.Get(), NULL, 0xFFFFFFFF);
 	gfx11.deviceContext->PSSetShader(gfx11.deferredLightPassPS.GetShader(), nullptr, 0);
-	gfx11.deviceContext->IASetInputLayout(gfx11.deferredVS.GetInputLayout());
-	gfx11.deviceContext->VSSetShader(gfx11.deferredVS.GetShader(), nullptr, 0);
+	gfx11.deviceContext->IASetInputLayout(gfx11.deferredLightPassVS.GetInputLayout());
+	gfx11.deviceContext->VSSetShader(gfx11.deferredLightPassVS.GetShader(), nullptr, 0);
 	for (int i = 0; i < pointLights.size(); ++i)
 	{
 		DirectX::XMFLOAT3 diff = DirectX::XMFLOAT3(camera.GetPositionFloat3().x - pointLights[i].pos.x, camera.GetPositionFloat3().y - pointLights[i].pos.y, camera.GetPositionFloat3().z - pointLights[i].pos.z);
@@ -100,6 +100,23 @@ void GBufferClass::LightPass(DX11& gfx11, RectShape& rect, Camera& camera, std::
 		}
 	}
 
+	std::vector< ID3D11ShaderResourceView*> ShadowTextures;
+
+	if (!culledShadowLights.empty())
+	{
+		ShadowTextures.resize(culledShadowLights.size());
+		int index = 0;
+		for (int j = 0; j < ShadowTextures.size(); ++j)
+		{
+
+			ShadowTextures[index] = culledShadowLights[j]->m_shadowMap.shaderResourceView;
+			index++;
+		}
+		gfx11.deviceContext->PSSetShaderResources(8, ShadowTextures.size(), ShadowTextures.data());
+	}
+
+	gfx11.deviceContext->VSSetSamplers(0, 1, &gfx11.samplerState_Wrap);
+	gfx11.deviceContext->VSSetShaderResources(0, 1, &m_shaderResourceViewArray[3]);
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 	gfx11.deviceContext->PSSetShader(gfx11.pbrPS.GetShader(), nullptr, 0);
 	gfx11.deviceContext->IASetInputLayout(gfx11.pbrVS.GetInputLayout());

@@ -42,9 +42,7 @@ private:
 	void CopyPastePointLight();
 
 	void PlayerLogic(float& dt);
-	void SoundThread();
-
-	void gameThread(float& dt);
+	void GameSounds();
 
 protected:
 	AppTimer timer;
@@ -151,12 +149,7 @@ private:
 
 	SoundComponent backGroundSound;
 
-public:
-	std::thread thread_SoundHandler;
-	std::thread thread_gameHandler;
-
-
-	private:
+private:
 		DirectX::XMFLOAT3 camTempPos, camTempRot;
 		bool bPbrRenderCamFix = true;
 };

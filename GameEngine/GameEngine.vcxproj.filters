@@ -634,5 +634,8 @@
     <FxCompile Include="InstancedVS.hlsl">
       <Filter>Shaders\Vertex</Filter>
     </FxCompile>
+    <FxCompile Include="DeferredLightPassVS.hlsl">
+      <Filter>Shaders\Vertex</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

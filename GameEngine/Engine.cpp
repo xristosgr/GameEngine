@@ -276,10 +276,6 @@ void Engine::Update(int width, int height)
 		}
 	}
 
-	if (thread_gameHandler.joinable())
-		thread_gameHandler.join();
-	if (thread_SoundHandler.joinable())
-		thread_SoundHandler.join();
 }
 
 void Engine::RenderFrame(float& dt,float& fps)
@@ -337,9 +333,10 @@ void Engine::RenderFrame(float& dt,float& fps)
 
 	
 
-	thread_gameHandler = std::thread(&Engine::gameThread, this,std::ref(dt));
-	thread_SoundHandler = std::thread(&Engine::SoundThread, this);
-
+	ObjectsHandler(dt);
+	AIHandler(dt);
+	PlayerLogic(dt);
+	GameSounds();
 	renderer.Render(camera, entities, physicsHandler, lights, pointlights, collisionObjects, grid, navMeshes, sounds,sky);
 
 
@@ -786,7 +783,7 @@ void Engine::PlayerLogic(float& dt)
 	}
 }
 
-void Engine::SoundThread()
+void Engine::GameSounds()
 {
 	backGroundSound.UpdatePos(camera.GetPositionFloat3(), camera.GetForwardVector(), camera.upDir);
 	backGroundSound.Update();
@@ -797,11 +794,4 @@ void Engine::SoundThread()
 	{
 		backGroundSound.Play();
 	}
-}
-
-void Engine::gameThread(float& dt)
-{
-	ObjectsHandler(dt);
-	AIHandler(dt);
-	PlayerLogic(dt);
 }

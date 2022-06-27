@@ -229,20 +229,20 @@ void Renderer::RenderDeferred(std::vector<Entity>& entities, std::vector<Light>&
 	gfx11.deviceContext->VSSetConstantBuffers(0, 1, gfx11.cb_vs_vertexshader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 
-	std::vector< ID3D11ShaderResourceView*> ShadowTextures;
-	
-	if (!culledShadowLights.empty())
-	{
-		ShadowTextures.resize(culledShadowLights.size());
-		int index = 0;
-		for (int j = 0; j < ShadowTextures.size(); ++j)
-		{
-	
-			ShadowTextures[index] = culledShadowLights[j]->m_shadowMap.shaderResourceView;
-			index++;
-		}
-		gfx11.deviceContext->PSSetShaderResources(3, ShadowTextures.size(), ShadowTextures.data());
-	}
+	//std::vector< ID3D11ShaderResourceView*> ShadowTextures;
+	//
+	//if (!culledShadowLights.empty())
+	//{
+	//	ShadowTextures.resize(culledShadowLights.size());
+	//	int index = 0;
+	//	for (int j = 0; j < ShadowTextures.size(); ++j)
+	//	{
+	//
+	//		ShadowTextures[index] = culledShadowLights[j]->m_shadowMap.shaderResourceView;
+	//		index++;
+	//	}
+	//	gfx11.deviceContext->PSSetShaderResources(3, ShadowTextures.size(), ShadowTextures.data());
+	//}
 
 
 	gfx11.deviceContext->PSSetShader(gfx11.deferredPS.GetShader(), nullptr, 0);
@@ -397,7 +397,9 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 			culledShadowLights[i]->pos.z = camera.pos.z;
 		}
 			
-		
+		gfx11.cb_ps_lightsShader.data.lightProjectionMatrix[i] = culledShadowLights[i]->GetCamera()->GetProjectionMatrix();
+		gfx11.cb_ps_lightsShader.data.lightViewMatrix[i] = culledShadowLights[i]->GetCamera()->GetViewMatrix();
+
 		gfx11.cb_ps_lightsShader.data.dynamicLightPosition[i] = DirectX::XMFLOAT4(culledShadowLights[i]->pos.x, culledShadowLights[i]->pos.y, culledShadowLights[i]->pos.z, 1.0f);
 		gfx11.cb_ps_lightsShader.data.SpotlightDir[i] = DirectX::XMFLOAT4(culledShadowLights[i]->SpotDir.x, culledShadowLights[i]->SpotDir.y, culledShadowLights[i]->SpotDir.z, 1.0f);
 	
@@ -539,16 +541,16 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	gfx11.deviceContext->VSSetConstantBuffers(0, 1, gfx11.cb_vs_vertexshader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 
-	shadowsRenderer.SoftShadows(gfx11, gBuffer.m_shaderResourceViewArray[5], postProcess.rectBloom, entities, culledShadowLights, camera, shadowLightsDistance);
+	//shadowsRenderer.SoftShadows(gfx11, gBuffer.m_shaderResourceViewArray[5], postProcess.rectBloom, entities, culledShadowLights, camera, shadowLightsDistance);
 	ClearScreen();
 
 	gfx11.deviceContext->PSSetShaderResources(5, 1, &pbr.prefilterCubeMap.shaderResourceView);
 	gfx11.deviceContext->PSSetShaderResources(6, 1, &pbr.brdfTexture.shaderResourceView);
 	gfx11.deviceContext->PSSetShaderResources(7, 1, &pbr.irradianceCubeMap.shaderResourceView);
-	gfx11.deviceContext->PSSetShaderResources(8, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
+	//gfx11.deviceContext->PSSetShaderResources(8, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
 	//gfx11.deviceContext->PSSetShaderResources(8, 1, &gBuffer.m_shaderResourceViewArray[5]);
 
-	gBuffer.LightPass(gfx11, rect, camera,lights,pointLights,deferredLightsDistance);
+	gBuffer.LightPass(gfx11, rect, camera,culledShadowLights,pointLights,deferredLightsDistance);
 
 	gfx11.deviceContext->OMSetBlendState(nullptr, NULL, 0xFFFFFFFF);
 
@@ -612,7 +614,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	{
 		gfx11.deviceContext->PSSetShader(gfx11.testPS.GetShader(), nullptr, 0);
 		rectSmall.pos = DirectX::XMFLOAT3(2.88, -1.56, 2.878);
-		gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[5]);
+		gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[3]);
 		//gfx11.deviceContext->PSSetShaderResources(0, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
 		gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState2D.Get(), 0);
 		gfx11.deviceContext->IASetInputLayout(gfx11.vs2D.GetInputLayout());
