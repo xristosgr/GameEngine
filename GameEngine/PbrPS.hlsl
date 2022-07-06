@@ -1,4 +1,4 @@
-#define NO_LIGHTS 24
+#define NO_LIGHTS 8
 
 cbuffer lightBuffer : register(b0)
 {
@@ -33,7 +33,6 @@ struct PS_INPUT
 {
     float4 inPosition : SV_POSITION;
     float2 inTexCoord : TEXCOORD;
-
 };
 
 static const float PI = 3.14159265359;
@@ -97,6 +96,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     if (lightsSize > 0)
     {
+        [unroll(NO_LIGHTS)]
         for (int i = 0; i < NO_LIGHTS; ++i)
         {
             if (i > lightsSize - 1)
@@ -106,20 +106,24 @@ float4 main(PS_INPUT input) : SV_TARGET
             if (distance < RadiusAndcutOff[i].x)
             {
                 if (lightTypeEnableShadows[i].x == 0.0)
-                    Lo += pointLight(input, albedo.rgb, dynamicLightPosition[i].xyz, dynamicLightColor[i].rgb, RadiusAndcutOff[i].y, bumpNormal, roughness, metallic, V, F0, worldPos);
+                    Lo += pointLight(input, albedo.rgb, dynamicLightPosition[i].xyz, dynamicLightColor[i].rgb, RadiusAndcutOff[i].y, bumpNormal, roughness, metallic, V, F0, worldPos.xyz);
                 else if (lightTypeEnableShadows[i].x == 1.0)
                 {
-                    Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos.xyz, i) * Shadows(worldPos, depthMapTextures[i],input,i);
+                    if (lightTypeEnableShadows[i].y == 1.0f)
+                        Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos.xyz, i) * Shadows(worldPos, depthMapTextures[i],input,i);
+                    else
+                        Lo += spotLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos.xyz, i);
+
                 }
                 else if (lightTypeEnableShadows[i].x == 2.0)
                 {
-                    Lo += dirLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos.xyz, i) * Shadows(worldPos, depthMapTextures[i], input, i);
+                    if (lightTypeEnableShadows[i].y == 1.0f)
+                        Lo += dirLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos.xyz, i) * Shadows(worldPos, depthMapTextures[i], input, i);
+                    else
+                        Lo += dirLight(input, albedo.rgb, bumpNormal, roughness, metallic, V, F0, worldPos.xyz, i);
                 }
 
             }
-        
-            //Lo *= shadows;
-
         }
       
     }
@@ -314,18 +318,23 @@ float3 Shadows(float4 worldPos, Texture2D depthMapTexture, PS_INPUT input, int i
     projCoords.y = -lightViewPosition.y / lightViewPosition.w / 2.0f + 0.5f;
     projCoords.z = lightViewPosition.z / lightViewPosition.w;
     
-    if (lightTypeEnableShadows[index].x == 2.0f)
-        projCoords.z = projCoords.z - 0.00002f;
+   if(lightTypeEnableShadows[index].x == 2.0f)
+    {
+        projCoords.z = projCoords.z - 0.00001f;
+    }
     else
-        projCoords.z = projCoords.z - 0.00004f;
+    {
+        projCoords.z = projCoords.z - 0.0001f;
+    }
+
     
     if ((saturate(projCoords.x) == projCoords.x) && (saturate(projCoords.y) == projCoords.y))
     {
-        int PCF_RANGE = 2;
+        int PCF_RANGE = 4;
         [unroll(PCF_RANGE*2+1)]
         for (int x = -PCF_RANGE; x <= PCF_RANGE; x++)
         {
-        [unroll(PCF_RANGE*2+1)]
+            [unroll(PCF_RANGE*2+1)]
             for (int y = -PCF_RANGE; y <= PCF_RANGE; y++)
             {
                 float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projCoords.xy + float2(x, y) * texelSize).r;

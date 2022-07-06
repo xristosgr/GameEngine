@@ -133,5 +133,11 @@ private:
 
 
 	std::vector<Light*> culledShadowLights;
+
+
+	//shadows params
+	int depthBias = 40;
+	double slopeBias = 1;
+	float clamp = 1.0f;
 };
 

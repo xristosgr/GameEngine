@@ -160,9 +160,14 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	{
 		lights[i].Initialize(gfx11.device.Get(), gfx11.deviceContext.Get(), gfx11.cb_vs_vertexshader);
 		if (lights[i].lightType == 2.0f)
+		{
 			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), 2048, 2048);
+		}
 		else
+		{
 			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), 1024, 1024);
+		}
+
 		lights[i].SetupCamera(gfx11.windowWidth, gfx11.windowHeight);
 	}
 	for (int i = 0; i < pointLights.size(); ++i)
@@ -206,22 +211,6 @@ void Renderer::RenderDeferred(std::vector<Entity>& entities, std::vector<Light>&
 {
 	gfx11.deviceContext->VSSetConstantBuffers(0, 1, gfx11.cb_vs_vertexshader.GetBuffer().GetAddressOf());
 	gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
-
-	//std::vector< ID3D11ShaderResourceView*> ShadowTextures;
-	//
-	//if (!culledShadowLights.empty())
-	//{
-	//	ShadowTextures.resize(culledShadowLights.size());
-	//	int index = 0;
-	//	for (int j = 0; j < ShadowTextures.size(); ++j)
-	//	{
-	//
-	//		ShadowTextures[index] = culledShadowLights[j]->m_shadowMap.shaderResourceView;
-	//		index++;
-	//	}
-	//	gfx11.deviceContext->PSSetShaderResources(3, ShadowTextures.size(), ShadowTextures.data());
-	//}
-
 
 	gfx11.deviceContext->PSSetShader(gfx11.deferredPS.GetShader(), nullptr, 0);
 	gfx11.deviceContext->OMSetBlendState(gfx11.blendState.Get(), NULL, 0xFFFFFFFF);
@@ -457,23 +446,17 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	//SHADOWS////
 	HRESULT hr;
 
-	int depthBias = 40;
-	double slopeBias = 1;
-	float clamp = 1.0f;
-
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> shadowRasterizerState;
 	CD3D11_RASTERIZER_DESC shadowRasterizerDesc(D3D11_DEFAULT);
 	
 	shadowRasterizerDesc.FillMode = D3D11_FILL_SOLID;
-	shadowRasterizerDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_BACK;
+	shadowRasterizerDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_FRONT;
 	shadowRasterizerDesc.DepthBias = depthBias;
 	shadowRasterizerDesc.DepthBiasClamp = clamp;
 	shadowRasterizerDesc.SlopeScaledDepthBias = slopeBias;
 	hr = gfx11.device->CreateRasterizerState(&shadowRasterizerDesc, shadowRasterizerState.GetAddressOf());
 	COM_ERROR_IF_FAILED(hr, "Failed to create rasterizer state.");
 	
-	gfx11.deviceContext->RSSetState(shadowRasterizerState.Get());
-
 	if (bEnableShadows)
 	{
 		if (!culledShadowLights.empty())
@@ -483,17 +466,27 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 				culledShadowLights[i]->UpdateCamera();
 
 				if (culledShadowLights[i]->bShadow)
+				{
+					gfx11.deviceContext->RSSetState(shadowRasterizerState.Get());
 					shadowsRenderer.RenderShadows(gfx11, entities, culledShadowLights[i], camera, shadowLightsDistance, i);
+					gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
+					//ClearScreen();
+
+					//shadowsRenderer.SoftShadows(gfx11, postProcess.rectBloom, culledShadowLights[i], camera);
+
+				}
+
 			}
 		}
-		
-	}
 
+	}
 	////////////
 	environmentProbe.UpdateCamera();
 
 	UpdateBuffers(lights, pointLights, camera);
 
+
+	
 	if (bHasFinishedLoading)
 	{
 		if (environmentProbe.recalculate)
@@ -592,7 +585,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	{
 		gfx11.deviceContext->PSSetShader(gfx11.testPS.GetShader(), nullptr, 0);
 		rectSmall.pos = DirectX::XMFLOAT3(2.88, -1.56, 2.878);
-		gfx11.deviceContext->PSSetShaderResources(0, 1, &gBuffer.m_shaderResourceViewArray[0]);
+		//gfx11.deviceContext->PSSetShaderResources(0, 1, &lights[1].verticalBlurTexture.shaderResourceView);
 		//gfx11.deviceContext->PSSetShaderResources(0, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
 		gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState2D.Get(), 0);
 		gfx11.deviceContext->IASetInputLayout(gfx11.vs2D.GetInputLayout());
@@ -800,6 +793,14 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			ImGui::DragFloat("largeScaleAO", &postProcess.largeScaleAO, 0.1f, 0.0f, 2.0f);
 			ImGui::DragFloat("decodeBias", &postProcess.decodeBias, 0.1f, 0.0f, 2.0f);
 			ImGui::DragFloat("decodeScale", &postProcess.decodeScale, 0.1f, 0.0f, 2.0f);
+		}
+
+		if (ImGui::CollapsingHeader("Shadows"))
+		{
+			ImGui::DragInt("depthBias", &depthBias, 1);
+			ImGui::InputDouble("slopeBias", &slopeBias, 0.05f);
+			ImGui::DragFloat("clamp", &clamp, 0.05f);
+
 		}
 		ImGui::End();
 
