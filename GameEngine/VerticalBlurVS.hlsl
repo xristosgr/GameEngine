@@ -21,7 +21,7 @@ struct VS_OUTPUT
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD;
     float2 centerTexCoords : TEXCOORD1;
-    float2 texCoords[21] : TEXCOORD2;
+    float2 texCoords[11] : TEXCOORD2;
     
 };
 
@@ -41,9 +41,9 @@ VS_OUTPUT main(VS_INPUT input)
    
     output.centerTexCoords = output.position * 0.5 + 0.5;
     
-    for (int i = -10; i <= 10; ++i)
+    for (int i = -5; i <= 5; ++i)
     {
-        output.texCoords[i + 10] = output.centerTexCoords + float2(0, texelSize * i*4);
+        output.texCoords[i + 5] = output.centerTexCoords + float2(0, texelSize * i*3);
 
     }
     

@@ -210,9 +210,6 @@ void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const Dir
 
 	if (bRender)
 	{
-		DirectX::XMMATRIX view = viewMatrix;
-		DirectX::XMMATRIX proj = projectionMatrix;
-		frustum.ConstructFrustum(100, view, proj);
 
 		if (!bCheckFrustum)
 		{
@@ -222,6 +219,11 @@ void Entity::Draw(Camera& camera, const DirectX::XMMATRIX& viewMatrix, const Dir
 		{
 			if (isfrustumEnabled)
 			{
+
+				DirectX::XMMATRIX view = viewMatrix;
+				DirectX::XMMATRIX proj = projectionMatrix;
+				frustum.ConstructFrustum(100, view, proj);
+
 				if (physicsComponent.aActor || physicsComponent.aStaticActor)
 					frustum.checkFrustum = frustum.CheckRect(physicsComponent.trans.p.x, physicsComponent.trans.p.y, physicsComponent.trans.p.z, scale.x + frustumScale.x, scale.y + frustumScale.x, scale.z + frustumScale.z);
 				else

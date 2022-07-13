@@ -13,7 +13,7 @@ RenderTexture::RenderTexture()
 
 }
 
-bool RenderTexture::Initialize(ID3D11Device* device, int width, int height, bool bMapData, D3D11_SUBRESOURCE_DATA* data)
+bool RenderTexture::Initialize(ID3D11Device* device, int width, int height, DXGI_FORMAT format, bool bMapData, D3D11_SUBRESOURCE_DATA* data)
 {
 	try
 	{
@@ -32,7 +32,7 @@ bool RenderTexture::Initialize(ID3D11Device* device, int width, int height, bool
 		textureDesc.Height = height;
 		textureDesc.MipLevels = 1;
 		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		textureDesc.Format = format;
 		//textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		textureDesc.SampleDesc.Count = 1;
 		textureDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -120,7 +120,7 @@ bool RenderTexture::Initialize(ID3D11Device* device, int width, int height, bool
 	return true;
 }
 
-bool RenderTexture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int textureWidth, int textureHeight)
+bool RenderTexture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext,  int textureWidth, int textureHeight, DXGI_FORMAT format)
 {
 	try
 	{
@@ -139,7 +139,7 @@ bool RenderTexture::Initialize(ID3D11Device* device, ID3D11DeviceContext* device
 		textureDesc.Height = textureHeight;
 		textureDesc.MipLevels = 1;
 		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		textureDesc.Format = format;
 		//textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		textureDesc.SampleDesc.Count = 1;
 		textureDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -223,7 +223,7 @@ bool RenderTexture::Initialize(ID3D11Device* device, ID3D11DeviceContext* device
 	return true;
 }
 
-bool RenderTexture::InitializeCustom(ID3D11Device* device, int textureWidth, int textureHeight, float* data)
+bool RenderTexture::InitializeCustom(ID3D11Device* device, int textureWidth, int textureHeight, DXGI_FORMAT format, float* data)
 {
 	try
 	{
@@ -247,7 +247,7 @@ bool RenderTexture::InitializeCustom(ID3D11Device* device, int textureWidth, int
 		textureDesc.Height = textureHeight;
 		textureDesc.MipLevels = -1;
 		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		textureDesc.Format = format;
 		//textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		textureDesc.SampleDesc.Count = 1;
 		textureDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -375,7 +375,7 @@ ID3D11ShaderResourceView* RenderTexture::GetShaderResourceView()
 
 
 
-bool RenderTexture::CreateCubeMap(ID3D11Device* device, ID3D11DeviceContext* deviceContext, unsigned int& width, unsigned int& height, unsigned int& maxMipLevels)
+bool RenderTexture::CreateCubeMap(ID3D11Device* device, ID3D11DeviceContext* deviceContext, unsigned int& width, unsigned int& height, DXGI_FORMAT format, unsigned int& maxMipLevels)
 {
 	try
 	{
@@ -383,7 +383,7 @@ bool RenderTexture::CreateCubeMap(ID3D11Device* device, ID3D11DeviceContext* dev
 		texElementDesc.Height = height;
 		texElementDesc.MipLevels = maxMipLevels;
 		texElementDesc.ArraySize = 6;
-		texElementDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		texElementDesc.Format = format;
 		texElementDesc.Usage = D3D11_USAGE_DEFAULT;
 		texElementDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 		texElementDesc.SampleDesc.Count = 1;
@@ -488,14 +488,14 @@ bool RenderTexture::RenderCubeMapFaces(ID3D11Device* device, ID3D11DeviceContext
 
 
 
-bool RenderTexture::CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, std::vector<ID3D11Texture2D*>& textureViews)
+bool RenderTexture::CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, DXGI_FORMAT format, std::vector<ID3D11Texture2D*>& textureViews)
 {
 	try
 	{
 		HRESULT hr;
 
 		D3D11_TEXTURE2D_DESC texElementDesc;
-		texElementDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		texElementDesc.Format = format;
 		//texElementDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		textureViews[0]->GetDesc(&texElementDesc);
 
@@ -756,7 +756,7 @@ bool RenderTexture::CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* de
 	return true;
 }
 
-bool RenderTexture::CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, std::vector<ID3D11Texture2D*>& textureViews, float width, float height, UINT mip)
+bool RenderTexture::CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, std::vector<ID3D11Texture2D*>& textureViews, float width, float height, DXGI_FORMAT format, UINT mip)
 {
 	try
 	{
@@ -765,8 +765,8 @@ bool RenderTexture::CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* de
 
 
 		D3D11_TEXTURE2D_DESC texElementDesc;
-		texElementDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-		//texElementDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		texElementDesc.Format = format;
+		//texElementDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		textureViews[0]->GetDesc(&texElementDesc);
 
 

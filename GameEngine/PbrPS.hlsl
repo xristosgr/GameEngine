@@ -14,7 +14,7 @@ cbuffer lightBuffer : register(b0)
 
 cbuffer shadowsbuffer : register(b9)
 {
-    float4 dynamicLightShadowStrength[NO_LIGHTS];
+    float4 shadowSoftness[NO_LIGHTS];
 }
 
 
@@ -89,10 +89,6 @@ float4 main(PS_INPUT input) : SV_TARGET
 
     F0 = lerp(F0, albedo.rgb, metallic);
     float3 Lo = float3(0.0f, 0.0f, 0.0f);
-
-    //float3 shadows = shadowTexture.Sample(SampleTypeWrap, input.inTexCoord).rgb;
-
-    //[unroll(NO_LIGHTS)]
     
     if (lightsSize > 0)
     {
@@ -309,8 +305,8 @@ float3 Shadows(float4 worldPos, Texture2D depthMapTexture, PS_INPUT input, int i
     int height;
     depthMapTexture.GetDimensions(width, height);
     float2 texelSize;
-    texelSize.x = 0.5 / width;
-    texelSize.y = 0.5 / height;
+    texelSize.x = shadowSoftness[index].x / width;
+    texelSize.y = shadowSoftness[index].x / height;
     
     float3 projCoords;
    
@@ -318,31 +314,43 @@ float3 Shadows(float4 worldPos, Texture2D depthMapTexture, PS_INPUT input, int i
     projCoords.y = -lightViewPosition.y / lightViewPosition.w / 2.0f + 0.5f;
     projCoords.z = lightViewPosition.z / lightViewPosition.w;
     
-   if(lightTypeEnableShadows[index].x == 2.0f)
-    {
-        projCoords.z = projCoords.z - 0.00001f;
-    }
-    else
-    {
-        projCoords.z = projCoords.z - 0.0001f;
-    }
-
-    
+    projCoords.z = projCoords.z - 0.00002f;
     if ((saturate(projCoords.x) == projCoords.x) && (saturate(projCoords.y) == projCoords.y))
     {
-        int PCF_RANGE = 4;
-        [unroll(PCF_RANGE*2+1)]
-        for (int x = -PCF_RANGE; x <= PCF_RANGE; x++)
+        int PCF_RANGE = 2;
+        int SUN_PCF_RANGE = 4;
+        
+        if(lightTypeEnableShadows[index].x == 2.0f)
+        {
+            [unroll(SUN_PCF_RANGE*2+1)]
+            for (int x = -SUN_PCF_RANGE; x <= SUN_PCF_RANGE; x++)
+            {
+            [unroll(SUN_PCF_RANGE*2+1)]
+                for (int y = -SUN_PCF_RANGE; y <= SUN_PCF_RANGE; y++)
+                {
+                    float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projCoords.xy + float2(x, y) * texelSize).r;
+             
+                    shadow += projCoords.z > pcfDepth ? 0.0f : 1.0f;
+                }
+            }
+            shadow /= ((SUN_PCF_RANGE * 2 + 1) * (SUN_PCF_RANGE * 2 + 1));
+        }
+        else
         {
             [unroll(PCF_RANGE*2+1)]
-            for (int y = -PCF_RANGE; y <= PCF_RANGE; y++)
+            for (int x = -PCF_RANGE; x <= PCF_RANGE; x++)
             {
-                float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projCoords.xy + float2(x, y) * texelSize).r;
+            [unroll(PCF_RANGE*2+1)]
+                for (int y = -PCF_RANGE; y <= PCF_RANGE; y++)
+                {
+                    float pcfDepth = depthMapTexture.Sample(SampleTypeWrap, projCoords.xy + float2(x, y) * texelSize).r;
              
-                shadow += projCoords.z > pcfDepth ? 0.0f : 1.0f;
+                    shadow += projCoords.z > pcfDepth ? 0.0f : 1.0f;
+                }
             }
+            shadow /= ((PCF_RANGE * 2 + 1) * (PCF_RANGE * 2 + 1));
         }
-        shadow /= ((PCF_RANGE * 2 + 1) * (PCF_RANGE * 2 + 1));
+        
     }
     else
     {

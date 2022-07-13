@@ -9,9 +9,9 @@ class RenderTexture
 {
 public:
 	RenderTexture();
-	bool Initialize(ID3D11Device* device, int width, int height, bool bMapData = false, D3D11_SUBRESOURCE_DATA* data = nullptr);
-	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int width, int height);
-	bool InitializeCustom(ID3D11Device* device, int textureWidth, int textureHeight, float* data);
+	bool Initialize(ID3D11Device* device, int width, int height, DXGI_FORMAT format, bool bMapData = false, D3D11_SUBRESOURCE_DATA* data = nullptr);
+	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int width, int height, DXGI_FORMAT format);
+	bool InitializeCustom(ID3D11Device* device, int textureWidth, int textureHeight, DXGI_FORMAT format, float* data);
 	void SetRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView);
 	void ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView, float, float, float, float, bool bClearStencil = false);
 
@@ -19,14 +19,14 @@ public:
 	ID3D11ShaderResourceView* shaderResourceView;
 
 
-	bool CreateCubeMap(ID3D11Device* device, ID3D11DeviceContext* deviceContext, unsigned int& width, unsigned int& height, unsigned int& maxMipLevels);
+	bool CreateCubeMap(ID3D11Device* device, ID3D11DeviceContext* deviceContext, unsigned int& width, unsigned int& height, DXGI_FORMAT format, unsigned int& maxMipLevels);
 	void CreateCubeMapMipLevels(ID3D11Device* device, ID3D11DeviceContext* deviceContext, unsigned int& width, unsigned int& height, unsigned int& mipLevel);
 	bool RenderCubeMapFaces(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int& index, ID3D11DepthStencilView* depthView, float* rgba, bool copyDepth, bool bSave = false);
 	
 
-	bool CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, std::vector<ID3D11Texture2D*>& textureViews);
+	bool CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, DXGI_FORMAT format, std::vector<ID3D11Texture2D*>& textureViews);
 	bool CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, std::vector<ID3D11Resource*>& textureViews);
-	bool CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, std::vector<ID3D11Texture2D*>& textureViews, float width, float height, UINT mip);
+	bool CubeMapTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, std::vector<ID3D11Texture2D*>& textureViews, float width, float height, DXGI_FORMAT format, UINT mip);
 	void SetRenderTargets(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView, int count);
 
 	void ClearRenderTargets(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView,int count, float* rgb);

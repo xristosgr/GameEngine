@@ -386,7 +386,7 @@ void Engine::AddLight()
 {
 	lights.push_back(Light());
 	lights[lights.size() - 1].Initialize(renderer.gfx11.device.Get(), renderer.gfx11.deviceContext.Get(), renderer.gfx11.cb_vs_vertexshader);
-	lights[lights.size() - 1].m_shadowMap.Initialize(renderer.gfx11.device.Get(), 1024, 1024);
+	lights[lights.size() - 1].m_shadowMap.Initialize(renderer.gfx11.device.Get(), 1024, 1024, DXGI_FORMAT_R16G16B16A16_FLOAT);
 	lights[lights.size() - 1].SetupCamera(renderer.gfx11.windowWidth, renderer.gfx11.windowHeight);
 }
 void Engine::AddPointLight()

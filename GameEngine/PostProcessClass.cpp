@@ -17,10 +17,10 @@ PostProcessClass::PostProcessClass()
 
 void PostProcessClass::Initialize(DX11& gfx11, int width, int height)
 {
-	BloomHorizontalBlurTexture.Initialize(gfx11.device.Get(), width/2, height/2);
-	BloomVerticalBlurTexture.Initialize(gfx11.device.Get(), width/2, height/2);
+	BloomHorizontalBlurTexture.Initialize(gfx11.device.Get(), width/2, height/2, DXGI_FORMAT_R16G16B16A16_FLOAT);
+	BloomVerticalBlurTexture.Initialize(gfx11.device.Get(), width/2, height/2, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
-	bloomRenderTexture.Initialize(gfx11.device.Get(), width, height);
+	bloomRenderTexture.Initialize(gfx11.device.Get(), width, height, DXGI_FORMAT_R16G16B16A16_FLOAT);
 	rectBloom.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
 }
 
@@ -68,7 +68,7 @@ void PostProcessClass::BloomRender(DX11& gfx11, RectShape& rect, Camera& camera)
 void PostProcessClass::HbaoPlusInit(DX11& gfx11, int width, int height)
 {
 	
-	hbaoTexture.Initialize(gfx11.device.Get(), width, height);
+	hbaoTexture.Initialize(gfx11.device.Get(), width, height, DXGI_FORMAT_R16G16B16A16_FLOAT);
 	
 	GFSDK_SSAO_CustomHeap customHeap;
 	customHeap.new_ = ::operator new;

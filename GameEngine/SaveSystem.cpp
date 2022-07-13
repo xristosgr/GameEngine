@@ -177,6 +177,8 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 			outfile << "spotDirY= " << lights[i].SpotDir.y << "\n";
 			outfile << "spotDirZ= " << lights[i].SpotDir.z << "\n";
 
+			outfile << "shadowsSoftness= " << lights[i].shadowsSoftness.x << "\n";
+
 			outfile << "radius= " << lights[i].radius << "\n";
 			outfile << "cutOff= " << lights[i].cutOff << "\n";
 
@@ -641,6 +643,11 @@ void SaveSystem::LoadLightData(std::vector<Light>& lights, std::vector<Light>& p
 					if (path == "spotDirZ=")
 					{
 						lights[i].SpotDir.z = (float)val;
+					}
+
+					if (path == "shadowsSoftness=")
+					{
+						lights[i].shadowsSoftness.x = (float)val;
 					}
 
 					if (path == "radius=")

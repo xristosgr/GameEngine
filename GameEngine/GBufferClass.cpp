@@ -7,11 +7,11 @@ GBufferClass::GBufferClass()
 void GBufferClass::Initialize(DX11& gfx11, int width, int height)
 {
 
-	albedoTexture.Initialize(gfx11.device.Get(), width,height);
-	normalTexture.Initialize(gfx11.device.Get(), width, height);
-	metallicRoughnessTexture.Initialize(gfx11.device.Get(), width, height);
-	worldPositionTexture.Initialize(gfx11.device.Get(), width, height);
-	depthTexture.Initialize(gfx11.device.Get(), width, height);
+	albedoTexture.Initialize(gfx11.device.Get(), width,height, DXGI_FORMAT_R16G16B16A16_FLOAT);
+	normalTexture.Initialize(gfx11.device.Get(), width, height, DXGI_FORMAT_R16G16B16A16_FLOAT);
+	metallicRoughnessTexture.Initialize(gfx11.device.Get(), width, height, DXGI_FORMAT_R16G16B16A16_FLOAT);
+	worldPositionTexture.Initialize(gfx11.device.Get(), width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
+	depthTexture.Initialize(gfx11.device.Get(), width, height, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
 	m_renderTargetTextureArray[0] = albedoTexture.m_renderTargetTexture;
 	m_renderTargetTextureArray[1] = normalTexture.m_renderTargetTexture;

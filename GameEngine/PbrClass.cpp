@@ -6,7 +6,7 @@ PbrClass::PbrClass()
 
 void PbrClass::Initialize(DX11& gfx11)
 {
-	brdfTexture.Initialize(gfx11.device.Get(), 2048, 2048);
+	brdfTexture.Initialize(gfx11.device.Get(), 512, 512, DXGI_FORMAT_R16G16B16A16_FLOAT);
 }
 
 void PbrClass::BrdfRender(DX11& gfx11, RectShape& rect, Camera& camera, RenderTexture& texture)
@@ -35,7 +35,7 @@ void PbrClass::IrradianceConvolutionRender(DX11& gfx11, CubeShape debugCube, Env
 	unsigned int _height = 32;
 	unsigned int maxMipLevels = 1;
 	unsigned int mip = 0;
-	irradianceCubeMap.CreateCubeMap(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, maxMipLevels);
+	irradianceCubeMap.CreateCubeMap(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, DXGI_FORMAT_R16G16B16A16_FLOAT, maxMipLevels);
 	irradianceCubeMap.CreateCubeMapMipLevels(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, mip);
 	gfx11.deviceContext->RSSetViewports(1, &irradianceCubeMap.m_viewport);
 
@@ -87,7 +87,7 @@ void PbrClass::PrifilterRender(DX11& gfx11, CubeShape debugCube, EnvironmentProb
 
 	unsigned int _width = 128;
 	unsigned int _height = 128;
-	prefilterCubeMap.CreateCubeMap(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, maxMipLevels);
+	prefilterCubeMap.CreateCubeMap(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, DXGI_FORMAT_R16G16B16A16_FLOAT, maxMipLevels);
 
 	for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
 	{

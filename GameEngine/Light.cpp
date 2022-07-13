@@ -25,6 +25,8 @@ Light::Light()
 	coneRot = DirectX::XMFLOAT3(0.0, 0.0, 0.0);
 
 	bFlagForDeletion = false;
+
+	shadowsSoftness = DirectX::XMFLOAT4(0.5, 0.0, 0.0, 0.0);
 }
 
 void Light::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
@@ -62,7 +64,7 @@ void Light::UpdateCamera()
 	//camera[i].pos = pos;
 	if (lightType == 2.0f)
 	{
-		camera->OrthographicFov(m_screenWidth / 30, m_screenHeight / 30, nearZ, farZ);
+		camera->OrthographicFov(m_screenWidth / 40, m_screenHeight / 40, nearZ, farZ);
 		camera->SetLookAtPos(DirectX::XMFLOAT3(direction.x + pos.x, direction.y + pos.y, direction.z + pos.z));
 	}
 	else 
@@ -97,7 +99,7 @@ void Light::DrawGui(std::string name)
 	ImGui::DragFloat3("lightColor", &lightColor.x, 0.005f);
 	ImGui::DragFloat3("emissionColor", &emissionColor.x, 0.005f);
 	ImGui::DragFloat("light strength", &lightColor.w, 0.005f, 0.0f, 100.0f);
-	ImGui::DragFloat("lightShadowStrength", &lightShadowStrength.x, 0.005f);
+	ImGui::DragFloat("shadowsSoftness", &shadowsSoftness.x, 0.005f);
 	//ImGui::DragFloat("light attenuation", &lightAttenuation, 0.005f, 0.0f, 100.0f);
 
 	ImGui::DragFloat3("direction", &direction.x, 0.01f);

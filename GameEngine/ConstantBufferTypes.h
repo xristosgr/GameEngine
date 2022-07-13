@@ -95,5 +95,5 @@ struct CB_PS_skyBuffer
 
 struct CB_PS_shadowsBuffer
 {
-	DirectX::XMFLOAT4 dynamicLightShadowStrength[NO_LIGHTS];
+	DirectX::XMFLOAT4 shadowSoftness[NO_LIGHTS];
 };

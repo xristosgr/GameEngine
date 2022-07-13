@@ -123,8 +123,8 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	//gfx11.renderTexture.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
 	//finalImage.Initialize(gfx11.device.Get(), gfx11.windowWidth, gfx11.windowHeight);
 
-	gfx11.renderTexture.Initialize(gfx11.device.Get(), windowWidth,windowHeight);
-	finalImage.Initialize(gfx11.device.Get(), windowWidth, windowHeight);
+	gfx11.renderTexture.Initialize(gfx11.device.Get(), windowWidth,windowHeight, DXGI_FORMAT_R16G16B16A16_FLOAT);
+	finalImage.Initialize(gfx11.device.Get(), windowWidth, windowHeight, DXGI_FORMAT_R16G16B16A16_FLOAT);
 	sky.Initialize(gfx11.device.Get(), gfx11.deviceContext.Get(), gfx11.cb_vs_vertexshader);
 
 	for (int i = 0; i < entities.size(); ++i)
@@ -161,11 +161,11 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 		lights[i].Initialize(gfx11.device.Get(), gfx11.deviceContext.Get(), gfx11.cb_vs_vertexshader);
 		if (lights[i].lightType == 2.0f)
 		{
-			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), 2048, 2048);
+			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), 2048, 2048, DXGI_FORMAT_R16G16B16A16_FLOAT);
 		}
 		else
 		{
-			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), 1024, 1024);
+			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), 1024, 1024, DXGI_FORMAT_R16G16B16A16_FLOAT);
 		}
 
 		lights[i].SetupCamera(gfx11.windowWidth, gfx11.windowHeight);
@@ -185,7 +185,7 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	postProcess.HbaoPlusInit(gfx11, windowWidth, windowHeight);
 
 	//Volumetric light
-	forwardRenderTexture.Initialize(gfx11.device.Get(), windowWidth, windowHeight);
+	forwardRenderTexture.Initialize(gfx11.device.Get(), windowWidth, windowHeight, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
 	pbr.Initialize(gfx11);
 	gBuffer.Initialize(gfx11, windowWidth, windowHeight);
@@ -383,10 +383,10 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 
 
 
-		gfx11.cb_ps_shadowsBuffer.data.dynamicLightShadowStrength[i].x = culledShadowLights[i]->lightShadowStrength.x;
-		gfx11.cb_ps_shadowsBuffer.data.dynamicLightShadowStrength[i].y = 0.0f;
-		gfx11.cb_ps_shadowsBuffer.data.dynamicLightShadowStrength[i].z = 0.0f;
-		gfx11.cb_ps_shadowsBuffer.data.dynamicLightShadowStrength[i].w = 0.0f;
+		gfx11.cb_ps_shadowsBuffer.data.shadowSoftness[i].x = culledShadowLights[i]->shadowsSoftness.x;
+		gfx11.cb_ps_shadowsBuffer.data.shadowSoftness[i].y = 0.0f;
+		gfx11.cb_ps_shadowsBuffer.data.shadowSoftness[i].z = 0.0f;
+		gfx11.cb_ps_shadowsBuffer.data.shadowSoftness[i].w = 0.0f;
 	}
 
 	if (!culledShadowLights.empty())
@@ -585,7 +585,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 	{
 		gfx11.deviceContext->PSSetShader(gfx11.testPS.GetShader(), nullptr, 0);
 		rectSmall.pos = DirectX::XMFLOAT3(2.88, -1.56, 2.878);
-		//gfx11.deviceContext->PSSetShaderResources(0, 1, &lights[1].verticalBlurTexture.shaderResourceView);
+		gfx11.deviceContext->PSSetShaderResources(0, 1, &lights[0].m_shadowMap.shaderResourceView);
 		//gfx11.deviceContext->PSSetShaderResources(0, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
 		gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState2D.Get(), 0);
 		gfx11.deviceContext->IASetInputLayout(gfx11.vs2D.GetInputLayout());
@@ -1148,7 +1148,7 @@ void Renderer::RenderToEnvProbe(EnvironmentProbe& probe,Camera& camera, std::vec
 	unsigned int _height = 256;
 	unsigned int maxMipLevels = 1;
 	unsigned int mip = 0;
-	environmentProbe.environmentCubeMap.CreateCubeMap(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, maxMipLevels);
+	environmentProbe.environmentCubeMap.CreateCubeMap(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, DXGI_FORMAT_R16G16B16A16_FLOAT, maxMipLevels);
 	environmentProbe.environmentCubeMap.CreateCubeMapMipLevels(gfx11.device.Get(), gfx11.deviceContext.Get(), _width, _height, mip);
 	gfx11.deviceContext->RSSetViewports(1, &environmentProbe.environmentCubeMap.m_viewport);
 
