@@ -15,6 +15,7 @@ cbuffer lightBuffer : register(b0)
 cbuffer shadowsbuffer : register(b9)
 {
     float4 shadowSoftness[NO_LIGHTS];
+    double bias;
 }
 
 
@@ -313,7 +314,7 @@ float3 Shadows(float4 worldPos, Texture2D depthMapTexture, PS_INPUT input, int i
     projCoords.y = -lightViewPosition.y / lightViewPosition.w / 2.0f + 0.5f;
     projCoords.z = lightViewPosition.z / lightViewPosition.w;
     
-    projCoords.z = projCoords.z - 0.00002f;
+    projCoords.z = projCoords.z - bias;
     if ((saturate(projCoords.x) == projCoords.x) && (saturate(projCoords.y) == projCoords.y))
     {
         int PCF_RANGE = 2;

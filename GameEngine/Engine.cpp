@@ -267,12 +267,26 @@ void Engine::Update(int width, int height)
 		if (lights[i].bFlagForDeletion)
 		{
 			lights[i].Clear();
-			if (i < entities.size() - 1)
+			if (i < lights.size() - 1)
 			{
 				std::swap(lights[i], lights.back());
 			}
 			lights.pop_back();
 			lights[i].bFlagForDeletion = false;
+		}
+	}
+
+	for (int i = 0; i < pointlights.size(); ++i)
+	{
+		if (pointlights[i].bFlagForDeletion)
+		{
+			pointlights[i].Clear();
+			if (i < pointlights.size() - 1)
+			{
+				std::swap(pointlights[i], pointlights.back());
+			}
+			pointlights.pop_back();
+			pointlights[i].bFlagForDeletion = false;
 		}
 	}
 

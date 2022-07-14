@@ -89,7 +89,7 @@ public:
 	bool copyPointLight;
 	int selectedLight = -1;
 	int selectedPointLight = -1;
-
+	double shadowBias;
 	float renderDistance;
 	float shadowLightsDistance, deferredLightsDistance;
 

@@ -47,7 +47,7 @@ Renderer::Renderer()
 	bloomBrightness = 0.6f;
 	bloomStrength = 0.03f;
 	hbaoStrength = 1.4f;
-	
+	shadowBias = 0.0000001;
 }
 
 bool Renderer::Initialize(HWND hwnd, Camera& camera, int width, int height, std::vector<Entity>& entities, std::vector<Light>& lights, std::vector<Light>& pointLights)
@@ -388,6 +388,7 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 		gfx11.cb_ps_shadowsBuffer.data.shadowSoftness[i].z = 0.0f;
 		gfx11.cb_ps_shadowsBuffer.data.shadowSoftness[i].w = 0.0f;
 	}
+	gfx11.cb_ps_shadowsBuffer.data.bias = shadowBias;
 
 	if (!culledShadowLights.empty())
 	{
@@ -800,6 +801,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 			ImGui::DragInt("depthBias", &depthBias, 1);
 			ImGui::InputDouble("slopeBias", &slopeBias, 0.05f);
 			ImGui::DragFloat("clamp", &clamp, 0.05f);
+			ImGui::InputDouble("shadowBias", &shadowBias);
 
 		}
 		ImGui::End();
