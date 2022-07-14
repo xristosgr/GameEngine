@@ -1,6 +1,6 @@
 {
     "asset" : {
-        "generator" : "Khronos glTF Blender I/O v1.6.16",
+        "generator" : "Khronos glTF Blender I/O v3.2.43",
         "version" : "2.0"
     },
     "scene" : 0,
@@ -26,7 +26,7 @@
     "materials" : [
         {
             "doubleSided" : true,
-            "name" : "Material",
+            "name" : "Material.001",
             "normalTexture" : {
                 "index" : 0
             },
@@ -42,7 +42,7 @@
     ],
     "meshes" : [
         {
-            "name" : "Cube",
+            "name" : "Cube.001",
             "primitives" : [
                 {
                     "attributes" : {
@@ -83,8 +83,8 @@
         },
         {
             "mimeType" : "image/png",
-            "name" : "mat_metallic-mat_smoothness",
-            "uri" : "mat_metallic-mat_smoothness.png"
+            "name" : "mahogfloor_metallic_smoothness.png",
+            "uri" : "mahogfloor_metallic_smoothness.png"
         }
     ],
     "accessors" : [

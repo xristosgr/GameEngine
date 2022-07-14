@@ -161,11 +161,11 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 		lights[i].Initialize(gfx11.device.Get(), gfx11.deviceContext.Get(), gfx11.cb_vs_vertexshader);
 		if (lights[i].lightType == 2.0f)
 		{
-			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), 2048, 2048, DXGI_FORMAT_R16G16B16A16_FLOAT);
+			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), gfx11.deviceContext.Get(), 2048, 2048, DXGI_FORMAT_R16G16B16A16_FLOAT);
 		}
 		else
 		{
-			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), 1024, 1024, DXGI_FORMAT_R16G16B16A16_FLOAT);
+			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), gfx11.deviceContext.Get(), 1024, 1024, DXGI_FORMAT_R16G16B16A16_FLOAT);
 		}
 
 		lights[i].SetupCamera(gfx11.windowWidth, gfx11.windowHeight);
@@ -190,9 +190,9 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 	pbr.Initialize(gfx11);
 	gBuffer.Initialize(gfx11, windowWidth, windowHeight);
 
-	defaultText[0].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/Tex1/plasticpattern1-albedo.png");
-	defaultText[1].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/Tex1/plasticpattern1-normal2b.png");
-	defaultText[2].CreateTextureWIC(gfx11.device.Get(), ".//Data/Textures/DefaultTextures/Tex1/plasticpattern1-metalness-plasticpattern1-roughness2.png");
+	defaultText[0].CreateTextureDDS(gfx11.device.Get(),gfx11.deviceContext.Get(), ".//Data/Textures/DefaultTextures/Tex1/plasticpattern1-albedo.dds");
+	defaultText[1].CreateTextureDDS(gfx11.device.Get(),gfx11.deviceContext.Get(), ".//Data/Textures/DefaultTextures/Tex1/plasticpattern1-normal2b.dds");
+	defaultText[2].CreateTextureDDS(gfx11.device.Get(),gfx11.deviceContext.Get(), ".//Data/Textures/DefaultTextures/Tex1/plasticpattern1-metalness-plasticpattern1-roughness2.dds");
 
 
 	instancedShape.Initialize(gfx11.device.Get());

@@ -1,6 +1,6 @@
 {
     "asset" : {
-        "generator" : "Khronos glTF Blender I/O v1.8.19",
+        "generator" : "Khronos glTF Blender I/O v3.2.43",
         "version" : "2.0"
     },
     "scene" : 0,
@@ -84,8 +84,8 @@
         },
         {
             "mimeType" : "image/png",
-            "name" : "text_metallic-text_smoothness",
-            "uri" : "text_metallic-text_smoothness.png"
+            "name" : "iron-rusted4-metallic-smoothness.png",
+            "uri" : "iron-rusted4-metallic-smoothness.png"
         }
     ],
     "accessors" : [

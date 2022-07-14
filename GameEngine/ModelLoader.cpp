@@ -43,6 +43,23 @@ bool ModelLoader::Initialize(const std::string filePath, ID3D11Device* device, I
 		if (loadAsync)
 		{
 			_asyncLoad = std::async(std::launch::async, &ModelLoader::LoadModel, this, _filePath);
+
+			if (isTextured)
+			{
+				if (!_asyncLoad._Is_ready())
+				{
+					_asyncLoad.wait();
+				}
+
+				for (int i = 0; i < meshes.size(); ++i)
+				{
+					for (int j = 0; j < meshes[i].textures.size(); ++j)
+					{
+						meshes[i].textures[j].CreateTextureDDSFromWIC(device, deviceContex, meshes[i].textures[j].texturePath);
+					}
+				}
+			}
+			
 		}
 		else
 		{
@@ -50,7 +67,21 @@ bool ModelLoader::Initialize(const std::string filePath, ID3D11Device* device, I
 			{
 				return false;
 			}
+
+				if (isTextured)
+				{
+					for (int i = 0; i < meshes.size(); ++i)
+					{
+						for (int j = 0; j < meshes[i].textures.size(); ++j)
+						{
+							meshes[i].textures[j].CreateTextureDDSFromWIC(device, deviceContex, meshes[i].textures[j].texturePath);
+						}
+					}
+				}
+			
 		}
+
+		
 	}
 	return true;
 }
@@ -224,23 +255,22 @@ Mesh ModelLoader::ProcessMesh(aiMesh* mesh, const aiScene* scene, const DirectX:
 
 	
 	std::vector<Texture> textures;
-
+	
 	if (!texturesLoaded)
 	{
 		if (isTextured)
 		{
 			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-			std::vector<Texture> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
+			std::vector<Texture> diffuseTextures = FindMaterials(material, aiTextureType::aiTextureType_DIFFUSE, scene);
 			textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
-
-
-			std::vector<Texture> normalTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_NORMALS, scene);
+	
+	
+			std::vector<Texture> normalTextures = FindMaterials(material, aiTextureType::aiTextureType_NORMALS, scene);
 			textures.insert(textures.end(), normalTextures.begin(), normalTextures.end());
-
-			std::vector<Texture> roughnessMetallicTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_UNKNOWN, scene);
+	
+			std::vector<Texture> roughnessMetallicTextures = FindMaterials(material, aiTextureType::aiTextureType_UNKNOWN, scene);
 			textures.insert(textures.end(), roughnessMetallicTextures.begin(), roughnessMetallicTextures.end());
 		}
-		
 	}
 	
 
@@ -249,7 +279,7 @@ Mesh ModelLoader::ProcessMesh(aiMesh* mesh, const aiScene* scene, const DirectX:
 	{
 		bonesLoaded = LoadBones(mesh, bones, vertices);
 
-		return Mesh(this->device, this->deviceContext, vertices, indices, textures,bones, transformMatrix);
+		return Mesh(this->device, this->deviceContext, vertices, indices, textures, bones, transformMatrix);
 	}
 
 	return Mesh(this->device, this->deviceContext, vertices, indices, textures, transformMatrix);
@@ -286,13 +316,6 @@ std::vector<Texture> ModelLoader::LoadMaterialTextures(aiMaterial* pMaterial, ai
 		{
 		case aiTextureType_DIFFUSE:
 			pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
-			if (aiColor.IsBlack()) //If color = black, just use grey
-			{
-				//materialTextures.push_back(Texture(this->device, Colors::UnloadedTextureColor, textureType));
-				//return materialTextures;
-			}
-			//materialTextures.push_back(Texture(this->device, Color(aiColor.r * 255, aiColor.g * 255, aiColor.b * 255), textureType));
-			//return materialTextures;
 		}
 	}
 	else
@@ -308,18 +331,53 @@ std::vector<Texture> ModelLoader::LoadMaterialTextures(aiMaterial* pMaterial, ai
 			case TextureStorageType::Disk:
 			{
 				std::string filename = this->directory + '\\' + path.C_Str();
-			
-				Texture diskTexture(this->device.Get(), filename, textureType);
+				
+				Texture diskTexture(this->device.Get(),this->deviceContext.Get(), filename, textureType);
 				materialTextures.push_back(diskTexture);
 				break;
 			}
 			}
 		}
 	}
+	return materialTextures;
+}
 
-	if (materialTextures.size() == 0)
+std::vector<Texture> ModelLoader::FindMaterials(aiMaterial* pMaterial, aiTextureType textureType, const aiScene* pScene)
+{
+	std::vector<Texture> materialTextures;
+	TextureStorageType storetype = TextureStorageType::Invalid;
+	unsigned int textureCount = pMaterial->GetTextureCount(textureType);
+
+	if (textureCount == 0) //If there are no textures
 	{
-		//materialTextures.push_back(Texture(this->device, Colors::UnhandledTextureColor, aiTextureType::aiTextureType_DIFFUSE));
+		storetype = TextureStorageType::None;
+		aiColor3D aiColor(0.0f, 0.0f, 0.0f);
+		switch (textureType)
+		{
+		case aiTextureType_DIFFUSE:
+			pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
+		}
+	}
+	else
+	{
+		for (UINT i = 0; i < textureCount; i++)
+		{
+			aiString path;
+			pMaterial->GetTexture(textureType, i, &path);
+			TextureStorageType storetype = DetermineTextureStorageType(pScene, pMaterial, i, textureType);
+
+			switch (storetype)
+			{
+			case TextureStorageType::Disk:
+			{
+				std::string filename = this->directory + '\\' + path.C_Str();
+
+				Texture diskTexture(this->device.Get(), this->deviceContext.Get(), filename, textureType);
+				materialTextures.push_back(diskTexture);
+				break;
+			}
+			}
+		}
 	}
 	return materialTextures;
 }

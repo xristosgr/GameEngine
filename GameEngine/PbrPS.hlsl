@@ -53,6 +53,7 @@ SamplerState SampleTypeWrap : register(s0);
 SamplerState SampleTypeClamp : register(s1);
 SamplerState objSamplerStateMip : SAMPLER : register(s2);
 
+
 float3 Shadows(float4 lightViewPosition, Texture2D depthMapTexture, PS_INPUT input, int index);
 
 float3 fresnelSchlick(float cosTheta, float3 F0);
@@ -78,9 +79,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     float metallic = roughnessMetalicTexture.Load(sampleIndices).b;
     float roughness = roughnessMetalicTexture.Load(sampleIndices).g;
     float4 worldPos = worldPositionTexture.Load(sampleIndices);
-
-
-    //float distToCamera = distToCameraTexture.Load(sampleIndices).x;
+    
     
     float3 V = normalize(cameraPos.xyz - worldPos.xyz);
 

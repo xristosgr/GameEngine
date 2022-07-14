@@ -10,7 +10,7 @@ class RenderTexture
 public:
 	RenderTexture();
 	bool Initialize(ID3D11Device* device, int width, int height, DXGI_FORMAT format, bool bMapData = false, D3D11_SUBRESOURCE_DATA* data = nullptr);
-	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int width, int height, DXGI_FORMAT format);
+	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int width, int height, DXGI_FORMAT format, bool bMapData = false, D3D11_SUBRESOURCE_DATA* data = nullptr);
 	bool InitializeCustom(ID3D11Device* device, int textureWidth, int textureHeight, DXGI_FORMAT format, float* data);
 	void SetRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView);
 	void ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView, float, float, float, float, bool bClearStencil = false);

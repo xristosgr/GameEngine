@@ -120,7 +120,7 @@ bool RenderTexture::Initialize(ID3D11Device* device, int width, int height, DXGI
 	return true;
 }
 
-bool RenderTexture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext,  int textureWidth, int textureHeight, DXGI_FORMAT format)
+bool RenderTexture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext,  int textureWidth, int textureHeight, DXGI_FORMAT format, bool bMapData, D3D11_SUBRESOURCE_DATA* data)
 {
 	try
 	{
