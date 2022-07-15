@@ -18,6 +18,8 @@ class AdapterReader
 {
 public:
 	static std::vector<AdapterData> GetAdapters();
+	static void SetAdapterOutput(AdapterData& adapter, IDXGIOutput* adapterOutput);
+
 private:
 	static std::vector<AdapterData> adapters;
 };

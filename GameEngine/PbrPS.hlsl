@@ -14,7 +14,7 @@ cbuffer lightBuffer : register(b0)
 
 cbuffer shadowsbuffer : register(b9)
 {
-    float4 shadowSoftness[NO_LIGHTS];
+    float4 shadowsSoftnessBias[NO_LIGHTS];
     double bias;
 }
 
@@ -305,8 +305,8 @@ float3 Shadows(float4 worldPos, Texture2D depthMapTexture, PS_INPUT input, int i
     int height;
     depthMapTexture.GetDimensions(width, height);
     float2 texelSize;
-    texelSize.x = shadowSoftness[index].x / width;
-    texelSize.y = shadowSoftness[index].x / height;
+    texelSize.x = shadowsSoftnessBias[index].x / width;
+    texelSize.y = shadowsSoftnessBias[index].x / height;
     
     float3 projCoords;
    
@@ -314,7 +314,7 @@ float3 Shadows(float4 worldPos, Texture2D depthMapTexture, PS_INPUT input, int i
     projCoords.y = -lightViewPosition.y / lightViewPosition.w / 2.0f + 0.5f;
     projCoords.z = lightViewPosition.z / lightViewPosition.w;
     
-    projCoords.z = projCoords.z - bias;
+    projCoords.z = projCoords.z - bias * shadowsSoftnessBias[index].y;
     if ((saturate(projCoords.x) == projCoords.x) && (saturate(projCoords.y) == projCoords.y))
     {
         int PCF_RANGE = 2;

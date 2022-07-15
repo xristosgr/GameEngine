@@ -354,7 +354,7 @@ void PhysicsHandler::NavMeshRayCast(GridClass& grid, std::vector<Entity>& entiti
 		}
 	}
 	finishNavMeshRayCast = true;
-	OutputDebugStringA("FINISH RAY NAVMESSH!!\n");
+	//OutputDebugStringA("FINISH RAY NAVMESSH!!\n");
 }
 
 void PhysicsHandler::LineOfSightToPlayer(Entity* character, Entity* player)

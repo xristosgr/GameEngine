@@ -85,7 +85,7 @@ void GridClass::CreatePathGrid(std::vector<NodeClass>& validNodes)
 	}
 	
 	hasFinished = true;
-	OutputDebugStringA("GRID CREATED!!!\n");
+	//OutputDebugStringA("GRID CREATED!!!\n");
 }
 
 void GridClass::SetupGridBounds()

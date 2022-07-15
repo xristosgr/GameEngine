@@ -69,7 +69,7 @@ void Texture::CreateTextureDDSFromWIC(ID3D11Device* device, ID3D11DeviceContext*
 		pos += replace.length();
 	}
 
-	OutputDebugStringA(("Path: " + texturePath + "\n").c_str());
+	//OutputDebugStringA(("Path: " + texturePath + "\n").c_str());
 
 	HRESULT hr;
 

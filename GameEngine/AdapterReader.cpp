@@ -21,10 +21,18 @@ std::vector<AdapterData> AdapterReader::GetAdapters()
 	UINT index = 0;
 	while (SUCCEEDED(pFactory->EnumAdapters(index, &pAdapter)))
 	{
+		
 		adapters.push_back(AdapterData(pAdapter));
 		index += 1;
 	}
+	
+
 	return adapters;
+}
+
+void AdapterReader::SetAdapterOutput(AdapterData& adapter, IDXGIOutput* adapterOutput)
+{
+	HRESULT hr = adapter.pAdapter->EnumOutputs(0, &adapterOutput);
 }
 
 AdapterData::AdapterData(IDXGIAdapter* pAdapter)

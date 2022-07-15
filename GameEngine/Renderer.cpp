@@ -161,11 +161,11 @@ void Renderer::InitScene(std::vector<Entity>& entities, std::vector<Light>& ligh
 		lights[i].Initialize(gfx11.device.Get(), gfx11.deviceContext.Get(), gfx11.cb_vs_vertexshader);
 		if (lights[i].lightType == 2.0f)
 		{
-			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), gfx11.deviceContext.Get(), 2048, 2048, DXGI_FORMAT_R16G16B16A16_FLOAT);
+			lights[i].m_shadowMap.InitializeShadow(gfx11.device.Get(), gfx11.deviceContext.Get(), 4096, 4096, DXGI_FORMAT::DXGI_FORMAT_R16_FLOAT);
 		}
 		else
 		{
-			lights[i].m_shadowMap.Initialize(gfx11.device.Get(), gfx11.deviceContext.Get(), 1024, 1024, DXGI_FORMAT_R16G16B16A16_FLOAT);
+			lights[i].m_shadowMap.InitializeShadow(gfx11.device.Get(), gfx11.deviceContext.Get(), 1024, 1024, DXGI_FORMAT_R16_FLOAT);
 		}
 
 		lights[i].SetupCamera(gfx11.windowWidth, gfx11.windowHeight);
@@ -383,10 +383,10 @@ void Renderer::UpdateBuffers(std::vector<Light>& lights, std::vector<Light>& poi
 
 
 
-		gfx11.cb_ps_shadowsBuffer.data.shadowSoftness[i].x = culledShadowLights[i]->shadowsSoftness.x;
-		gfx11.cb_ps_shadowsBuffer.data.shadowSoftness[i].y = 0.0f;
-		gfx11.cb_ps_shadowsBuffer.data.shadowSoftness[i].z = 0.0f;
-		gfx11.cb_ps_shadowsBuffer.data.shadowSoftness[i].w = 0.0f;
+		gfx11.cb_ps_shadowsBuffer.data.shadowsSoftnessBias[i].x = culledShadowLights[i]->shadowsSoftnessBias.x;
+		gfx11.cb_ps_shadowsBuffer.data.shadowsSoftnessBias[i].y = culledShadowLights[i]->shadowsSoftnessBias.y;
+		gfx11.cb_ps_shadowsBuffer.data.shadowsSoftnessBias[i].z = 0.0f;
+		gfx11.cb_ps_shadowsBuffer.data.shadowsSoftnessBias[i].w = 0.0f;
 	}
 	gfx11.cb_ps_shadowsBuffer.data.bias = shadowBias;
 
@@ -743,7 +743,7 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 				if (f.good())
 					inName = file_dialog.selected_path;
 
-				OutputDebugStringA(("NAME = " + inName + "\n").c_str());
+				//OutputDebugStringA(("NAME = " + inName + "\n").c_str());
 
 				isFileOpen = true;
 			}

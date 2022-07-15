@@ -38,7 +38,7 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 		}
 	}
 
-	OutputDebugStringA(("COUNT" + std::to_string(fileCount) + "\n").c_str());
+	//OutputDebugStringA(("COUNT" + std::to_string(fileCount) + "\n").c_str());
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		if (entities[i].isDeleted)
@@ -177,7 +177,8 @@ void SaveSystem::Save(std::vector<Entity>& entities, std::vector<Light>& lights,
 			outfile << "spotDirY= " << lights[i].SpotDir.y << "\n";
 			outfile << "spotDirZ= " << lights[i].SpotDir.z << "\n";
 
-			outfile << "shadowsSoftness= " << lights[i].shadowsSoftness.x << "\n";
+			outfile << "shadowsSoftness= " << lights[i].shadowsSoftnessBias.x << "\n";
+			outfile << "shadowBias= " << lights[i].shadowsSoftnessBias.y << "\n";
 
 			outfile << "radius= " << lights[i].radius << "\n";
 			outfile << "cutOff= " << lights[i].cutOff << "\n";
@@ -531,8 +532,8 @@ void SaveSystem::LoadEntityData(std::vector<Entity>& entities)
 					{
 						if (path == "animFiles" + std::to_string(j) + "=")
 						{
-							OutputDebugStringA(str.c_str());
-							OutputDebugStringA("\n");
+							//OutputDebugStringA(str.c_str());
+							//OutputDebugStringA("\n");
 							entities[i].model.animFiles[j] = str;
 						}
 					}
@@ -647,7 +648,11 @@ void SaveSystem::LoadLightData(std::vector<Light>& lights, std::vector<Light>& p
 
 					if (path == "shadowsSoftness=")
 					{
-						lights[i].shadowsSoftness.x = (float)val;
+						lights[i].shadowsSoftnessBias.x = (float)val;
+					}
+					if (path == "shadowBias=")
+					{
+						lights[i].shadowsSoftnessBias.y = (float)val;
 					}
 
 					if (path == "radius=")

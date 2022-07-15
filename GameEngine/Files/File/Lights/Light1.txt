@@ -18,6 +18,7 @@ spotDirX= -0.55
 spotDirY= -23.35
 spotDirZ= -11.85
 shadowsSoftness= 1
+shadowBias= 1
 radius= 10.9
 cutOff= 1.39
 lightType= 1

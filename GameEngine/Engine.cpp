@@ -613,7 +613,7 @@ void Engine::CopyPasteEntity()
 				copiedEntityData.isEmissive = entities[i].isEmissive;
 				copiedEntityData.emissiveColor = entities[i].emissiveColor;
 
-				OutputDebugStringA("Data copied!!\n");
+				//OutputDebugStringA("Data copied!!\n");
 			}
 		}
 	}
@@ -680,7 +680,7 @@ void Engine::CopyPasteEntity()
 		{
 			entities[entities.size() - 1].physicsComponent.aStaticActor->setGlobalPose(copiedEntityData.trans);
 		}
-		OutputDebugStringA("Data Pasted!!\n");
+		//OutputDebugStringA("Data Pasted!!\n");
 	}
 
 	

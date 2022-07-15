@@ -28,8 +28,39 @@ bool DX11::InitializeDirectX(HWND hwnd)
 {
 	try
 	{
+		unsigned int numModes, numerator, denominator;
+		DXGI_MODE_DESC* displayModeList;
+
 		HRESULT hr;
+
 		std::vector<AdapterData> adapters = AdapterReader::GetAdapters();
+		
+		IDXGIOutput* adapterOutput = nullptr;
+		hr = adapters[0].pAdapter->EnumOutputs(0, &adapterOutput);
+		COM_ERROR_IF_FAILED(hr, "Failed to EnumOutputs.");
+
+		hr = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R16G16B16A16_FLOAT, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL);
+		COM_ERROR_IF_FAILED(hr, "Failed to GetDisplayModeList.");
+
+		displayModeList = new DXGI_MODE_DESC[numModes];
+		if (!displayModeList)
+		{
+			return false;
+		}
+		hr = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R16G16B16A16_FLOAT, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList);
+		COM_ERROR_IF_FAILED(hr, "Failed to GetDisplayModeList.");
+
+		for (int i = 0; i < numModes; i++)
+		{
+			if (displayModeList[i].Width == (unsigned int)windowWidth)
+			{
+				if (displayModeList[i].Height == (unsigned int)windowHeight)
+				{
+					numerator = displayModeList[i].RefreshRate.Numerator;
+					denominator = displayModeList[i].RefreshRate.Denominator;
+				}
+			}
+		}
 
 		UINT MSSA_COUNT = 1;
 		UINT MSSA_Quality = 0;
@@ -50,8 +81,8 @@ bool DX11::InitializeDirectX(HWND hwnd)
 		scd1.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
 
 		DXGI_SWAP_CHAIN_FULLSCREEN_DESC scdFullScreen = { 0 };
-		scdFullScreen.RefreshRate.Numerator = 60;
-		scdFullScreen.RefreshRate.Denominator = 1;
+		scdFullScreen.RefreshRate.Numerator = numerator;
+		scdFullScreen.RefreshRate.Denominator = denominator;
 		scdFullScreen.Scaling = DXGI_MODE_SCALING::DXGI_MODE_SCALING_UNSPECIFIED;
 		scdFullScreen.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		scdFullScreen.Windowed = TRUE;
@@ -102,12 +133,6 @@ bool DX11::InitializeDirectX(HWND hwnd)
 			hr = swapchain->ResizeBuffers(scd1.BufferCount, this->windowWidth, this->windowHeight, scd1.Format, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
 			COM_ERROR_IF_FAILED(hr, "Failed to create swapchain.");
 		}
-
-		//if (swapchain != nullptr)
-		//{
-		//	hr = swapchain->ResizeBuffers(scd1.BufferCount, this->windowWidth, this->windowHeight, scd1.Format, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
-		//	COM_ERROR_IF_FAILED(hr, "Failed to create swapchain.");
-		//}
 
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
 		hr = this->swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
