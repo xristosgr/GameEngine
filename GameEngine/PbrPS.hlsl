@@ -142,7 +142,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     
 
     color = color / (color + float3(1.0, 1.0f, 1.0f));
-    color = pow(color, float3(1.0f / 1.0f, 1.0f / 1.0f, 1.0f / 1.0f));
+    color = pow(color, float3(1.0f / gamma, 1.0f / gamma, 1.0f / gamma));
 
   
     return float4(color, 1.0);

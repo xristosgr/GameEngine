@@ -19,6 +19,8 @@ public:
 
 	DirectX::XMMATRIX viewMatrices[6];
 	DirectX::XMMATRIX projectionMatrices[6];
+	float fovs[6];
+
 	Camera camera[6];
 	DirectX::XMFLOAT3 direction[6];
 	DirectX::XMFLOAT3 cameraPos;

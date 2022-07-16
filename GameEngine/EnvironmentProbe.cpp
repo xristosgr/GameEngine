@@ -17,6 +17,9 @@ EnvironmentProbe::EnvironmentProbe()
 	direction[4] = DirectX::XMFLOAT3(1.0f, 0.02f, -1000.0f);
 	direction[5] = DirectX::XMFLOAT3(1.0f, -0.02f, 1000.0f);
 
+	for (int i = 0; i < 6; ++i)
+		fovs[i] = 90.0f;
+
 	pos = DirectX::XMFLOAT3(0.0f, 2.0f, 0.0f);
 	//pos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	scale = DirectX::XMFLOAT3(0.4, 0.4, 0.4);
@@ -49,7 +52,7 @@ void EnvironmentProbe::UpdateCamera()
 
 			camera[i].SetPosition(pos.x, pos.y, pos.z);
 
-			camera[i].PerspectiveFov(90.0f, 1, 0.1f, 10000.0f);
+			camera[i].PerspectiveFov(fovs[i], 1, 0.1f, 10000.0f);
 
 			viewMatrices[i] = camera[i].GetViewMatrix();
 			projectionMatrices[i] = camera[i].GetProjectionMatrix();
@@ -78,6 +81,13 @@ void EnvironmentProbe::DrawGui(std::string name)
 	ImGui::DragFloat3("View3", &direction[3].x);
 	ImGui::DragFloat3("View4", &direction[4].x);
 	ImGui::DragFloat3("View5", &direction[5].x);
+
+	ImGui::DragFloat("fov0", &fovs[0]);
+	ImGui::DragFloat("fov1", &fovs[1]);
+	ImGui::DragFloat("fov2", &fovs[2]);
+	ImGui::DragFloat("fov3", &fovs[3]);
+	ImGui::DragFloat("fov4", &fovs[4]);
+	ImGui::DragFloat("fov5", &fovs[5]);
 
 	ImGui::DragInt("Index", &index);
 	if(ImGui::Button("UpdateProbe"))

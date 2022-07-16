@@ -1,5 +1,10 @@
 
 
+cbuffer screenEffectBuffer : register(b3)
+{
+    float gamma;
+}
+
 cbuffer lightBuffer : register(b5)
 {
     float3 color;
@@ -31,7 +36,12 @@ float4 main(PS_INPUT input) : SV_TARGET
             discard;
     }
     float height = input.inWorldPos.y;
-    float4 OutPutColor = lerp(centerColor, apexColor, height);
     
-    return float4(OutPutColor.rgb, 1.0);
+    if(height < 0.0)
+        height = 0.0f;
+    float4 OutPutColor = lerp(centerColor, apexColor, height);
+   
+    //OutPutColor.rgb = OutPutColor.rgb / (OutPutColor.rgb + float3(1.0, 1.0f, 1.0f));
+    //OutPutColor.rgb = pow(OutPutColor.rgb, float3(1.0f / gamma, 1.0f / gamma, 1.0f / gamma));
+    return OutPutColor;
 }

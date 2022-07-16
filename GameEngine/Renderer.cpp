@@ -587,14 +587,15 @@ void Renderer::Render(Camera& camera, std::vector<Entity>& entities, PhysicsHand
 		gfx11.deviceContext->PSSetShader(gfx11.testPS.GetShader(), nullptr, 0);
 		rectSmall.pos = DirectX::XMFLOAT3(2.88, -1.56, 2.878);
 		gfx11.deviceContext->PSSetShaderResources(0, 1, &lights[0].m_shadowMap.shaderResourceView);
+		//gfx11.deviceContext->PSSetShaderResources(0, 1, &lights[0].m_shadowMap.shaderResourceView);
 		//gfx11.deviceContext->PSSetShaderResources(0, 1, &shadowsRenderer.shadowVerticalBlurTexture.shaderResourceView);
 		gfx11.deviceContext->OMSetDepthStencilState(gfx11.depthStencilState2D.Get(), 0);
 		gfx11.deviceContext->IASetInputLayout(gfx11.vs2D.GetInputLayout());
 		gfx11.deviceContext->VSSetShader(gfx11.vs2D.GetShader(), nullptr, 0);
 		rectSmall.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
 
-		//debugCube.SetRenderTexture(gfx11.deviceContext.Get(), environmentProbe.environmentCubeMap);
-		debugCube.SetRenderTexture(gfx11.deviceContext.Get(), pbr.irradianceCubeMap);
+		debugCube.SetRenderTexture(gfx11.deviceContext.Get(), environmentProbe.environmentCubeMap);
+		//debugCube.SetRenderTexture(gfx11.deviceContext.Get(), pbr.irradianceCubeMap);
 		//gfx11.deviceContext->PSSetShaderResources(1, 1, &gBuffer.m_shaderResourceViewArray[4]);
 		//debugCube.SetRenderTexture(gfx11.deviceContext.Get(), pbr.prefilterCubeMap);
 		gfx11.deviceContext->PSSetShader(gfx11.cubeMapPS.GetShader(), nullptr, 0);
@@ -1173,6 +1174,8 @@ void Renderer::RenderToEnvProbe(EnvironmentProbe& probe,Camera& camera, std::vec
 	
 		environmentProbe.environmentCubeMap.RenderCubeMapFaces(gfx11.device.Get(), gfx11.deviceContext.Get(), face, gfx11.depthStencilView.Get(), rgb,false);
 
+		gfx11.deviceContext->IASetInputLayout(gfx11.testVS.GetInputLayout());
+		gfx11.deviceContext->VSSetShader(gfx11.testVS.GetShader(), nullptr, 0);
 		gfx11.deviceContext->PSSetShader(gfx11.skyPS.GetShader(), nullptr, 0);
 		gfx11.cb_ps_materialBuffer.data.emissiveColor = sky.color;
 		gfx11.cb_ps_materialBuffer.data.bEmissive = 0.0f;
@@ -1180,13 +1183,12 @@ void Renderer::RenderToEnvProbe(EnvironmentProbe& probe,Camera& camera, std::vec
 		//gfx11.deviceContext->PSSetShader(gfx11.lightPS.GetShader(), nullptr, 0);
 		gfx11.deviceContext->RSSetState(gfx11.rasterizerStateFront.Get());
 
-
 		gfx11.cb_ps_skyBuffer.data.apexColor = sky.apexColor;
 		gfx11.cb_ps_skyBuffer.data.centerColor = sky.centerColor;
 
 		gfx11.cb_ps_skyBuffer.UpdateBuffer();
-
-		sky.Draw(gfx11.deviceContext.Get(), camera, gfx11.cb_vs_vertexshader);
+		gfx11.deviceContext->PSSetShaderResources(1, 1, &gBuffer.m_shaderResourceViewArray[4]);
+		sky.Draw(gfx11.deviceContext.Get(), environmentProbe.camera[face], gfx11.cb_vs_vertexshader);
 		gfx11.deviceContext->RSSetState(gfx11.rasterizerState.Get());
 
 		for (int i = 0; i < entities.size(); ++i)

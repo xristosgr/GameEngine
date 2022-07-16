@@ -6,7 +6,7 @@ PbrClass::PbrClass()
 
 void PbrClass::Initialize(DX11& gfx11)
 {
-	brdfTexture.Initialize(gfx11.device.Get(), 512, 512, DXGI_FORMAT_R16G16B16A16_FLOAT);
+	brdfTexture.Initialize(gfx11.device.Get(), 512, 512, DXGI_FORMAT_R8G8B8A8_UNORM);
 }
 
 void PbrClass::BrdfRender(DX11& gfx11, RectShape& rect, Camera& camera, RenderTexture& texture)
