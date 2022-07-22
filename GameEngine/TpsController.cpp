@@ -38,13 +38,11 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 
 			if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
 			{
-				//OutputDebugStringA(("Y= " + std::to_string(me.GetPosX()) + "\n").c_str());
 				CharacterRotY += static_cast<float>(me.GetPosY()) * cameraSpeed * 0.15f;
 				CharacterRotY = std::clamp(CharacterRotY, -2.f, 2.8f);
 
 				CharacterRotX = me.GetPosX();
-				//camera.AdjustPosition(rightFloat4.x * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f), 0, rightFloat4.z * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f));
-
+			
 				camera.AdjustPosition(rightFloat4.x * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f), 0, rightFloat4.z * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f));
 			}
 
@@ -61,31 +59,15 @@ void TpsController::MouseMovement(float& dt, Entity& entity, Keyboard& keyboard,
 
 		if (mouse.IsRightDown())
 		{
-			//if (zoom > 1.5f)
-			zoom -= 0.2f;
+			zoom -= 0.02f * dt;
 		}
 		else
 		{
-			//if (zoom < 2.5f)
-			zoom += 0.2f;
+			zoom += 0.02f * dt;
 		}
 		zoom = std::clamp(zoom, 1.5f, 2.5f);
 
 		camera.SetPosition(entity.pos.x + (-zoom * std::sin(camera.yaw)), entity.pos.y + CharacterRotY, entity.pos.z + (-zoom * std::cos(camera.yaw)));
-
-		//while (!mouse.EventBufferIsEmpty())
-		//{
-		//	MouseEvent me = mouse.ReadEvent();
-		//
-		//	if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
-		//	{
-		//		
-		//		CharacterRotY += static_cast<float>(me.GetPosY()) * cameraSpeed * 0.15f;
-		//		CharacterRotY = std::clamp(CharacterRotY, -2.0f, 2.0f);
-		//		camera.AdjustPosition(rightFloat4.x * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f), 0, rightFloat4.z * -cameraSpeed * static_cast<float>(me.GetPosX() * 0.1f));
-		//	}
-		//
-		//}
 	}
 }
 

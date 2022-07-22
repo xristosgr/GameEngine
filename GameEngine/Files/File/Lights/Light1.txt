@@ -23,6 +23,6 @@ radius= 10.9
 cutOff= 1.39
 lightType= 1
 dimensions= 1
-nearZ= 0.1
+nearZ= 1
 farZ= 30
 fov= 90

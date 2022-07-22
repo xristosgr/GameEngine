@@ -6,7 +6,6 @@ GBufferClass::GBufferClass()
 
 void GBufferClass::Initialize(DX11& gfx11, int width, int height)
 {
-
 	albedoTexture.Initialize(gfx11.device.Get(), width,height, DXGI_FORMAT_R16G16B16A16_FLOAT);
 	normalTexture.Initialize(gfx11.device.Get(), width, height, DXGI_FORMAT_R16G16B16A16_FLOAT);
 	metallicRoughnessTexture.Initialize(gfx11.device.Get(), width, height, DXGI_FORMAT_R16G16B16A16_FLOAT);

@@ -441,6 +441,9 @@ bool PhysicsHandler::advance(float& dt,float& fps, Camera& camera)
 
 void PhysicsHandler::ShutDown()
 {
+	if (aScene)
+		aScene->release();
+
 	if (mPhysics)
 		mPhysics->release();
 

@@ -809,3 +809,19 @@ void Engine::GameSounds()
 		backGroundSound.Play();
 	}
 }
+
+void Engine::Shutdown()
+{
+	for (int i = 0; i < entities.size(); ++i)
+	{
+		entities[i].Clear(*physicsHandler.aScene);
+	}
+	for (int i = 0; i < lights.size(); ++i)
+	{
+		lights[i].Clear();
+	}
+	for (int i = 0; i < pointlights.size(); ++i)
+	{
+		pointlights[i].Clear();
+	}
+}

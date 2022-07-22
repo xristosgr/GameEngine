@@ -28,7 +28,7 @@ public:
 	bool ProcessMessages();
 	void Update(int width, int height);
 	void RenderFrame(float& dt, float& fps);
-
+	void Shutdown();
 private:
 	void AddEntity(std::string& _inName, bool& isAnimated, bool& bConvertCordinates);
 	void AddPhysicsComp(Entity& entity);
@@ -43,6 +43,7 @@ private:
 
 	void PlayerLogic(float& dt);
 	void GameSounds();
+
 
 protected:
 	AppTimer timer;
@@ -84,9 +85,7 @@ private:
 
 
 	bool initScene = true;
-
 	bool bModelsLoaded = false;
-
 
 
 	bool copyEntity = false;

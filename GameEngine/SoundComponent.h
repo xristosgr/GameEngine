@@ -8,6 +8,7 @@ class SoundComponent
 {
 public:
 	SoundComponent();
+	~SoundComponent();
 	bool Initialize(const char* filePath, bool is3D, ID3D11Device* device);
 	bool Play();
 	void Update();

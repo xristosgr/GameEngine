@@ -4,6 +4,13 @@ SoundComponent::SoundComponent()
 {
 }
 
+SoundComponent::~SoundComponent()
+{
+   mpSystem->close();
+   system->release();
+   sound->release();
+}
+
 bool SoundComponent::Initialize(const char* filePath, bool is3D, ID3D11Device* device)
 {
     cube.Initialize(device);

@@ -83,8 +83,8 @@
         },
         {
             "mimeType" : "image/png",
-            "name" : "mahogfloor_metallic_smoothness.png",
-            "uri" : "mahogfloor_metallic_smoothness.png"
+            "name" : "mat_metallic-mat_smoothness",
+            "uri" : "mat_metallic-mat_smoothness.png"
         }
     ],
     "accessors" : [

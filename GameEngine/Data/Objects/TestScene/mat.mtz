@@ -34,12 +34,6 @@
   <diffuseMapPath>null</diffuseMapPath>
   <diffuseMapOriginalPath>mat_diffuseOriginal.png</diffuseMapOriginalPath>
   <NFHS>
-    <AngularIntensity>0.466346145</AngularIntensity>
-    <AngularIntensityText>0.4663</AngularIntensityText>
-    <ShapeRecognition>0.759615362</ShapeRecognition>
-    <ShapeRecognitionText>0.7596</ShapeRecognitionText>
-    <LightRotation>0.815192342</LightRotation>
-    <LightRotationText>0.8151</LightRotationText>
     <SlopeBlur>50</SlopeBlur>
   </NFHS>
   <normalMapPath>mat_normal.png</normalMapPath>
@@ -54,12 +48,10 @@
       <x>0</x>
       <y>0</y>
     </SampleUV>
-    <BlurSize>19</BlurSize>
-    <BlurSizeText>19</BlurSizeText>
-    <FinalContrast>-0.403846174</FinalContrast>
-    <FinalContrastText>-0.403</FinalContrastText>
-    <FinalBias>-0.21634616</FinalBias>
-    <FinalBiasText>-0.216</FinalBiasText>
+    <FinalContrast>-2</FinalContrast>
+    <FinalContrastText>-2</FinalContrastText>
+    <FinalBias>-0.5</FinalBias>
+    <FinalBiasText>-0.5</FinalBiasText>
   </MS>
   <metallicMapPath>mat_metallic.png</metallicMapPath>
   <SS>
@@ -93,12 +85,12 @@
       <x>0</x>
       <y>0</y>
     </SampleUV3>
-    <BaseSmoothness>0.503846169</BaseSmoothness>
-    <BaseSmoothnessText>0.5038</BaseSmoothnessText>
-    <FinalContrast>0.99999994</FinalContrast>
-    <FinalContrastText>0.9999</FinalContrastText>
-    <FinalBias>-0.2980769</FinalBias>
-    <FinalBiasText>-0.298</FinalBiasText>
+    <BaseSmoothness>0.6769231</BaseSmoothness>
+    <BaseSmoothnessText>0.6769</BaseSmoothnessText>
+    <FinalContrast>0.403846145</FinalContrast>
+    <FinalContrastText>0.4038</FinalContrastText>
+    <FinalBias>-0.288461536</FinalBias>
+    <FinalBiasText>-0.288</FinalBiasText>
   </SS>
   <smoothnessMapPath>mat_smoothness.png</smoothnessMapPath>
   <ES>
